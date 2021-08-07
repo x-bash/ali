@@ -1,0 +1,133 @@
+# shellcheck shell=sh disable=SC3043
+
+# author:       Li Junhao           l@x-cmd.com    edwinjhlee.github.io
+# maintainer:   Li Junhao
+
+aliyun_ecs_info(){
+    local patttern="$1"
+
+    # ui table
+    local s
+    s="$( aliyun ecs DescribeInstances | jq '.Instances.Instance[]' )"
+
+    if [ -z "$pattern" ]; then
+        printf "%s" "$s" | jq .
+    else
+        printf "%s" "$s" | _aliyun_ecs_filter "$pattern"
+    fi
+}
+
+_aliyun_get_dns(){
+    ping -W 0.01 -c 1 ${1:-hostname} 2>/dev/null | awk 'NR==1 { 
+        match( $3, /\([0-9.]+\)/ )
+        if (RLENGTH > 0) print substr($3, 2, RLENGTH - 2)
+        else    exit 1
+}'
+}
+
+aliyun_ecs_new(){
+    local s
+    s=$(aliyun_ecs_info)    
+    local len
+    len=$(echo "$s" | jq -s '. | length')
+    case "$len" in
+        0)  return 1        ;;
+        1)  echo "$s"       ;;
+        *)  echo "$s"       ;;
+    esac
+
+    return 0
+}
+
+_aliyun_ecs_filter(){
+    local patttern="${1:?Provide pattern}"
+    local s
+    s="$(cat)"
+
+    local res
+    res="$(echo "$s" | jq "
+        if .EipAddress.IpAddress == \"${patttern}\"  then . 
+        elif .HostName | test(\"$patttern\") then . 
+        elif .InstanceName | test(\"$patttern\") then . 
+        else empty end
+    " <<A
+$s
+A
+)"
+
+    # Using dig for DNS
+    local len
+    len=$(echo "$res" | jq -s '. | length')
+
+    if [ "$len" != 0 ]; then
+        echo "$res"
+        return 0
+    fi
+
+    local ip
+    if ip=$(_aliyun_get_dns "$pattern"); then
+        echo "$s" | jq "
+    if .EipAddress.IpAddress == \"${ip}\"  then .
+    else empty end
+" <<A
+$s
+A
+
+}
+
+aliyun_ecs_op(){
+
+
+
+    local subcmd="${1:?subcmd}"
+    case "$subcmd" in
+        start)          ;;
+        info)           ;;
+        stop)           ;;
+        restart)        ;;
+    esac
+}
+
+aliyun_ecs_info_pretty(){
+    aliyun_ecs_info ${1:+"$@"} | jq '
+    .Instances.Instance[] | { 
+        osname: .OSNameEn, 
+        cpu: .Cpu,
+        memory: .Memory,
+        hostname: .HostName,
+        image: .ImageId,
+        ip: .EipAddress.IpAddress,
+        zone: .ZoneId,
+        start: .StartTime,
+        status: .Status,
+        id: .InstanceId
+    }
+' <<A
+$s
+A
+}
+
+
+aliyun_ecs_regions(){
+    aliyun ecs DescribeRegions | jq .Regions.Region
+}
+
+
+# aliyun ecs new-auto
+
+# aliyun ecs new 47.242.182.73 abc
+# aliyun ecs new a.lteam.top abc
+# aliyun ecs host
+
+# abc start
+# abc stop
+# abc info
+
+# check hostname
+# check ip
+# check dns name
+# check
+aliyun_ecs_new(){
+    aliyun ecs
+}
+

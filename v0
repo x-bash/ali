@@ -1,0 +1,24 @@
+
+xrc param/v0
+
+# ALIYUN_BIN=$(command -v aliyun)
+
+ali(){
+    param <<A
+Subcommands:
+    ecs     "ecs management"
+    dns     "dns management"
+    k8s     "kubernete management"
+    fc      "function control"
+    redis   "redis management"
+A
+
+    if [ -z "$PARAM_SUBCMD" ]; then
+        ali_$PARAM_SUBCMD ${1:+"$@"}
+    fi
+
+}
+
+
+
+
