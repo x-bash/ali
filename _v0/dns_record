@@ -100,11 +100,21 @@ ali_dns_record_update(){
 }
 
 ali_dns_record_delete(){
-    local DomainName=${1:?"Domain Name"}
-    local RR=${2:?"Provide RR"}
-    local RID
-    RID=$(ali_dns_record_id_exact "$DomainName" "$RR") && \
-    aliyun alidns DeleteDomainRecord --RecordId "$RID"
+    if [ "$#" -eq 1 ]; then
+        local name=${1}
+        local rr=${name%.*.*}
+        local domain=${name#${rr}.}
+        ali_dns_record_delete "$domain" "$rr"
+    else
+        local DomainName=${1:?"Domain Name"}
+        local RR=${2:?"Provide RR"}
+        local RID
+        RID=$(ali_dns_record_id_exact "$DomainName" "$RR") && \
+        if aliyun alidns DeleteDomainRecord --RecordId "$RID"; then
+            ali_log info "ali_dns_record_delete success."
+        fi
+    fi
+    
 }
 
 ali_is_ip(){
