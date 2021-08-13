@@ -1,0 +1,44 @@
+# shellcheck shell=sh disable=SC3043
+
+ali_dns_domain(){
+    param <<A
+subcommand:
+    put         "put record"
+    add         "add record"
+    get         "get record"
+    id          "add record"
+    list|ls     "list all records"
+A
+
+    if [ -z "$PARAM_SUBCMD" ]; then
+        case $# in
+            0)  ali_dns_domain help;        
+                return 0
+                ;;
+            1)  ali_dns_domain_search "$1"
+                return
+                ;;
+            *)  ali_dns_domain_new "$@"
+                return
+                ;;
+        esac
+    fi
+
+    ali_dns_domain_"$PARAM_SUBCMD" "$@"
+}
+
+ali_dns_domain_list(){
+    aliyun alidns DescribeDomains | jq .Domains.Domain
+}
+
+ali_dns_domain_search(){
+    local i
+    for i in "$@"; do
+        ali_dns_domain_list | jq -r "
+        .[] | 
+        if .DomainName | test(\"$i\")      then .
+        elif .DomainId | test(\"$i\")      then .
+        else empty end
+"
+    done
+}

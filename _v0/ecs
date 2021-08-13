@@ -45,7 +45,7 @@ _ali_ecs_filter(){
     s="$(cat)"
 
     local res
-    res="$(echo "$s" | jq "
+    res="$(jq "
         if .EipAddress.IpAddress == \"${patttern}\"  then . 
         elif .HostName | test(\"$patttern\") then . 
         elif .InstanceName | test(\"$patttern\") then . 

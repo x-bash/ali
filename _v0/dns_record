@@ -1,0 +1,100 @@
+# shellcheck shell=sh disable=SC3043
+
+ali_dns_record(){
+    param <<A
+subcommand:
+    put         "put record"
+    add         "add record"
+    get         "get record"
+    id          "add record"
+    list|ls     "list all records"
+A
+
+    if [ -z "$PARAM_SUBCMD" ]; then
+        ali_dns_record help
+        return 1
+    fi
+
+    ali_dns_record_"$PARAM_SUBCMD" "$@"
+
+}
+
+
+ali_dns_record_add(){
+    local DomainName=${1:?"Domain Name. If you want to setup 'xxx.domain.com', please input 'domain.com'"}
+    local RR=${2:?"Provide RR. If you want to setup 'xxx.domain.com', please input 'xxx'"}
+    local Type=${3:?"Provide Type: A"}
+    local Value=${4:?"Provide IP"}
+
+    aliyun alidns AddDomainRecord \
+        --DomainName "$DomainName" \
+        --RR "$RR" \
+        --Type "$Type" \
+        --Value "$Value"
+}
+
+ali_dns_record_id(){
+    aliyun alidns DescribeDomainRecords \
+        --DomainName "$1" \
+        --RRKeyWord "$2" | \
+    jq -r '.DomainRecords.Record[].RecordId'
+}
+
+ali_dns_record_get(){
+    aliyun alidns DescribeDomainRecords \
+        --DomainName "$1" \
+        --RRKeyWord "$2" | \
+    jq -r '.DomainRecords.Record[]'
+}
+
+ali_dns_record_id_exact(){
+    aliyun alidns DescribeDomainRecords \
+        --DomainName "$1" \
+        --RRKeyWord "$2" | \
+    jq -r ".DomainRecords.Record[] | select(.RR == \"$2\") | .RecordId"
+}
+
+ali_dns_record_get_exact(){
+    aliyun alidns DescribeDomainRecords \
+        --DomainName "$1" \
+        --RRKeyWord "$2" | \
+    jq ".DomainRecords.Record[] | select(.RR == \"$2\")"
+}
+
+ali_dns_record_update(){
+    local RecordId=${1:?"Provide RecordId"}
+    local RR=${2:?"Provide RR"}
+    local Type=${3:?"Provide Type"}
+    local Value=${4:?"Provide Work"}
+    aliyun alidns UpdateDomainRecord \
+        --RecordId "$RecordId" \
+        --RR "$RR" \
+        --Type "$Type" \
+        --Value "$Value"
+}
+
+ali_dns_record_delete(){
+    local DomainName=${1:?"Domain Name"}
+    local RR=${2:?"Provide RR"}
+    local RID
+    RID=$(ali_dns_record_id_exact "$DomainName" "$RR") && \
+    aliyun alidns DeleteDomainRecord --RecordId "$RID"
+}
+
+ali_dns_record_put(){
+    local DomainName=${1:?"Domain Name"}
+    local RR=${2:?"Provide RR"}
+    local Type=${3:?"Provide Type"}
+    local Value=${4:?"Provide IP"}
+
+    local RID="$(ali_dns_record_id_exact "$DomainName" "$RR")"
+    if [ "$RID" = "" ]; then
+        printf "%s" "Add New Record: $DomainName $RR $Type $Value"
+        ali_dns_record_add "$DomainName" "$RR" "$Type" "$Value"
+    else
+        printf "%s" "Already Register. Try to update: $RID $RR $Type $Value"
+        # CMD=(ali_dns_record_update $RID $RR $Type $Value)
+        # eval "${CMD[@]}"
+        ali_dns_record_update "$RID" "$RR" "$Type" "$Value"
+    fi
+}
