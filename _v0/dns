@@ -26,7 +26,7 @@ A
         return
     fi
 
-    ali_dns_"$PARAM_SUBCMD" "$@"
+    "ali_dns_$PARAM_SUBCMD" "$@"
 }
 
 ali_dns_main(){
