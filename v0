@@ -18,7 +18,7 @@ Subcommands:
 A
 
     if [ -z "$PARAM_SUBCMD" ]; then
-        ali_$PARAM_SUBCMD ${1:+"$@"}
+        "ali_$PARAM_SUBCMD" ${1:+"$@"}
     fi
 
 }
