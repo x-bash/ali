@@ -47,6 +47,32 @@ ali_dns_record_get(){
     jq -r '.DomainRecords.Record[]'
 }
 
+ali_dns_record_list(){
+    case $# in
+        0)  ali dns domain ls | jq -r .[].DomainName | while read -r line; do
+                ali_dns_record_list "$line"
+            done
+            ;;
+        1)  local name=${1}
+            local rr=${name%.*.*}
+            local domain=${name#${rr}.}
+            if [ "$rr" = "$name" ]; then
+                aliyun alidns DescribeDomainRecords --DomainName "$name" | jq -r '.DomainRecords.Record'
+            else
+                echo ali_dns_record_list "$domain" "$name"
+            fi
+            ;;
+        *)  local regex="${2:-Provide regex pattern}"
+            ali_dns_record_list "${1:?Provide domain name}" | jq -r "
+                .[] | 
+                if .RR | test(\"$regex\")      then .
+                elif .Value | test(\"$regex\")      then .
+                else empty end
+            "
+            ;;
+    esac    
+}
+
 ali_dns_record_id_exact(){
     aliyun alidns DescribeDomainRecords \
         --DomainName "$1" \
