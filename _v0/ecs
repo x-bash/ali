@@ -3,7 +3,7 @@
 # author:       Li Junhao           l@x-cmd.com    edwinjhlee.github.io
 # maintainer:   Li Junhao
 
-aliyun_ecs_info(){
+ali_ecs_info(){
     local patttern="$1"
 
     # ui table
@@ -13,11 +13,11 @@ aliyun_ecs_info(){
     if [ -z "$pattern" ]; then
         printf "%s" "$s" | jq .
     else
-        printf "%s" "$s" | _aliyun_ecs_filter "$pattern"
+        printf "%s" "$s" | _ali_ecs_filter "$pattern"
     fi
 }
 
-_aliyun_get_dns(){
+_ali_get_dns(){
     ping -W 0.01 -c 1 ${1:-hostname} 2>/dev/null | awk 'NR==1 { 
         match( $3, /\([0-9.]+\)/ )
         if (RLENGTH > 0) print substr($3, 2, RLENGTH - 2)
@@ -25,9 +25,9 @@ _aliyun_get_dns(){
 }'
 }
 
-aliyun_ecs_new(){
+ali_ecs_new(){
     local s
-    s=$(aliyun_ecs_info)    
+    s=$(ali_ecs_info)    
     local len
     len=$(echo "$s" | jq -s '. | length')
     case "$len" in
@@ -39,7 +39,7 @@ aliyun_ecs_new(){
     return 0
 }
 
-_aliyun_ecs_filter(){
+_ali_ecs_filter(){
     local patttern="${1:?Provide pattern}"
     local s
     s="$(cat)"
@@ -65,7 +65,7 @@ A
     fi
 
     local ip
-    if ip=$(_aliyun_get_dns "$pattern"); then
+    if ip=$(_ali_get_dns "$pattern"); then
         echo "$s" | jq "
     if .EipAddress.IpAddress == \"${ip}\"  then .
     else empty end
@@ -75,7 +75,7 @@ A
 
 }
 
-aliyun_ecs_op(){
+ali_ecs_op(){
 
 
 
@@ -88,8 +88,8 @@ aliyun_ecs_op(){
     esac
 }
 
-aliyun_ecs_info_pretty(){
-    aliyun_ecs_info ${1:+"$@"} | jq '
+ali_ecs_info_pretty(){
+    ali_ecs_info ${1:+"$@"} | jq '
     .Instances.Instance[] | { 
         osname: .OSNameEn, 
         cpu: .Cpu,
@@ -108,7 +108,7 @@ A
 }
 
 
-aliyun_ecs_regions(){
+ali_ecs_regions(){
     aliyun ecs DescribeRegions | jq .Regions.Region
 }
 
@@ -127,7 +127,7 @@ aliyun_ecs_regions(){
 # check ip
 # check dns name
 # check
-aliyun_ecs_new(){
+ali_ecs_new(){
     aliyun ecs
 }
 
