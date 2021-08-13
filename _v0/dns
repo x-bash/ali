@@ -35,18 +35,15 @@ ali_dns_main(){
             return 0
             ;;
         1)  
-            local name=$1
-            if [ "$name" = "${name%.*.*.}" ]; then
-                ali_dns_domain_search "$name"
-            else
-                ali_dns_record_search "$name"
-            fi
+            ali_dns_list "$1"
             return
             ;;
         2)
-            # ali dns server1.lteam.top 47.11.12.18
-            # ali dns server1.lteam.top lteamtop    # ali dns new server1.lteam.top lteam_top
             local name=$1
+            ali_dns_record_put2 "$name" "$2"
+
+            # ali dns server1.lteam.top 47.11.12.18
+            # ali dns server1.lteam.top =lteamtop    # ali dns new server1.lteam.top lteam_top
             ;;
         *)  ali_dns_record_put "$@"
             return
@@ -63,9 +60,9 @@ ali_dns_list(){
 
     local name=$1
     if [ "$name" = "${name%.*.*.}" ]; then
-        ali_dns_record_ls "$name"
+        ali_dns_record_list "$name"
     else
-        ali_dns_domain_ls "$name"
+        ali_dns_domain_list "$name"
     fi
 }
 

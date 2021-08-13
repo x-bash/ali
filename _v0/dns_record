@@ -59,7 +59,7 @@ ali_dns_record_list(){
             if [ "$rr" = "$name" ]; then
                 aliyun alidns DescribeDomainRecords --DomainName "$name" | jq -r '.DomainRecords.Record'
             else
-                echo ali_dns_record_list "$domain" "$name"
+                ali_dns_record_list "$domain" "^$rr$"
             fi
             ;;
         *)  local regex="${2:-Provide regex pattern}"
@@ -107,20 +107,63 @@ ali_dns_record_delete(){
     aliyun alidns DeleteDomainRecord --RecordId "$RID"
 }
 
+ali_is_ip(){
+    local ip="${1:?Provide ip}"
+    echo "$ip" | awk -v FS=. '
+function j(a){
+    return a >= 0 && a <= 255
+}
+{
+    if (j($1) && j($2) && j($3) && j($4)) exit 0
+    else exit 1
+}
+    '
+
+}
+
+ali_dns_record_put2(){
+    if [ $# = 2 ]; then
+        local name=${1}
+        local rr=${name%.*.*}
+        local domain=${name#${rr}.}
+
+        local rec=${2}
+        if ali_is_ip "$rec"; then
+            ali_dns_record_put "$domain" "$rr" A "$rec"
+        else
+            :
+            # TODO: Maybe using other method.
+        fi
+    fi
+    return 1
+}
+
 ali_dns_record_put(){
     local DomainName=${1:?"Domain Name"}
     local RR=${2:?"Provide RR"}
     local Type=${3:?"Provide Type"}
     local Value=${4:?"Provide IP"}
 
-    local RID="$(ali_dns_record_id_exact "$DomainName" "$RR")"
-    if [ "$RID" = "" ]; then
-        printf "%s" "Add New Record: $DomainName $RR $Type $Value"
+    local item
+    item="$(ali_dns_record_list "$DomainName" "^$RR$")"
+    local len
+    len="$(echo "$item" | jq -s '. | length')"
+
+    if [ "$len" -eq 0 ]; then
+        ali_log info "Add New Record\n: $DomainName $RR $Type $Value"
         ali_dns_record_add "$DomainName" "$RR" "$Type" "$Value"
+    elif [ "$len" -eq 1 ]; then
+        local v
+        v=$(printf "%s" "$item" | jq -r .Value)
+        if [ "$Value" = "$v" ]; then
+            ali_log warn  "Item already existed."
+        else
+            RID=$(echo "$item" | jq -r .RecordId)
+            ali_log info  "Already Register. Try to update: $RID $RR $Type $Value"
+            ali_dns_record_update "$RID" "$RR" "$Type" "$Value"
+        fi
     else
-        printf "%s" "Already Register. Try to update: $RID $RR $Type $Value"
-        # CMD=(ali_dns_record_update $RID $RR $Type $Value)
-        # eval "${CMD[@]}"
-        ali_dns_record_update "$RID" "$RR" "$Type" "$Value"
+        ali_log error "Found More than 1 item."
+        return 1
     fi
 }

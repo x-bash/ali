@@ -10,6 +10,8 @@ xrc param/v0
 . ./_v0/ecs
 . ./_v0/dns
 
+xrc log init ali
+
 ali(){
     param <<A
 subcommand:

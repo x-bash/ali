@@ -77,9 +77,6 @@ A
 }
 
 ali_ecs_op(){
-
-
-
     local subcmd="${1:?subcmd}"
     case "$subcmd" in
         start)          ;;
@@ -103,9 +100,8 @@ ali_ecs_info_pretty(){
         status: .Status,
         id: .InstanceId
     }
-' <<A
-$s
-A
+'
+
 }
 
 
