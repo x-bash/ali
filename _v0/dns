@@ -18,7 +18,7 @@ ali_dns(){
 subcommand:
     domain          "handle_domains"
     record|rec      "handling record"
-    ls              "list"
+    list|ls         "list"
 A
 
     if [ -z "$PARAM_SUBCMD" ]; then
@@ -56,7 +56,8 @@ ali_dns_main(){
 
 ali_dns_ls(){
     if [ $# = 0 ]; then
-        ali_dns_domain_list
+        # ali_dns_domain_list
+        ali_dns_record_list
         return
     fi
 
