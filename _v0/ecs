@@ -66,12 +66,13 @@ A
 
     local ip
     if ip=$(_ali_get_dns "$pattern"); then
-        echo "$s" | jq "
+        jq "
     if .EipAddress.IpAddress == \"${ip}\"  then .
     else empty end
 " <<A
 $s
 A
+    fi
 
 }
 

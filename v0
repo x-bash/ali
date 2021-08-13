@@ -4,12 +4,15 @@ xrc param/v0
 
 # ALIYUN_BIN=$(command -v aliyun)
 
-xrc ali/_v0/ecs
-xrc ali/_v0/dns
+# xrc ali/_v0/ecs
+# xrc ali/_v0/dns
+
+. ./_v0/ecs
+. ./_v0/dns
 
 ali(){
     param <<A
-Subcommands:
+subcommand:
     ecs     "ecs management"
     dns     "dns management"
     k8s     "kubernete management"
@@ -18,11 +21,17 @@ Subcommands:
 A
 
     if [ -z "$PARAM_SUBCMD" ]; then
-        "ali_$PARAM_SUBCMD" "$@"
+        ali help
+        return 1
     fi
+
+    "ali_$PARAM_SUBCMD" "$@"
 
 }
 
-
+if [ -z "$XRC_NO_ADVISE" ] && [ -n "${BASH_VERSION}${ZSH_VERSION}" ] && [ "${-#*i}" != "$-" ]; then
+    xrc advise/v0
+    advise ali
+fi
 
 
