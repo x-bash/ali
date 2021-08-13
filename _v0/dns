@@ -21,14 +21,14 @@ subcommand:
 A
 
     if [ -z "$PARAM_SUBCMD" ]; then
-        ali_main "$@"
+        ali_dns_main "$@"
         return
     fi
 
     ali_dns_"$PARAM_SUBCMD" "$@"
 }
 
-ali_main(){
+ali_dns_main(){
     case $# in
         0)  ali_dns help
             return 0
