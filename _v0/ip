@@ -79,8 +79,5 @@ ali_ip_release(){
     esac
 }
 
-ali_ip_allocate(){
-    :
-}
 
 
