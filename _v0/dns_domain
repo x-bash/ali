@@ -28,14 +28,29 @@ ali_dns_domain_list(){
     case $# in
         0)  aliyun alidns DescribeDomains | jq .Domains.Domain
             ;;
-        *)  ali_dns_domain_list | jq -r "
+        *)  ali_dns_domain_list | jq "
                 .[] | 
                 if .DomainName | test(\"$1\")      then .
                 elif .DomainId | test(\"$1\")      then .
                 else empty end
-            "
+            " | jq -s .
             ;;
     esac
+}
+
+ali_dns_domain_exact_id(){
+    local s
+    s="$(ali_dns_domain_list "${1:-Provide ip}")"
+    local len
+    len="$(echo "$s" | jq ' . | length ')"
+    case $len in
+        0)  ali_log warn "No such ip found.";;
+        1)  echo "$s" | jq -r .AllocationId
+            return 0
+            ;;
+        *)  ali_log warn "Multiple ip found.";;
+    esac
+    return 1
 }
 
 # ali_dns_domain_list a

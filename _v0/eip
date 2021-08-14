@@ -60,7 +60,7 @@ ali_eip_list(){
                 if .IpAddress | test(\"$regex\")      then .
                 elif .AllocationId | test(\"$regex\")      then .
                 else empty end
-            "
+            " | jq -s .
             ;;
     esac
 }
@@ -69,7 +69,7 @@ ali_eip_exact_id(){
     local s
     s="$(ali_eip_list "${1:-Provide ip}")"
     local len
-    len="$(echo "$s" | jq -s ' . | length ')"
+    len="$(echo "$s" | jq ' . | length ')"
     case $len in
         0)  ali_log warn "No such ip found.";;
         1)  echo "$s" | jq -r .AllocationId

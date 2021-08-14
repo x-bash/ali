@@ -52,6 +52,8 @@ ali_dns_record_list(){
         0)  ali dns domain ls | jq -r .[].DomainName | while read -r line; do
                 ali_dns_record_list "$line"
             done
+
+            # If in tty, should be ui and interactive form. Otherwise, a json list
             ;;
         1)  local name=${1}
             local rr=${name%.*.*}
@@ -68,9 +70,24 @@ ali_dns_record_list(){
                 if .RR | test(\"$regex\")      then .
                 elif .Value | test(\"$regex\")      then .
                 else empty end
-            "
+            " | jq -s .
             ;;
     esac    
+}
+
+ali_dns_record_exact_id(){
+    local s
+    s="$(ali_dns_record_list "$@")"
+    local len
+    len="$(echo "$s" | jq ' . | length ')"
+    case $len in
+        0)  ali_log warn "No such ip found.";;
+        1)  echo "$s" | jq -r .[0].RecordId
+            return 0
+            ;;
+        *)  ali_log warn "Multiple ip found.";;
+    esac
+    return 1
 }
 
 ali_dns_record_id_exact(){
@@ -143,19 +160,19 @@ ali_dns_record_put(){
     local item
     item="$(ali_dns_record_list "$DomainName" "^$RR$")"
     local len
-    len="$(echo "$item" | jq -s '. | length')"
+    len="$(echo "$item" | jq '. | length')"
 
     if [ "$len" -eq 0 ]; then
         ali_log info "Add New Record\n: $DomainName $RR $Type $Value"
         ali_dns_record_add "$DomainName" "$RR" "$Type" "$Value"
     elif [ "$len" -eq 1 ]; then
         local v
-        v=$(printf "%s" "$item" | jq -r .Value)
+        v=$(printf "%s" "$item" | jq -r .[0].Value)
         if [ "$Value" = "$v" ]; then
-            ali_log warn  "Item already existed."
+            ali_log warn "Item already existed."
         else
-            RID=$(echo "$item" | jq -r .RecordId)
-            ali_log info  "Already Register. Try to update: $RID $RR $Type $Value"
+            RID=$(printf "%s" "$item" | jq -r .[0].RecordId)
+            ali_log info "Already Register. Try to update: $RID $RR $Type $Value"
             ali_dns_record_update "$RID" "$RR" "$Type" "$Value"
         fi
     else
@@ -163,3 +180,6 @@ ali_dns_record_put(){
         return 1
     fi
 }
+
+
+

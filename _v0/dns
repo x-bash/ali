@@ -73,7 +73,6 @@ ali_dns_list(){
 }
 
 
-
 # ali dns a.lteam.top 192.168.1.1
 # ali dns b.lteam.top b.lteam.top
 
