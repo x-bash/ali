@@ -9,6 +9,7 @@ xrc param/v0
 
 . ./_v0/ec
 . ./_v0/dns
+. ./_v0/ip
 
 xrc log init ali
 
@@ -21,6 +22,7 @@ subcommand:
     k8s                 "kubernete management"
     fc                  "function control"
     redis               "redis management"
+    ip                  "ip address"
 A
 
     if [ -z "$PARAM_SUBCMD" ]; then
@@ -31,6 +33,21 @@ A
     "ali_$PARAM_SUBCMD" "$@"
 
 }
+
+ali_is_ip(){
+    local ip="${1:?Provide ip}"
+    echo "$ip" | awk -v FS=. '
+function j(a){
+    return a >= 0 && a <= 255
+}
+{
+    if (j($1) && j($2) && j($3) && j($4)) exit 0
+    else exit 1
+}
+    '
+
+}
+
 
 if [ -z "$XRC_NO_ADVISE" ] && [ -n "${BASH_VERSION}${ZSH_VERSION}" ] && [ "${-#*i}" != "$-" ]; then
     xrc advise/v0

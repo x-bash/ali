@@ -117,20 +117,6 @@ ali_dns_record_delete(){
     
 }
 
-ali_is_ip(){
-    local ip="${1:?Provide ip}"
-    echo "$ip" | awk -v FS=. '
-function j(a){
-    return a >= 0 && a <= 255
-}
-{
-    if (j($1) && j($2) && j($3) && j($4)) exit 0
-    else exit 1
-}
-    '
-
-}
-
 ali_dns_record_put2(){
     if [ $# = 2 ]; then
         local name=${1}

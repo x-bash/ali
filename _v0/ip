@@ -2,6 +2,85 @@
 
 # elastics ip
 
+ali_ip(){
+    param <<A
+subcommand:
+    allocate|+          "handle_domains"
+    release|-           "handling record"
+    list|ls             "list"
+    quick               "quick"
+A
 
+    if [ -z "$PARAM_SUBCMD" ]; then
+        ali_ip_quick "$@"
+        return
+    fi
+
+    "ali_ip_$PARAM_SUBCMD" "$@"
+}
+
+ali_ip_quick(){
+    case "$1" in
+        +*) ali_ip_allocate "${1#+}"  
+            ;;
+        -*) ali_ip_allocate "${1#-}"      
+            ;;
+        *)   
+            ali_ip_list "$@"   
+            ;;
+    esac
+    
+}
+
+ali_ip_allocate(){
+    param <<A
+options:
+    --bandwidth|-b          "Provide bandwidth"     <bandwidth>=5
+    --pay_by_bandwidth      "If set, paid by bandwdith. Otherwise, paid by traffic"
+    --bgp_pro               "Only for Hongkong Region"
+A
+
+    local args=""
+    [ -n "$pay_by_bandwidth" ] && args="$args --InternetChargeType PayByBandwidth"
+    [ -n "$bgp_pro" ] && args="$args --ISP BGP_PRO"
+
+    eval aliyun ecs AllocateEipAddress --Bandwidth "${bandwidth}" "$args"
+}
+
+# shellcheck disable=SC2120
+ali_ip_list(){
+    case $# in
+        0)  aliyun ecs DescribeEipAddresses | jq .EipAddresses.EipAddress
+            ;;
+        *)  local regex="${1:-Provide regex pattern}"
+            ali_ip_list | jq -r "
+                .[] | 
+                if .IpAddress | test(\"$regex\")      then .
+                elif .AllocationId | test(\"$regex\")      then .
+                else empty end
+            "
+            ;;
+    esac    
+}
+
+ali_ip_release(){
+    local s
+    s="$(ali_ip_list "${1:-Provide ip}")"
+    local len
+    len="$(echo "$s" | jq -s ' . | length ')"
+    case $len in
+        0)  ali_log warn "No such ip found.";;
+        1)  local id
+            id="$(echo "$s" | jq -r .AllocationId)"
+            ali_log info "Allocation ID: $id"
+            eval aliyun ecs ReleaseEipAddress --AllocationId "$id"
+            ;;
+        *)  ali_log warn "Multiple ip found.";;
+    esac
+}
+
+ali_ip_allocate(){
+    :
+}
 
 
