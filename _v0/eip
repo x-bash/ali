@@ -9,7 +9,7 @@ subcommand:
     release|-           "handling record"
     associate           "associate the ip to the instance"
     unassociate         "unassociate the ip to the instance"
-    list|ls             "list"
+    ls                  "list"
     quick               "quick"
 A
 
@@ -23,7 +23,7 @@ A
 
 ali_eip_quick(){
     case "$1" in
-        +*) ali_eip_allocate "${1#+}"  
+        +*) ali_eip_allocate "${1#+}"
             ;;
         -*) ali_eip_allocate "${1#-}"      
             ;;
