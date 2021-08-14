@@ -2,7 +2,7 @@
 
 # elastics ip
 
-ali_ip(){
+ali_eip(){
     param <<A
 subcommand:
     allocate|+          "handle_domains"
@@ -12,27 +12,27 @@ subcommand:
 A
 
     if [ -z "$PARAM_SUBCMD" ]; then
-        ali_ip_quick "$@"
+        ali_eip_quick "$@"
         return
     fi
 
-    "ali_ip_$PARAM_SUBCMD" "$@"
+    "ali_eip_$PARAM_SUBCMD" "$@"
 }
 
-ali_ip_quick(){
+ali_eip_quick(){
     case "$1" in
-        +*) ali_ip_allocate "${1#+}"  
+        +*) ali_eip_allocate "${1#+}"  
             ;;
-        -*) ali_ip_allocate "${1#-}"      
+        -*) ali_eip_allocate "${1#-}"      
             ;;
         *)   
-            ali_ip_list "$@"   
+            ali_eip_list "$@"   
             ;;
     esac
     
 }
 
-ali_ip_allocate(){
+ali_eip_allocate(){
     param <<A
 options:
     --bandwidth|-b          "Provide bandwidth"     <bandwidth>=5
@@ -48,12 +48,12 @@ A
 }
 
 # shellcheck disable=SC2120
-ali_ip_list(){
+ali_eip_list(){
     case $# in
         0)  aliyun ecs DescribeEipAddresses | jq .EipAddresses.EipAddress
             ;;
         *)  local regex="${1:-Provide regex pattern}"
-            ali_ip_list | jq -r "
+            ali_eip_list | jq -r "
                 .[] | 
                 if .IpAddress | test(\"$regex\")      then .
                 elif .AllocationId | test(\"$regex\")      then .
@@ -63,9 +63,9 @@ ali_ip_list(){
     esac    
 }
 
-ali_ip_release(){
+ali_eip_release(){
     local s
-    s="$(ali_ip_list "${1:-Provide ip}")"
+    s="$(ali_eip_list "${1:-Provide ip}")"
     local len
     len="$(echo "$s" | jq -s ' . | length ')"
     case $len in
