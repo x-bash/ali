@@ -10,6 +10,7 @@ xrc param/v0
 . ./_v0/ec
 . ./_v0/dns
 . ./_v0/eip
+. ./_v0/sg
 
 xrc log init ali
 

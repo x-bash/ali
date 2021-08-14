@@ -4,7 +4,96 @@
 # https://help.aliyun.com/document_detail/25553.html?spm=a2c4g.11186623.6.1551.67ff7b6fhY3woe
 
 ali_sg(){
-    :
+    param <<A
+subcommand:
+    create|+        "create security group"
+    delete|-        "delete security group"
+    ls              "list security group"
+    join            "join"
+    leave           "leave"
+A
+
+    if [ -z "$PARAM_SUBCMD" ]; then
+        ali_sg_quick "$@"
+        return
+    fi
+
+    "ali_sg_$PARAM_SUBCMD" "$@"
 }
 
+ali_sg_quick(){
+    case "$1" in
+        +*) ali_eip_allocate "${1#+}"  
+            ;;
+        -*) ali_eip_allocate "${1#-}"      
+            ;;
+        *)   
+            ali_eip_list "$@"   
+            ;;
+    esac
+}
+
+ali_sg_create(){
+    param <<A
+options:
+    --name           "Default is a auto generated name"         <name>=""
+    --type           "Default is normal"                        <type>=normal       normal     enterprise
+    --desc|--description    "Provide description"   <description string>=""
+A
+
+    aliyun ecs CreateSecurityGroup \
+        ${name+"--SecurityGroupName" "$name"} \
+        --SecurityGroupType "${type}" \
+        ${name+"--Description" "$desc"}
+
+}
+
+# shellcheck disable=SC2120
+ali_sg_ls(){
+    case $# in
+        0)  aliyun ecs DescribeSecurityGroups | jq .SecurityGroups.SecurityGroup
+            ;;
+        *)  local regex="${1:-Provide regex pattern}"
+            ali_sg_ls | jq "
+                .[] | 
+                if .SecurityGroupName | test(\"$regex\")      then .
+                elif .SecurityGroupId | test(\"$regex\")      then .
+                else empty end
+            " | jq -s .
+            ;;
+    esac
+}
+
+ali_sg_exact_id(){
+    local s
+    s="$(ali_sg_ls "${1:-Provide ip}")"
+    local len
+    len="$(echo "$s" | jq ' . | length ')"
+    case $len in
+        0)  ali_log warn "No such security group found.";;
+        1)  echo "$s" | jq -r .[0].SecurityGroupId
+            return 0
+            ;;
+        *)  ali_log warn "Multiple security group found.";;
+    esac
+    return 1
+}
+
+
+
+ali_sg_delete(){
+    local id
+    if id="$(ali_sg_exact_id "$@")"; then
+        ali_log info "SecurityGroup ID: $id"
+        aliyun ecs DeleteSecurityGroup  --SecurityGroupId "$id"
+    fi
+}
+
+
+# Add rule
+
+ali_sg_rule(){
+    :
+
+}
 

@@ -31,7 +31,6 @@ ali_eip_quick(){
             ali_eip_list "$@"   
             ;;
     esac
-    
 }
 
 ali_eip_allocate(){
