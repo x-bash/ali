@@ -7,7 +7,7 @@ xrc param/v0
 # xrc ali/_v0/ecs
 # xrc ali/_v0/dns
 
-. ./_v0/ecs
+. ./_v0/ec
 . ./_v0/dns
 
 xrc log init ali
@@ -15,11 +15,12 @@ xrc log init ali
 ali(){
     param <<A
 subcommand:
-    ecs     "ecs management"
-    dns     "dns management"
-    k8s     "kubernete management"
-    fc      "function control"
-    redis   "redis management"
+    ec|ecs              "ecs management"
+    sg|securitygroup    "security group management"
+    dns                 "dns management"
+    k8s                 "kubernete management"
+    fc                  "function control"
+    redis               "redis management"
 A
 
     if [ -z "$PARAM_SUBCMD" ]; then
