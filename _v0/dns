@@ -13,23 +13,26 @@
 # ali dns domain ls 
 # ali dns --domain www.lteam.top --record 48.1.1.1
 
+
+# help doc: 'ali dns' is alias for 'ali dns quick'
 ali_dns(){
     param <<A
 subcommand:
     domain          "handle_domains"
     record|rec      "handling record"
     list|ls         "list"
+    quick           "quick"
 A
 
     if [ -z "$PARAM_SUBCMD" ]; then
-        ali_dns_main "$@"
+        ali_dns_quick "$@"
         return
     fi
 
     "ali_dns_$PARAM_SUBCMD" "$@"
 }
 
-ali_dns_main(){
+ali_dns_quick(){
     case $# in
         0)  ali_dns help
             return 0
