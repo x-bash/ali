@@ -8,6 +8,7 @@ subcommand:
     allocate|+          "handle_domains"
     release|-           "handling record"
     associate           "associate the ip to the instance"
+    unassociate         "unassociate the ip to the instance"
     list|ls             "list"
     quick               "quick"
 A
