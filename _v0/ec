@@ -17,8 +17,34 @@ ali_ecs_info(){
     fi
 }
 
+# shellcheck disable=SC2120
+ali_ecs_list(){
+    case $# in
+        0)  aliyun ecs DescribeInstances | jq .Instances.Instance
+            ;;
+        *)  ali_ecs_list | jq .[] | _ali_ecs_filter "${1:-Provide regex pattern}" | jq -s .
+            ;;
+    esac
+}
+
+ali_ecs_exact_id(){
+    local s
+    s="$(ali_ecs_list "${1:-Provide ip}")"
+    local len
+    len="$(echo "$s" | jq ' . | length ')"
+    case $len in
+        0)  ali_log warn "No such ec server found.";;
+        1)  echo "$s" | jq -r .[0].InstanceId
+            return 0
+            ;;
+        *)  ali_log warn "Multiple ec server found.";;
+    esac
+    return 1
+}
+
 _ali_get_dns(){
-    ping -W 0.01 -c 1 ${1:-hostname} 2>/dev/null | awk 'NR==1 { 
+    # Using dig/nslookup is much better for icmp might be disable.
+    ping -W 0.01 -c 1 "${1:-hostname}" 2>/dev/null | awk 'NR==1 {
         match( $3, /\([0-9.]+\)/ )
         if (RLENGTH > 0) print substr($3, 2, RLENGTH - 2)
         else    exit 1

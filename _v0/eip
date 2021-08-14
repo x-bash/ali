@@ -7,6 +7,7 @@ ali_eip(){
 subcommand:
     allocate|+          "handle_domains"
     release|-           "handling record"
+    associate           "associate the ip to the instance"
     list|ls             "list"
     quick               "quick"
 A
@@ -60,24 +61,54 @@ ali_eip_list(){
                 else empty end
             "
             ;;
-    esac    
+    esac
 }
 
-ali_eip_release(){
+ali_eip_exact_id(){
     local s
     s="$(ali_eip_list "${1:-Provide ip}")"
     local len
     len="$(echo "$s" | jq -s ' . | length ')"
     case $len in
         0)  ali_log warn "No such ip found.";;
-        1)  local id
-            id="$(echo "$s" | jq -r .AllocationId)"
-            ali_log info "Allocation ID: $id"
-            eval aliyun ecs ReleaseEipAddress --AllocationId "$id"
+        1)  echo "$s" | jq -r .AllocationId
+            return 0
             ;;
         *)  ali_log warn "Multiple ip found.";;
     esac
+    return 1
 }
 
+ali_eip_release(){
+    local id
+    if id="$(ali_eip_exact_id "$@")"; then
+        ali_log info "Allocation ID: $id"
+        aliyun ecs ReleaseEipAddress --AllocationId "$id"
+    fi
+}
+
+ali_eip_associate(){
+    local eip_id
+    local ecs_id
+
+    if eip_id="$(ali_eip_exact_id "${1:?Provide eip keyword}")" && \
+        ecs_id="$(ali_ecs_exact_id "${2:?Provide ecs keyword}")"
+    then
+        aliyun ecs AssociateEipAddress "$eip_id" "$ecs_id"
+    fi
+}
+
+# Very wired design.
+# I think, only ip should be provided.
+ali_eip_unassociate(){
+    local eip_id
+    local ecs_id
+
+    if eip_id="$(ali_eip_exact_id "${1:?Provide eip keyword}")" && \
+        ecs_id="$(ali_ecs_exact_id "${2:?Provide ecs keyword}")"
+    then
+        aliyun ecs UnasssociateEipAddress "$eip_id" "$ecs_id"
+    fi
+}
 
 
