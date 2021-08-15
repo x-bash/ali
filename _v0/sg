@@ -28,7 +28,7 @@ ali_sg_quick(){
         :*) ali_sg_delete "${1#:}"
             ;;
         *)   
-            ali_sg_ls "$@"   
+            ali_sg_ls "$@"
             ;;
     esac
 }
