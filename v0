@@ -1,6 +1,6 @@
 # shellcheck shell=sh disable=SC3043
 
-xrc param/v0
+# xrc param/v0
 
 # ALIYUN_BIN=$(command -v aliyun)
 
