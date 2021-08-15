@@ -23,15 +23,14 @@ ali_sg_rule_ls(){
         return
     fi
 
-    shift
     case $# in
-        0)  aliyun ecs DescribeSecurityGroupAttribute --SecurityGroupId "$id" | jq .Permissions.Permission
+        1)  aliyun ecs DescribeSecurityGroupAttribute --SecurityGroupId "$id" | jq .Permissions.Permission
             ;;
-        *)  local regex="${1:-Provide regex pattern}"
-            ali_sg_rule_ls | jq "
+        *)  local regex="${2:-Provide regex pattern}"
+            ali_sg_rule_ls "$1" | jq "
                 .[] | 
-                if .SecurityGroupName | test(\"$regex\")      then .
-                elif .SecurityGroupId | test(\"$regex\")      then .
+                if .Description | test(\"$regex\")      then .
+                elif .Priority == $regex                then .
                 else empty end
             " | jq -s .
             ;;
@@ -51,5 +50,48 @@ ali_sg_rule_exact_id(){
         *)  ali_log warn "Multiple security group found.";;
     esac
     return 1
+}
+
+ali_sg_rule_add_ingress(){
+    param <<A
+options:
+    --protocol|-p           "Protocol"      <protocol>=all      =   tcp udp icmp gre all
+    --range|-r              "port range"    <port-rage>=""      
+    --drop|-D               "set to drop"
+    --priority              "priority"      <priority>=1
+    --desc|--description    "description"   <description>=""
+A
+
+    local policy=accept
+    [ -n "$drop" ] && printf "drop"
+
+    aliyun ecs AuthorizeSecurityGroup \
+        --IpProtocol "${protocol}" \
+        --PortRange "${range}" \
+        --Policy "$policy" \
+        --Description "$description" \
+        --Priority "${proity}"
+
+}
+
+ali_sg_rule_add_egress(){
+    param <<A
+options:
+    --protocol|-p           "Protocol"      <protocol>=all      =   tcp udp icmp gre all
+    --range|-r              "port range"    <port-rage>=""      
+    --drop|-D               "set to drop"
+    --priority              "priority"      <priority>=1
+    --desc|--description    "description"   <description>=""
+A
+
+    local policy=accept
+    [ -n "$drop" ] && printf "drop"
+
+    aliyun ecs AuthorizeSecurityGroupEgress \
+        --IpProtocol "${protocol}" \
+        --PortRange "${range}" \
+        --Policy "$policy" \
+        --Description "$description" \
+        --Priority "${proity}"
 }
 
