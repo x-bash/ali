@@ -161,7 +161,7 @@ ali_ec_start(){
 # check ip
 # check dns name
 # check
-ali_ec_new(){
+ali_ec_create(){
     aliyun ecs
 }
 

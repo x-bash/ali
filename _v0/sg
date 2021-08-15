@@ -23,12 +23,12 @@ A
 
 ali_sg_quick(){
     case "$1" in
-        +*) ali_eip_allocate "${1#+}"  
+        +*) ali_sg_allocate "${1#+}"  
             ;;
-        -*) ali_eip_allocate "${1#-}"      
+        :*) ali_sg_delete "${1#:}"
             ;;
         *)   
-            ali_eip_list "$@"   
+            ali_sg_ls "$@"   
             ;;
     esac
 }
@@ -36,15 +36,15 @@ ali_sg_quick(){
 ali_sg_create(){
     param <<A
 options:
-    --name           "Default is a auto generated name"         <name>=""
-    --type           "Default is normal"                        <type>=normal       normal     enterprise
-    --desc|--description    "Provide description"   <description string>=""
+    --name                      "Default is a auto generated name"          <name>=""
+    --type                      "Default is normal"                         <type>=normal               =   normal     enterprise
+    --desc|--description        "Provide description"                       <description-string>=""
 A
 
-    aliyun ecs CreateSecurityGroup \
-        ${name+"--SecurityGroupName" "$name"} \
+    eval aliyun ecs CreateSecurityGroup \
+        ${name+--SecurityGroupName "$name"} \
         --SecurityGroupType "${type}" \
-        ${name+"--Description" "$desc"}
+        ${name+--Description "$desc"}
 
 }
 
