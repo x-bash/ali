@@ -8,21 +8,25 @@ ali_ec(){
 subcommand:
     ls                  "list"
     quick               "quick"
+    start               "start instance"
 A
 
     if [ -z "$PARAM_SUBCMD" ]; then
-        ali_eip_quick "$@"
+        ali_ec_quick "$@"
         return
     fi
 
     "ali_ec_$PARAM_SUBCMD" "$@"
 }
 
+ali_ec_quick(){
+    ali_ec_ls_pretty "$@"
+}
 
 ali_ec_ls_pretty(){
     ali_ec_ls "$@" | jq '
     .[] | { 
-        osname: .OSNameEn, 
+        osname: .OSNameEn,
         cpu: .Cpu,
         memory: .Memory,
         hostname: .HostName,
@@ -86,15 +90,15 @@ ali_ec_new(){
 }
 
 _ali_ec_filter(){
-    local patttern="${1:?Provide pattern}"
+    local pattern="${1:?Provide pattern}"
     local s
     s="$(cat)"
 
     local res
     res="$(jq "
-        if .EipAddress.IpAddress == \"${patttern}\"  then . 
-        elif .HostName | test(\"$patttern\") then . 
-        elif .InstanceName | test(\"$patttern\") then . 
+        if .EipAddress.IpAddress | test(\"${pattern}\")  then . 
+        elif .HostName | test(\"$pattern\") then . 
+        elif .InstanceName | test(\"$pattern\") then . 
         else empty end
     " <<A
 $s
@@ -110,6 +114,8 @@ A
         return 0
     fi
 
+    
+
     local ip
     if ip=$(_ali_get_dns "$pattern"); then
         jq "
@@ -118,6 +124,7 @@ A
 " <<A
 $s
 A
+        :
     fi
 
 }
@@ -135,6 +142,14 @@ ali_ec_op(){
 
 ali_ec_regions(){
     aliyun ecs DescribeRegions | jq .Regions.Region
+}
+
+ali_ec_start(){
+    local id
+    if id="$(ali_ec_exact_id "$@")"; then
+        ali_log info "Instance ID: $id"
+        aliyun ecs StartInstance --InstanceId "$id"
+    fi
 }
 
 
