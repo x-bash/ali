@@ -13,6 +13,7 @@ subcommand:
     ls              "list security group"
     join            "join"
     leave           "leave"
+    refer           "list reference"
 A
 
     if [ -z "$PARAM_SUBCMD" ]; then
@@ -98,7 +99,7 @@ ali_sg_refer(){
     local id
     if id="$(ali_sg_exact_id "$@")"; then
         ali_log info "SecurityGroup ID: $id"
-        aliyun ecs DescribeSecurityGroupReferences  --SecurityGroupId "$id"
+        aliyun ecs DescribeSecurityGroupReferences  --SecurityGroupId.1 "$id"
     fi
 }
 

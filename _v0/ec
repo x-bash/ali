@@ -147,6 +147,14 @@ ali_ec_start(){
     fi
 }
 
+ali_ec_stop(){
+    local id
+    if id="$(ali_ec_exact_id "$@")"; then
+        ali_log info "Instance ID: $id"
+        aliyun ecs StopInstance --InstanceId "$id"
+    fi
+}
+
 # aliyun ecs new-auto
 
 # aliyun ecs new 47.242.182.73 abc
