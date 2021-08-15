@@ -3,7 +3,7 @@
 # author:       Li Junhao           l@x-cmd.com    edwinjhlee.github.io
 # maintainer:   Li Junhao
 
-ali_ecs_info(){
+ali_ec_info(){
     local patttern="$1"
 
     # ui table
@@ -13,23 +13,23 @@ ali_ecs_info(){
     if [ -z "$pattern" ]; then
         printf "%s" "$s" | jq .
     else
-        printf "%s" "$s" | _ali_ecs_filter "$pattern"
+        printf "%s" "$s" | _ali_ec_filter "$pattern"
     fi
 }
 
 # shellcheck disable=SC2120
-ali_ecs_list(){
+ali_ec_list(){
     case $# in
         0)  aliyun ecs DescribeInstances | jq .Instances.Instance
             ;;
-        *)  ali_ecs_list | jq .[] | _ali_ecs_filter "${1:-Provide regex pattern}" | jq -s .
+        *)  ali_ec_list | jq .[] | _ali_ec_filter "${1:-Provide regex pattern}" | jq -s .
             ;;
     esac
 }
 
-ali_ecs_exact_id(){
+ali_ec_exact_id(){
     local s
-    s="$(ali_ecs_list "${1:-Provide ip}")"
+    s="$(ali_ec_list "${1:-Provide ip}")"
     local len
     len="$(echo "$s" | jq ' . | length ')"
     case $len in
@@ -51,9 +51,9 @@ _ali_get_dns(){
 }'
 }
 
-ali_ecs_new(){
+ali_ec_new(){
     local s
-    s=$(ali_ecs_info)    
+    s=$(ali_ec_info)    
     local len
     len=$(echo "$s" | jq -s '. | length')
     case "$len" in
@@ -65,7 +65,7 @@ ali_ecs_new(){
     return 0
 }
 
-_ali_ecs_filter(){
+_ali_ec_filter(){
     local patttern="${1:?Provide pattern}"
     local s
     s="$(cat)"
@@ -102,7 +102,7 @@ A
 
 }
 
-ali_ecs_op(){
+ali_ec_op(){
     local subcmd="${1:?subcmd}"
     case "$subcmd" in
         start)          ;;
@@ -112,8 +112,8 @@ ali_ecs_op(){
     esac
 }
 
-ali_ecs_info_pretty(){
-    ali_ecs_info ${1:+"$@"} | jq '
+ali_ec_info_pretty(){
+    ali_ec_info ${1:+"$@"} | jq '
     .Instances.Instance[] | { 
         osname: .OSNameEn, 
         cpu: .Cpu,
@@ -131,7 +131,7 @@ ali_ecs_info_pretty(){
 }
 
 
-ali_ecs_regions(){
+ali_ec_regions(){
     aliyun ecs DescribeRegions | jq .Regions.Region
 }
 
@@ -150,7 +150,7 @@ ali_ecs_regions(){
 # check ip
 # check dns name
 # check
-ali_ecs_new(){
+ali_ec_new(){
     aliyun ecs
 }
 
