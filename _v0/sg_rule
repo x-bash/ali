@@ -1,0 +1,55 @@
+# shellcheck shell=sh disable=SC3043
+
+ali_sg_rule(){
+    param <<A
+subcommand:
+    ls              "list security group rules"
+    add             "add rule"
+    del             "delete rules"
+A
+
+    if [ -z "$PARAM_SUBCMD" ]; then
+        ali_sg_quick "$@"
+        return
+    fi
+
+    "ali_sg_rule_$PARAM_SUBCMD" "$@"
+}
+
+# shellcheck disable=SC2120
+ali_sg_rule_ls(){
+    local id
+    if ! id=$(ali_sg_exact_id "${1:?Provide rule regex}"); then
+        return
+    fi
+
+    shift
+    case $# in
+        0)  aliyun ecs DescribeSecurityGroupAttribute --SecurityGroupId "$id" | jq .Permissions.Permission
+            ;;
+        *)  local regex="${1:-Provide regex pattern}"
+            ali_sg_rule_ls | jq "
+                .[] | 
+                if .SecurityGroupName | test(\"$regex\")      then .
+                elif .SecurityGroupId | test(\"$regex\")      then .
+                else empty end
+            " | jq -s .
+            ;;
+    esac
+}
+
+ali_sg_rule_exact_id(){
+    local s
+    s="$(ali_sg_rule_ls "${1:-Provide ip}")"
+    local len
+    len="$(echo "$s" | jq ' . | length ')"
+    case $len in
+        0)  ali_log warn "No such security group rule found.";;
+        1)  echo "$s" | jq -r .[0].SecurityGroupId
+            return 0
+            ;;
+        *)  ali_log warn "Multiple security group found.";;
+    esac
+    return 1
+}
+
