@@ -1,0 +1,18 @@
+# shellcheck shell=sh disable=SC3043
+
+ali_region(){
+    if [ -t 0 ]; then
+        aliyun ecs DescribeRegions | jq .Regions.Region
+    else
+        aliyun ecs DescribeRegions | jq .Regions.Region
+    fi
+}
+
+ali_zone(){
+    if [ -t 0 ]; then
+        aliyun ecs DescribeZones | jq '.Zones.Zone[] | { LocalName: .LocalName, ZoneId: .ZoneId }' | jq -s .
+    
+    else
+        aliyun ecs DescribeZones | jq .Zones.Zone
+    fi
+}

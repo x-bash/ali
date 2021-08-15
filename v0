@@ -11,6 +11,7 @@ xrc param/v0
 . ./_v0/dns
 . ./_v0/eip
 . ./_v0/sg
+. ./_v0/utils
 
 xrc log init ali
 
@@ -24,6 +25,8 @@ subcommand:
     fc                  "function control"
     redis               "redis management"
     eip                 "Elastics ip address"
+    region              "Region"
+    zone                "Zone"
 A
 
     if [ -z "$PARAM_SUBCMD" ]; then
