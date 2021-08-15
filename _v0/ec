@@ -3,6 +3,21 @@
 # author:       Li Junhao           l@x-cmd.com    edwinjhlee.github.io
 # maintainer:   Li Junhao
 
+ali_ec(){
+    param <<A
+subcommand:
+    ls                  "list"
+    quick               "quick"
+A
+
+    if [ -z "$PARAM_SUBCMD" ]; then
+        ali_eip_quick "$@"
+        return
+    fi
+
+    "ali_ec_$PARAM_SUBCMD" "$@"
+}
+
 ali_ec_info(){
     local patttern="$1"
 
@@ -18,18 +33,18 @@ ali_ec_info(){
 }
 
 # shellcheck disable=SC2120
-ali_ec_list(){
+ali_ec_ls(){
     case $# in
         0)  aliyun ecs DescribeInstances | jq .Instances.Instance
             ;;
-        *)  ali_ec_list | jq .[] | _ali_ec_filter "${1:-Provide regex pattern}" | jq -s .
+        *)  ali_ec_ls | jq .[] | _ali_ec_filter "${1:-Provide regex pattern}" | jq -s .
             ;;
     esac
 }
 
 ali_ec_exact_id(){
     local s
-    s="$(ali_ec_list "${1:-Provide ip}")"
+    s="$(ali_ec_ls "${1:-Provide ip}")"
     local len
     len="$(echo "$s" | jq ' . | length ')"
     case $len in
