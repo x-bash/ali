@@ -18,18 +18,23 @@ A
     "ali_ec_$PARAM_SUBCMD" "$@"
 }
 
-ali_ec_info(){
-    local patttern="$1"
 
-    # ui table
-    local s
-    s="$( aliyun ecs DescribeInstances | jq '.Instances.Instance[]' )"
+ali_ec_ls_pretty(){
+    ali_ec_ls "$@" | jq '
+    .[] | { 
+        osname: .OSNameEn, 
+        cpu: .Cpu,
+        memory: .Memory,
+        hostname: .HostName,
+        image: .ImageId,
+        ip: .EipAddress.IpAddress,
+        zone: .ZoneId,
+        start: .StartTime,
+        status: .Status,
+        id: .InstanceId
+    }
+' | jq -s .
 
-    if [ -z "$pattern" ]; then
-        printf "%s" "$s" | jq .
-    else
-        printf "%s" "$s" | _ali_ec_filter "$pattern"
-    fi
 }
 
 # shellcheck disable=SC2120
@@ -68,7 +73,7 @@ _ali_get_dns(){
 
 ali_ec_new(){
     local s
-    s=$(ali_ec_info)    
+    s=$(ali_ec_ls)    
     local len
     len=$(echo "$s" | jq -s '. | length')
     case "$len" in
@@ -125,24 +130,6 @@ ali_ec_op(){
         stop)           ;;
         restart)        ;;
     esac
-}
-
-ali_ec_info_pretty(){
-    ali_ec_info ${1:+"$@"} | jq '
-    .Instances.Instance[] | { 
-        osname: .OSNameEn, 
-        cpu: .Cpu,
-        memory: .Memory,
-        hostname: .HostName,
-        image: .ImageId,
-        ip: .EipAddress.IpAddress,
-        zone: .ZoneId,
-        start: .StartTime,
-        status: .Status,
-        id: .InstanceId
-    }
-'
-
 }
 
 
