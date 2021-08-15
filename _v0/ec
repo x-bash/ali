@@ -139,11 +139,6 @@ ali_ec_op(){
     esac
 }
 
-
-ali_ec_regions(){
-    aliyun ecs DescribeRegions | jq .Regions.Region
-}
-
 ali_ec_start(){
     local id
     if id="$(ali_ec_exact_id "$@")"; then
@@ -151,7 +146,6 @@ ali_ec_start(){
         aliyun ecs StartInstance --InstanceId "$id"
     fi
 }
-
 
 # aliyun ecs new-auto
 
