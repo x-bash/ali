@@ -66,6 +66,8 @@ ali_sg_ls(){
     esac
 }
 
+
+
 ali_sg_exact_id(){
     local s
     s="$(ali_sg_ls "${1:-Provide ip}")"
@@ -91,6 +93,14 @@ ali_sg_delete(){
     fi
 }
 
+
+ali_sg_refer(){
+    local id
+    if id="$(ali_sg_exact_id "$@")"; then
+        ali_log info "SecurityGroup ID: $id"
+        aliyun ecs DescribeSecurityGroupReferences  --SecurityGroupId "$id"
+    fi
+}
 
 # Add rule
 

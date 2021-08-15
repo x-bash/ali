@@ -38,18 +38,29 @@ ali_sg_rule_ls(){
 }
 
 ali_sg_rule_exact_id(){
+    ali_sg_rule_exact | jq -r .SecurityGroupIds
+}
+
+ali_sg_rule_exact(){
     local s
     s="$(ali_sg_rule_ls "${1:-Provide ip}")"
     local len
     len="$(echo "$s" | jq ' . | length ')"
     case $len in
         0)  ali_log warn "No such security group rule found.";;
-        1)  echo "$s" | jq -r .[0].SecurityGroupId
+        1)  printf "%s" "$s" | jq -r .[0]
             return 0
             ;;
         *)  ali_log warn "Multiple security group found.";;
     esac
     return 1
+}
+
+ali_sg_rule_del(){
+    local item
+    if item=$(ali_sg_rule_exact "${1:?Provide rule regex}" ); then
+        printf "%s" "$item" | jq -r .SecurityGroupIds
+    fi
 }
 
 ali_sg_rule_add_ingress(){
