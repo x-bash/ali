@@ -23,12 +23,23 @@ A
     ali_dns_domain_"$PARAM_SUBCMD" "$@"
 }
 
+ali_dns_domain_ls(){
+    if [ ! -t 1 ]; then
+        _ali_dns_domain_ls "$@"
+        return
+    fi
+    
+    _ali_dns_domain_ls "$@" \
+        | ali_table_json \
+            .DomainId .DomainName .RecordCount .AliDomain .CreateTime
+}
+
 # shellcheck disable=SC2120
-ali_dns_domain_list(){
+_ali_dns_domain_ls(){
     case $# in
         0)  aliyun alidns DescribeDomains | jq .Domains.Domain
             ;;
-        *)  ali_dns_domain_list | jq "
+        *)  _ali_dns_domain_ls | jq "
                 .[] | 
                 if .DomainName | test(\"$1\")      then .
                 elif .DomainId | test(\"$1\")      then .
@@ -40,7 +51,7 @@ ali_dns_domain_list(){
 
 ali_dns_domain_exact_id(){
     local s
-    s="$(ali_dns_domain_list "${1:-Provide ip}")"
+    s="$(_ali_dns_domain_ls "${1:-Provide ip}")"
     local len
     len="$(echo "$s" | jq ' . | length ')"
     case $len in
@@ -53,4 +64,3 @@ ali_dns_domain_exact_id(){
     return 1
 }
 
-# ali_dns_domain_list a

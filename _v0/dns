@@ -20,7 +20,7 @@ ali_dns(){
 subcommand:
     domain          "handle_domains"
     record|rec      "handling record"
-    list|ls         "list"
+    ls              "list"
     quick           "quick"
 A
 
@@ -57,18 +57,18 @@ ali_dns_quick(){
     esac
 }
 
-ali_dns_list(){
+ali_dns_ls(){
     if [ $# = 0 ]; then
         # ali_dns_domain_list
-        ali_dns_record_list
+        ali_dns_record_ls
         return
     fi
 
     local name=$1
     if [ "$name" = "${name%.*.*.}" ]; then
-        ali_dns_record_list "$name"
+        ali_dns_record_ls "$name"
     else
-        ali_dns_domain_list "$name"
+        ali_dns_domain_ls "$name"
     fi
 }
 
