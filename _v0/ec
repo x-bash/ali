@@ -9,6 +9,7 @@ subcommand:
     ls                  "list"
     quick               "quick"
     start               "start instance"
+    stop                "stop instance"
 A
 
     if [ -z "$PARAM_SUBCMD" ]; then
@@ -20,33 +21,41 @@ A
 }
 
 ali_ec_quick(){
-    ali_ec_ls_pretty "$@"
+    ali_ec_ls "$@"
 }
 
-ali_ec_ls_pretty(){
-    ali_ec_ls "$@" | jq '
-    .[] | { 
-        osname: .OSNameEn,
-        cpu: .Cpu,
-        memory: .Memory,
-        hostname: .HostName,
-        image: .ImageId,
-        ip: .EipAddress.IpAddress,
-        zone: .ZoneId,
-        start: .StartTime,
-        status: .Status,
-        id: .InstanceId
-    }
-' | jq -s .
+ali_ec_ls(){
+    if [ ! -t 1 ]; then
+        _ali_ec_ls "$@"
+    else
+        _ali_ec_ls "$@" \
+            | ali_table_json \
+                .InstanceId .StartTime .Status .OSNameEn   .Cpu    .Memory .HostName    .EipAddress.IpAddress   
+    fi
+
+#     _ali_ec_ls "$@" | jq '
+#     .[] | { 
+#         osname: .OSNameEn,
+#         cpu: .Cpu,
+#         memory: .Memory,
+#         hostname: .HostName,
+#         image: .ImageId,
+#         ip: .EipAddress.IpAddress,
+#         zone: .ZoneId,
+#         start: .StartTime,
+#         status: .Status,
+#         id: .InstanceId
+#     }
+# ' | jq -s .
 
 }
 
 # shellcheck disable=SC2120
-ali_ec_ls(){
+_ali_ec_ls(){
     case $# in
         0)  aliyun ecs DescribeInstances | jq .Instances.Instance
             ;;
-        *)  ali_ec_ls | jq .[] | _ali_ec_filter "${1:-Provide regex pattern}" | jq -s .
+        *)  _ali_ec_ls | jq .[] | _ali_ec_filter "${1:-Provide regex pattern}" | jq -s .
             ;;
     esac
 }
