@@ -9,7 +9,7 @@ ali_sg(){
     param <<A
 subcommand:
     create|+        "create security group"
-    delete|-        "delete security group"
+    del|-        "delete security group"
     ls              "list security group"
     join            "join"
     leave           "leave"
@@ -29,7 +29,7 @@ ali_sg_quick(){
     case "$1" in
         +*) ali_sg_allocate "${1#+}"  
             ;;
-        :*) ali_sg_delete "${1#:}"
+        :*) ali_sg_del "${1#:}"
             ;;
         *)   
             ali_sg_ls "$@"
@@ -87,7 +87,7 @@ ali_sg_exact_id(){
 
 
 
-ali_sg_delete(){
+ali_sg_del(){
     local id
     if id="$(ali_sg_exact_id "$@")"; then
         ali_log info "SecurityGroup ID: $id"
