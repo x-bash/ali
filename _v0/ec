@@ -22,17 +22,22 @@ A
 
 ali_ec_quick(){
     ali_ec_ls "$@"
+
+    if [ -t 1 ]; then
+        : Consider providing interative ui.
+    fi
 }
 
 ali_ec_ls(){
     if [ ! -t 1 ]; then
         _ali_ec_ls "$@"
-    else
-        _ali_ec_ls "$@" \
-            | ali_table_json \
-                .InstanceId .StartTime .Status .OSNameEn   .Cpu    .Memory .HostName    .EipAddress.IpAddress   
+        return
     fi
-
+    
+    _ali_ec_ls "$@" \
+        | ali_table_json \
+            .InstanceId .StartTime .Status .OSNameEn   .Cpu    .Memory .HostName    .EipAddress.IpAddress   
+    
 #     _ali_ec_ls "$@" | jq '
 #     .[] | { 
 #         osname: .OSNameEn,
