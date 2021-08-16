@@ -22,8 +22,21 @@ A
     "ali_sg_rule_$PARAM_SUBCMD" "$@"
 }
 
-# shellcheck disable=SC2120
 ali_sg_rule_ls(){
+    if [ ! -t 1 ]; then
+        _ali_sg_rule_ls "$@"
+    else
+        _ali_sg_rule_ls "$@" \
+            | ali_table_json \
+                .CreateTime .Direction .NicType .IpProtocol \
+                .PortRange .DestCidrIp .SourcePortRange .SourceCidrIp \
+                .Policy .Priority .Description 
+    fi
+}
+
+
+# shellcheck disable=SC2120
+_ali_sg_rule_ls(){
     local id
     if ! id=$(ali_sg_exact_id "${1:?Provide rule regex}"); then
         return

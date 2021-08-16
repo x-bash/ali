@@ -26,7 +26,7 @@ ali_table_json(){
 "
     ui table -
     eval ui table + "$title"
-    for line in $(jq  -r ".[] | [ $args ] | join(\" \") "); do
+    for line in $(jq -r ".[] | [ $args ] | map( . | @json) | join(\" \") "); do
         eval ui table + "$line"
     done
     ui table out 6
