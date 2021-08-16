@@ -102,27 +102,41 @@ function pprint(name, val){
 '
 }
 
-ali_sg_rule_add_ingress(){
-    eval aliyun ecs AuthorizeSecurityGroup \
-        "$(ali_sg_rule_parsing "${1:?Provide rule string}")"
+ali_sg_rule_add(){
+    ali_sg_rule_ingress_add "$@"
 }
 
-ali_sg_rule_add_egress(){
-    eval aliyun ecs AuthorizeSecurityGroupEgress \
-        "$(ali_sg_rule_parsing "${1:?Provide rule string}")"
+ali_sg_rule_del(){
+    ali_sg_rule_ingress_del "$@"
 }
 
-ali_sg_rule_rm_ingress(){
-    eval aliyun ecs RevokeSecurityGroup \
-        "$(ali_sg_rule_parsing "${1:?Provide rule string}")"
+ali_sg_rule_ingress_add(){
+    ali_sg_rule_ingress_func AuthorizeSecurityGroup "$@"
 }
 
-ali_sg_rule_rm_egress(){
-    eval aliyun ecs RevokeSecurityGroupEgress \
-        "$(ali_sg_rule_parsing "${1:?Provide rule string}")"
+ali_sg_rule_ingress_del(){
+    ali_sg_rule_ingress_func RevokeSecurityGroup "$@"
 }
 
+ali_sg_rule_egress_add(){
+    ali_sg_rule_ingress_func AuthorizeSecurityGroupEgress "$@"
+}
 
+ali_sg_rule_egress_del(){
+    ali_sg_rule_ingress_func RevokeSecurityGroup "$@"
+}
+
+ali_sg_rule_egress_func(){
+    local func="${1:-Provide function}"
+    local rule
+    local rule_args
+    for rule in "$@"; do
+        (
+            rule_args="$(ali_sg_rule_parsing "${rule}")" && 
+                eval aliyun ecs "$func" "$rule_args"
+        ) || return  
+    done
+}
 
 
 # ali_sg_rule_add_ingress(){
