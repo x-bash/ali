@@ -37,21 +37,6 @@ ali_ec_ls(){
     _ali_ec_ls "$@" \
         | ali_table_json \
             .InstanceId .StartTime .Status .OSNameEn   .Cpu    .Memory .HostName    .EipAddress.IpAddress   
-    
-#     _ali_ec_ls "$@" | jq '
-#     .[] | { 
-#         osname: .OSNameEn,
-#         cpu: .Cpu,
-#         memory: .Memory,
-#         hostname: .HostName,
-#         image: .ImageId,
-#         ip: .EipAddress.IpAddress,
-#         zone: .ZoneId,
-#         start: .StartTime,
-#         status: .Status,
-#         id: .InstanceId
-#     }
-# ' | jq -s .
 
 }
 
