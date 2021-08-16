@@ -90,7 +90,6 @@ function pprint(name, val){
 }
     
 {
-  
     pprint("--NicType",         $1)
     pprint("--IpProtocol",      $2)
     pprint("--PortRange",       $3)
@@ -99,7 +98,8 @@ function pprint(name, val){
     pprint("--SourceCidrIp",    $6)
     pprint("--Policy",          $7)
     pprint("--Priority",        $8)
-}'
+}
+'
 }
 
 ali_sg_rule_add_ingress(){
