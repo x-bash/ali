@@ -154,9 +154,8 @@ A
     "ali_sg_rule_egress_$PARAM_SUBCMD" "$@"
 }
 
-aliyun ecs AuthorizeSecurityGroup --SecurityGroupId sg-j6cc0krt5quc5f1rhg5v --IpProtocol tcp --PortRange 80/80 --SourceCidrIp 0.0.0.0/0 --Priority 1
-aliyun ecs AuthorizeSecurityGroup --SecurityGroupId sg-j6cc0krt5quc5f1rhg5v --NicType "intranet" --IpProtocol tcp --PortRange "1000/1001" --SourcePortRange "10000/50001" --SourceCidrIp "0.0.0.0/0" --Policy "accept" --Priority "1" 
-
+# aliyun ecs AuthorizeSecurityGroup --SecurityGroupId sg-j6cc0krt5quc5f1rhg5v --IpProtocol tcp --PortRange 80/80 --SourceCidrIp 0.0.0.0/0 --Priority 1
+# aliyun ecs AuthorizeSecurityGroup --SecurityGroupId sg-j6cc0krt5quc5f1rhg5v --NicType "intranet" --IpProtocol tcp --PortRange "1000/1001" --SourcePortRange "10000/50001" --SourceCidrIp "0.0.0.0/0" --Policy "accept" --Priority "1" 
 
 ali_sg_rule_egress_add(){
     ali_sg_rule_func AuthorizeSecurityGroupEgress "$@"
@@ -164,11 +163,6 @@ ali_sg_rule_egress_add(){
 
 ali_sg_rule_egress_del(){
     ali_sg_rule_func RevokeSecurityGroup "$@"
-}
-
-echo_eval(){
-    echo "$@"
-    eval "$@"
 }
 
 ali_sg_rule_func(){
@@ -185,7 +179,7 @@ ali_sg_rule_func(){
     for rule in "$@"; do
         (
             rule_args="$(ali_sg_rule_parsing "${rule}")" && 
-                echo_eval aliyun ecs "$func" --SecurityGroupId "$id" "$rule_args"
+                eval aliyun ecs "$func" --SecurityGroupId "$id" "$rule_args"
         ) || return  
     done
 }
