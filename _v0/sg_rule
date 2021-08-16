@@ -63,46 +63,114 @@ ali_sg_rule_del(){
     fi
 }
 
+
+# TCP|80-91||intranet|accept|ip|src-ip|
+# TCP|80-91||intranet|accept|ip|src-group-ip|
+# TCP|80-91||intranet|accept|ip|src-prefix-ip|
+
+# TCP|80-91||intranet||0.0.0.0/0|accept|1
+
+# TCP|80-91|src-ip|intranet||0.0.0.0/0|accept|1
+# TCP|80-91|src-group-ip|intranet||0.0.0.0/0|accept|1
+# TCP|80-91|src-prefix-ip|intranet||0.0.0.0/0|accept|1
+
+
+# TCP|24|0.0.0.0/0|ACCEPT|HIGH
+
+# ali sg rule add egree "intranet|TCP|80-91|src-prefix-ip||0.0.0.0/0|accept|1"
+# ali sg rule del egree "intranet|TCP|80-91|src-prefix-ip||0.0.0.0/0|accept|1"
+
+# ali_sg_rule_parsing "intranet|TCP|80-91|src-prefix-ip||0.0.0.0/0|accept|1"
+
+ali_sg_rule_parsing(){
+    echo "${1:-Provide}" | awk -v FS='|' '
+function pprint(name, val){
+    if (val == "") return
+    printf("%s %s ", name, val)
+}
+    
+{
+  
+    pprint("--NicType",         $1)
+    pprint("--IpProtocol",      $2)
+    pprint("--PortRange",       $3)
+    pprint("--DestCidrIp",      $4)
+    pprint("--SourcePortRange", $5)
+    pprint("--SourceCidrIp",    $6)
+    pprint("--Policy",          $7)
+    pprint("--Priority",        $8)
+}'
+}
+
 ali_sg_rule_add_ingress(){
-    param <<A
-options:
-    --protocol|-p           "Protocol"      <protocol>=all      =   tcp udp icmp gre all
-    --range|-r              "port range"    <port-rage>=""      
-    --drop|-D               "set to drop"
-    --priority              "priority"      <priority>=1
-    --desc|--description    "description"   <description>=""
-A
-
-    local policy=accept
-    [ -n "$drop" ] && printf "drop"
-
-    aliyun ecs AuthorizeSecurityGroup \
-        --IpProtocol "${protocol}" \
-        --PortRange "${range}" \
-        --Policy "$policy" \
-        --Description "$description" \
-        --Priority "${proity}"
-
+    eval aliyun ecs AuthorizeSecurityGroup \
+        "$(ali_sg_rule_parsing "${1:?Provide rule string}")"
 }
 
 ali_sg_rule_add_egress(){
-    param <<A
-options:
-    --protocol|-p           "Protocol"      <protocol>=all      =   tcp udp icmp gre all
-    --range|-r              "port range"    <port-rage>=""      
-    --drop|-D               "set to drop"
-    --priority              "priority"      <priority>=1
-    --desc|--description    "description"   <description>=""
-A
+    eval aliyun ecs AuthorizeSecurityGroupEgress \
+        "$(ali_sg_rule_parsing "${1:?Provide rule string}")"
+}
 
-    local policy=accept
-    [ -n "$drop" ] && printf "drop"
+ali_sg_rule_rm_ingress(){
+    eval aliyun ecs RevokeSecurityGroup \
+        "$(ali_sg_rule_parsing "${1:?Provide rule string}")"
+}
 
-    aliyun ecs AuthorizeSecurityGroupEgress \
-        --IpProtocol "${protocol}" \
-        --PortRange "${range}" \
-        --Policy "$policy" \
-        --Description "$description" \
-        --Priority "${proity}"
+ali_sg_rule_rm_egress(){
+    eval aliyun ecs RevokeSecurityGroupEgress \
+        "$(ali_sg_rule_parsing "${1:?Provide rule string}")"
+}
+
+
+
+
+# ali_sg_rule_add_ingress(){
+#     param <<A
+# options:
+#     --protocol|-p           "Protocol"      <protocol>=all      =   tcp udp icmp gre all
+#     --range|-r              "port range"    <port-rage>=""      
+#     --drop|-D               "set to drop"
+#     --priority              "priority"      <priority>=1
+#     --desc|--description    "description"   <description>=""
+# A
+
+#     local policy=accept
+#     [ -n "$drop" ] && printf "drop"
+
+    # aliyun ecs AuthorizeSecurityGroup \
+    #     --IpProtocol "${protocol}" \
+    #     --PortRange "${range}" \
+    #     --Policy "$policy" \
+    #     --Description "$description" \
+    #     --Priority "${proity}"
+
+# }
+
+
+# ali_sg_rule_add_egress(){
+
+#     param <<A
+# options:
+#     --protocol|-p           "Protocol"      <protocol>=all      =   tcp udp icmp gre all
+#     --range|-r              "port range"    <port-rage>=""      
+#     --drop|-D               "set to drop"
+#     --priority              "priority"      <priority>=1
+#     --desc|--description    "description"   <description>=""
+# A
+
+#     local policy=accept
+#     [ -n "$drop" ] && printf "drop"
+
+#     aliyun ecs AuthorizeSecurityGroupEgress \
+#         --IpProtocol "${protocol}" \
+#         --PortRange "${range}" \
+#         --Policy "$policy" \
+#         --Description "$description" \
+#         --Priority "${proity}"
+# }
+
+ali_sg_rule_remove_ingress(){
+    :
 }
 
