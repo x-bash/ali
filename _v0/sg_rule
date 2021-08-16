@@ -6,10 +6,16 @@ subcommand:
     ls              "list security group rules"
     add             "add rule"
     del             "delete rules"
+    ingress         "ingress"
+    egress          "egress"
 A
 
     if [ -z "$PARAM_SUBCMD" ]; then
-        ali_sg_quick "$@"
+        if [ $# -eq 0 ]; then
+            ali_sg_rule help
+        else
+            ali_sg_rule_ls "$@"
+        fi
         return
     fi
 
@@ -86,7 +92,7 @@ ali_sg_rule_parsing(){
     echo "${1:-Provide}" | awk -v FS='|' '
 function pprint(name, val){
     if (val == "") return
-    printf("%s %s ", name, val)
+    printf("%s \"%s\" ", name, val)
 }
     
 {
@@ -110,30 +116,76 @@ ali_sg_rule_del(){
     ali_sg_rule_ingress_del "$@"
 }
 
+ali_sg_rule_ingress(){
+    param <<A
+subcommand:
+    add             "add ingress rule"
+    del             "delete ingress rules"
+A
+
+    if [ -z "$PARAM_SUBCMD" ]; then
+        ali_sg_quick "$@"
+        return
+    fi
+
+    "ali_sg_rule_ingress_$PARAM_SUBCMD" "$@"
+}
+
 ali_sg_rule_ingress_add(){
-    ali_sg_rule_ingress_func AuthorizeSecurityGroup "$@"
+    ali_sg_rule_func AuthorizeSecurityGroup "$@"
 }
 
 ali_sg_rule_ingress_del(){
-    ali_sg_rule_ingress_func RevokeSecurityGroup "$@"
+    ali_sg_rule_func RevokeSecurityGroup "$@"
 }
 
+ali_sg_rule_egress(){
+    param <<A
+subcommand:
+    add             "add ingress rule"
+    del             "delete ingress rules"
+A
+
+    if [ -z "$PARAM_SUBCMD" ]; then
+        ali_sg_quick "$@"
+        return
+    fi
+
+    "ali_sg_rule_egress_$PARAM_SUBCMD" "$@"
+}
+
+aliyun ecs AuthorizeSecurityGroup --SecurityGroupId sg-j6cc0krt5quc5f1rhg5v --IpProtocol tcp --PortRange 80/80 --SourceCidrIp 0.0.0.0/0 --Priority 1
+aliyun ecs AuthorizeSecurityGroup --SecurityGroupId sg-j6cc0krt5quc5f1rhg5v --NicType "intranet" --IpProtocol tcp --PortRange "1000/1001" --SourcePortRange "10000/50001" --SourceCidrIp "0.0.0.0/0" --Policy "accept" --Priority "1" 
+
+
 ali_sg_rule_egress_add(){
-    ali_sg_rule_ingress_func AuthorizeSecurityGroupEgress "$@"
+    ali_sg_rule_func AuthorizeSecurityGroupEgress "$@"
 }
 
 ali_sg_rule_egress_del(){
-    ali_sg_rule_ingress_func RevokeSecurityGroup "$@"
+    ali_sg_rule_func RevokeSecurityGroup "$@"
 }
 
-ali_sg_rule_egress_func(){
+echo_eval(){
+    echo "$@"
+    eval "$@"
+}
+
+ali_sg_rule_func(){
     local func="${1:-Provide function}"
+    
+    local id
+    if ! id=$(ali_sg_exact_id "${2:?Provide rule regex}"); then
+        return
+    fi
+
+    shift 2
     local rule
     local rule_args
     for rule in "$@"; do
         (
             rule_args="$(ali_sg_rule_parsing "${rule}")" && 
-                eval aliyun ecs "$func" "$rule_args"
+                echo_eval aliyun ecs "$func" --SecurityGroupId "$id" "$rule_args"
         ) || return  
     done
 }
