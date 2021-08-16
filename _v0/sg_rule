@@ -90,14 +90,14 @@ function pprint(name, val){
 }
     
 {
-    pprint("--NicType",         $1)
-    pprint("--IpProtocol",      $2)
-    pprint("--PortRange",       $3)
-    pprint("--DestCidrIp",      $4)
-    pprint("--SourcePortRange", $5)
-    pprint("--SourceCidrIp",    $6)
-    pprint("--Policy",          $7)
-    pprint("--Priority",        $8)
+    pprint( "--NicType",         $1 )
+    pprint( "--IpProtocol",      $2 )
+    pprint( "--PortRange",       $3 )
+    pprint( "--DestCidrIp",      $4 )
+    pprint( "--SourcePortRange", $5 )
+    pprint( "--SourceCidrIp",    $6 )
+    pprint( "--Policy",          $7 )
+    pprint( "--Priority",        $8 )
 }
 '
 }
