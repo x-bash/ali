@@ -54,6 +54,14 @@ A
 
 # shellcheck disable=SC2120
 ali_sg_ls(){
+    if [ ! -t 1 ]; then
+        _ali_sg_ls "$@"
+    else
+        _ali_sg_ls "$@" | ali_table_json .CreationTime .SecurityGroupId .SecurityGroupName .SecurityGroupType
+    fi
+}
+
+_ali_sg_ls(){
     case $# in
         0)  aliyun ecs DescribeSecurityGroups | jq .SecurityGroups.SecurityGroup
             ;;
@@ -67,8 +75,6 @@ ali_sg_ls(){
             ;;
     esac
 }
-
-
 
 ali_sg_exact_id(){
     local s
@@ -97,10 +103,25 @@ ali_sg_del(){
 
 
 ali_sg_refer(){
+    if [ ! -t 1 ]; then
+        _ali_sg_refer "$@"
+    else
+        local s
+        if s="$(_ali_sg_refer "$@")"; then
+            ali_table_json .a .b <<A
+$s
+A
+        fi
+    fi
+}
+
+_ali_sg_refer(){
     local id
     if id="$(ali_sg_exact_id "$@")"; then
         ali_log info "SecurityGroup ID: $id"
-        aliyun ecs DescribeSecurityGroupReferences  --SecurityGroupId.1 "$id"
+        aliyun ecs DescribeSecurityGroupReferences  --SecurityGroupId.1 "$id" | jq .SecurityGroupReferences.SecurityGroupReference
+        return 0
     fi
+    return 1
 }
 
