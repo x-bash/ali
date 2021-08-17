@@ -83,24 +83,24 @@ ali_sg_rule_del(){
 }
 
 
-# TCP|80-91||intranet|accept|ip|src-ip|
-# TCP|80-91||intranet|accept|ip|src-group-ip|
-# TCP|80-91||intranet|accept|ip|src-prefix-ip|
+# ali_sg_rule_str(){
+#     jq '.[] | [ .NicType, .IpProtocol, .PortRange, .DestCidrIp, .SourcePortRange, .SourceCidrIp, .Policy, .Priority ] | join("|")'
+# }
 
-# TCP|80-91||intranet||0.0.0.0/0|accept|1
-
-# TCP|80-91|src-ip|intranet||0.0.0.0/0|accept|1
-# TCP|80-91|src-group-ip|intranet||0.0.0.0/0|accept|1
-# TCP|80-91|src-prefix-ip|intranet||0.0.0.0/0|accept|1
-
+ali_sg_rule_str(){
+    jq '. | 
+        if .SourceGroupId != ""       then    [ .NicType, .IpProtocol, .PortRange, .DestCidrIp, .SourcePortRange, .SourceGroupId, .Policy, .Priority ]
+        elif .SourcePrefixListId != ""  then    [ .NicType, .IpProtocol, .PortRange, .DestCidrIp, .SourcePortRange, .SourcePrefixListId, .Policy, .Priority ]
+        else                                    [ .NicType, .IpProtocol, .PortRange, .DestCidrIp, .SourcePortRange, .SourceCidrIp, .Policy, .Priority ]
+        end | join("|")'
+}
 
 # TCP|24|0.0.0.0/0|ACCEPT|HIGH
 
-# ali sg rule add egree "intranet|TCP|80-91|src-prefix-ip||0.0.0.0/0|accept|1"
-# ali sg rule del egree "intranet|TCP|80-91|src-prefix-ip||0.0.0.0/0|accept|1"
+# ali sg rule add "intranet|TCP|80-91|src-prefix-ip||0.0.0.0/0|accept|1"
+# ali sg rule del "intranet|TCP|80-91|src-prefix-ip||0.0.0.0/0|accept|1"
 
 # ali_sg_rule_parsing "intranet|TCP|80-91|src-prefix-ip||0.0.0.0/0|accept|1"
-
 ali_sg_rule_parsing(){
     echo "${1:-Provide}" | awk -v FS='|' '
 function pprint(name, val){
@@ -166,9 +166,6 @@ A
 
     "ali_sg_rule_egress_$PARAM_SUBCMD" "$@"
 }
-
-# aliyun ecs AuthorizeSecurityGroup --SecurityGroupId sg-j6cc0krt5quc5f1rhg5v --IpProtocol tcp --PortRange 80/80 --SourceCidrIp 0.0.0.0/0 --Priority 1
-# aliyun ecs AuthorizeSecurityGroup --SecurityGroupId sg-j6cc0krt5quc5f1rhg5v --NicType "intranet" --IpProtocol tcp --PortRange "1000/1001" --SourcePortRange "10000/50001" --SourceCidrIp "0.0.0.0/0" --Policy "accept" --Priority "1" 
 
 ali_sg_rule_egress_add(){
     ali_sg_rule_func AuthorizeSecurityGroupEgress "$@"
