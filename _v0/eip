@@ -80,7 +80,7 @@ ali_eip_exact_id(){
     case $len in
         0)  ali_log warn "No such ip found."
             ;;
-        1)  echo "$s" | jq -r .AllocationId
+        1)  echo "$s" | jq -r .[0].AllocationId
             return 0
             ;;
         *)  ali_log warn "Multiple ip found."
