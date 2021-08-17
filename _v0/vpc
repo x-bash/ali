@@ -68,7 +68,6 @@ ali_vpc_quick(){
         esac
     done
 
-
 }
 
 ali_vpc_ls(){

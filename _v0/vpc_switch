@@ -1,5 +1,6 @@
+# shellcheck shell=sh disable=SC3043
 
-vpc_switch_list(){
+ali_vpc_switch_list(){
     param <<A
 subcommand:
     ls                  "list"
@@ -18,19 +19,19 @@ A
     "ali_ec_$PARAM_SUBCMD" "$@"
 }
 
-vpc_switch_create(){
+ali_vpc_switch_create(){
     :
 }
 
-vpc_switch_del(){
+ali_vpc_switch_del(){
     :
 }
 
-vpc_switch_modify(){
+ali_vpc_switch_modify(){
     :
 }
 
-vpc_info(){
+ali_vpc_info(){
     :
 }
 
