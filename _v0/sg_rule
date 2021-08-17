@@ -253,11 +253,6 @@ A
 ali_sg_rule_egress_add(){       ali_sg_rule_func AuthorizeSecurityGroupEgress "$@";     }
 ali_sg_rule_egress_del(){       ali_sg_rule_func RevokeSecurityGroup "$@";              }
 
-eval_echo(){
-    echo "$@"
-    eval "$@"
-}
-
 ali_sg_rule_func(){
     local func="${1:-Provide function}"
     

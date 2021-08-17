@@ -1,5 +1,10 @@
 # shellcheck shell=sh disable=SC3043
 
+eval_echo(){
+    echo "$@" >&2
+    eval "$@"
+}
+
 ali_region(){
     if [ -t 0 ]; then
         aliyun ecs DescribeRegions | jq .Regions.Region
