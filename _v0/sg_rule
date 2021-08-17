@@ -51,16 +51,16 @@ ali_sg_rule_quick(){
                 ;;
             -*)     
                 # ali_sg_rule_add "${line#+}"
-                line=${line#-}
-                line=$(echo "$line" | tr -cd '0-9')
-                
-                if [ -z "$(echo "$line" | tr -d '0-9')" ]; then
-                    rule="$(printf "%s" "$s" | jq ".[$line]" | ali_sg_rule_str)"
-                else
-                    rule="$line"
-                fi
+                local newline
+                newline=${line#-}
 
-                eval ali_sg_rule_del "$@" "$rule"
+                case "${newline}" in
+                    *\|*)           rule=$newline  ;;
+                    *)              newline=$(echo "$newline" | tr -cd '0-9')
+                                    rule="$(printf "%s" "$s" | jq ".[$newline]" | ali_sg_rule_str)" ;;
+                esac
+
+                ali_sg_rule_del "$@" "$rule"
                 ;;
             r)  
                 _ali_sg_rule_quick_title "$@"
@@ -157,13 +157,6 @@ _ali_sg_rule_ls_origin(){
 #     return 1
 # }
 
-ali_sg_rule_del(){
-    local item
-    if item=$(ali_sg_rule_exact "${1:?Provide rule regex}" ); then
-        printf "%s" "$item" | jq -r .SecurityGroupIds
-    fi
-}
-
 
 # ali_sg_rule_str(){
 #     jq '.[] | [ .NicType, .IpProtocol, .PortRange, .DestCidrIp, .SourcePortRange, .SourceCidrIp, .Policy, .Priority ] | join("|")'
@@ -208,12 +201,20 @@ function pprint(name, val){
 }
     
 {
+    $0=str_trim($0)
+
+    if ($0 ~ /^"[^"]+"$/) {
+        $0 = substr($0, 2, length($0)-2)
+    }
+
     if (($1 != "internet") && ($1 != "intranet")) {
+        
         if (str_startswith($0, "|") == true) {
             $0 = "intranet" $0
         } else {
             $0 = "intranet|" $0
         }
+        print "ffff\t" $0 "\t" $1 "\t" $2 "\t" $3 >"/dev/stderr"
     }
     pprint( "--NicType",         $1 )
     pprint( "--IpProtocol",      $2 )
@@ -232,6 +233,7 @@ ali_sg_rule_add(){
 }
 
 ali_sg_rule_del(){
+    echo "$@"
     ali_sg_rule_ingress_del "$@"
 }
 
@@ -281,6 +283,11 @@ ali_sg_rule_egress_del(){
     ali_sg_rule_func RevokeSecurityGroup "$@"
 }
 
+eval_echo(){
+    echo "$@"
+    eval "$@"
+}
+
 ali_sg_rule_func(){
     local func="${1:-Provide function}"
     
@@ -294,7 +301,7 @@ ali_sg_rule_func(){
     local rule_args
     for rule in "$@"; do
         (
-            rule_args="$(ali_sg_rule_parsing "${rule}")" && 
+            rule_args="$(ali_sg_rule_parsing "${rule}")" &&
                 eval aliyun ecs "$func" --SecurityGroupId "$id" "$rule_args"
         ) || return  
     done
