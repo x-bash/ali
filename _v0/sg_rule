@@ -194,7 +194,7 @@ function pprint(name, val){
         } else {
             $0 = "intranet|" $0
         }
-        print "ffff\t" $0 "\t" $1 "\t" $2 "\t" $3 >"/dev/stderr"
+        # print "ffff\t" $0 "\t" $1 "\t" $2 "\t" $3 >"/dev/stderr"
     }
     pprint( "--NicType",         $1 )
     pprint( "--IpProtocol",      $2 )
