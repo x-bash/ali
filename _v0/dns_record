@@ -6,12 +6,15 @@ subcommand:
     put         "put record"
     add         "add record"
     get         "get record"
+    put2        "put2 record"
+    del         "del record"
     id          "add record"
-    list|ls     "list all records"
+    ls          "list all records"
+    quick       "quick"
 A
 
     if [ -z "$PARAM_SUBCMD" ]; then
-        ali_dns_record help
+        ali_dns_record_quick "$@"
         return 1
     fi
 
@@ -19,6 +22,57 @@ A
 
 }
 
+_ali_dns_record_quick_title(){
+    s=$(ali_dns_record_ls "${1:?Provide domain name}")
+    printf "%s" "$s" | ali_dns_record_ls_format
+
+    cat <<A
+
+Commands:
+  +|add         Format: add <name> <address>
+  -|del         Format: del <part of the vpc's name or id>
+  r             reload
+  q             quit
+
+A
+}
+
+ali_dns_record_quick(){
+    # local domain_id
+    # if ! domain_id="$(ali_dns_domain_exact_id "${1:?Provide domain keyword}")"; then
+    #     return
+    # fi
+
+    local domain_name="$1"
+
+    _ali_dns_record_quick_title "$domain_name"
+
+    echo hi1 >&2
+    local line
+    while printf "> " && ali_read line; do
+        eval set -- "$line"
+        local cmd=$1;   shift
+        case "$cmd" in
+            +|add)
+                echo hi2 >&2
+                ali_dns_record_put2 "$@" >&2
+                _ali_dns_record_quick_title "$domain_name"
+                ;;
+            -|del)
+                ali_dns_record_del "$@"
+                _ali_dns_record_quick_title "$domain_name"
+                ;;
+            r)  
+                _ali_dns_record_quick_title "$domain_name"
+                ;;
+            q)  break 
+                ;;
+            "") ;;
+            *)  ali dns record "$@"
+        esac
+    done
+
+}
 
 ali_dns_record_add(){
     local DomainName=${1:?"Domain Name. If you want to setup 'xxx.domain.com', please input 'domain.com'"}
@@ -47,15 +101,18 @@ ali_dns_record_get(){
     jq -r '.DomainRecords.Record[]'
 }
 
+ali_dns_record_ls_format(){
+    ali_table_json \
+            .RecordId .Status .DomainName .RR .Type .Value .Weight  # .Line .Locked
+}
+
 ali_dns_record_ls(){
     if [ ! -t 1 ]; then
         _ali_dns_record_ls "$@"
         return
     fi
     
-    _ali_dns_record_ls "$@" \
-        | ali_table_json \
-            .RecordId .Status .DomainName .RR .Type .Value .Weight  # .Line .Locked
+    _ali_dns_record_ls "$@" | ali_dns_record_ls_format
 }
 
 
@@ -77,10 +134,12 @@ _ali_dns_record_ls(){
             fi
             ;;
         *)  local regex="${2:-Provide regex pattern}"
+            echo ::: _ali_dns_record_ls "${1:?Provide domain name}" >&2
             _ali_dns_record_ls "${1:?Provide domain name}" | jq -r "
                 .[] | 
-                if .RR | test(\"$regex\")      then .
+                if .RR | test(\"$regex\")           then .
                 elif .Value | test(\"$regex\")      then .
+                elif .RecordId | test(\"$regex\")   then .
                 else empty end
             " | jq -s .
             ;;
@@ -91,7 +150,7 @@ ali_dns_record_exact_id(){
     local s
     s="$(_ali_dns_record_ls "$@")"
     local len
-    len="$(echo "$s" | jq ' . | length ')"
+    len="$(printf "%s" "$s" | jq ' . | length ')"
     case $len in
         0)  ali_log warn "No such ip found.";;
         1)  echo "$s" | jq -r .[0].RecordId
@@ -130,10 +189,19 @@ ali_dns_record_update(){
 
 ali_dns_record_del(){
     if [ "$#" -eq 1 ]; then
-        local name=${1}
-        local rr=${name%.*.*}
-        local domain=${name#${rr}.}
-        ali_dns_record_del "$domain" "$rr"
+        case "$1" in
+            *\.*)
+                local name=${1}
+                local rr=${name%.*.*}
+                local domain=${name#${rr}.}
+                ali_dns_record_del "$domain" "$rr"
+                ;;
+            *) 
+                if aliyun alidns DeleteDomainRecord --RecordId "$1"; then
+                    ali_log info "ali_dns_record_del success."
+                fi
+                ;;
+        esac
     else
         local DomainName=${1:?"Domain Name"}
         local RR=${2:?"Provide RR"}
@@ -172,7 +240,7 @@ ali_dns_record_put(){
     local item
     item="$(_ali_dns_record_ls "$DomainName" "^$RR$")"
     local len
-    len="$(echo "$item" | jq '. | length')"
+    len="$(printf "%s" "$item" | jq '. | length' 2>/dev/null)"
 
     if [ "$len" -eq 0 ]; then
         ali_log info "Add New Record\n: $DomainName $RR $Type $Value"
