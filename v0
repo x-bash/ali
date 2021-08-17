@@ -15,22 +15,6 @@ xrc param/v0
 
 xrc log init ali
 
-ali_table_json(){
-    local IFS=','
-    args="$*"
-    xrc ui
-    local line
-    IFS=" "
-    title="$(echo "$*" | tr -d .)"
-    IFS="
-"
-    ui table -
-    eval ui table + "$title"
-    for line in $(jq -r ".[] | [ $args ] | map( . | @json) | join(\" \") "); do
-        eval ui table + "$line"
-    done
-    ui table out 6
-}
 
 ali(){
     param <<A

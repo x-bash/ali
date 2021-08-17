@@ -16,3 +16,65 @@ ali_zone(){
         aliyun ecs DescribeZones | jq .Zones.Zone
     fi
 }
+
+
+ali_table_json(){
+    local arg
+    local args
+    local title
+    for arg in "$@"; do
+        case "$arg" in
+            .*)     args="$args,$arg"      
+                    title="$title ${arg#.}"      
+                    ;;
+            *=.*)   args="$args,${arg#*=}"
+                    title="$title ${arg%%=.*}"
+                    ;;
+            *)      printf "%s" "Argument Wrong." >&2
+        esac
+    done
+    args="${args#,}"
+
+    xrc ui
+    local line
+    ui table -
+    IFS="
+"
+    eval ui table + "$title"
+    for line in $(jq -r ".[] | [ $args ] | map( . | @json) | join(\" \") "); do
+        eval ui table + "$line"
+    done
+    ui table out 6
+}
+
+ali_instance(){
+    param <<A
+options:
+    --mem       "Memory"        <size>=""
+    --cpu       "CPU"           <core>=""
+    --gpu       "GPU"           <gpu>=0
+A
+
+    {
+        aliyun ecs DescribeInstanceTypes | jq .InstanceTypes.InstanceType[] | jq '
+            def fun: if . == null then "" else . end;
+            . |= . + { credit: .InitialCredit | fun }
+        '
+    } | {
+        if [ -z "$mem" ]; then          cat
+        else                            jq "if .MemorySize==$mem  then .   else empty end";       fi
+    } | {
+        if  [ -z "$cpu" ];   then       cat
+        else                            jq "if .CpuCoreCount==$cpu  then .  else empty end";     fi
+    } | {
+        if  [ -z "$gpu" ];   then       cat
+        else                            jq "if .GPUAmount==$gpu     then .  else empty end";     fi
+    } | jq -s . | {
+        if [ -t 1 ]; then
+            ali_table_json id=.InstanceTypeId cpu=.CpuCoreCount disk=.DiskQuantity mem=.MemorySize gpu=.GPUAmount .credit
+        else
+            cat
+        fi
+    }
+
+}
