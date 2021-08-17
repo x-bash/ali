@@ -8,6 +8,7 @@ xrc param/v0
 # xrc ali/_v0/dns
 
 . ./_v0/ec
+. ./_v0/vpc
 . ./_v0/dns
 . ./_v0/eip
 . ./_v0/sg
@@ -21,6 +22,7 @@ ali(){
 subcommand:
     ec|ecs              "ecs management"
     sg|securitygroup    "security group management"
+    vpc                 "vpc"
     dns                 "dns management"
     k8s                 "kubernete management"
     fc                  "function control"

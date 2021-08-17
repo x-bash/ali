@@ -47,22 +47,22 @@ ali_dns_record_get(){
     jq -r '.DomainRecords.Record[]'
 }
 
-ali_dns_record_list(){
+ali_dns_record_ls(){
     if [ ! -t 1 ]; then
-        _ali_dns_record_list "$@"
+        _ali_dns_record_ls "$@"
         return
     fi
     
-    _ali_dns_record_list "$@" \
+    _ali_dns_record_ls "$@" \
         | ali_table_json \
             .RecordId .Status .DomainName .RR .Type .Value .Weight  # .Line .Locked
 }
 
 
-_ali_dns_record_list(){
+_ali_dns_record_ls(){
     case $# in
         0)  ali dns domain ls | jq -r .[].DomainName | while read -r line; do
-                _ali_dns_record_list "$line"
+                _ali_dns_record_ls "$line"
             done
 
             # If in tty, should be ui and interactive form. Otherwise, a json list
@@ -73,11 +73,11 @@ _ali_dns_record_list(){
             if [ "$rr" = "$name" ]; then
                 aliyun alidns DescribeDomainRecords --DomainName "$name" | jq -r '.DomainRecords.Record'
             else
-                _ali_dns_record_list "$domain" "^$rr$"
+                _ali_dns_record_ls "$domain" "^$rr$"
             fi
             ;;
         *)  local regex="${2:-Provide regex pattern}"
-            _ali_dns_record_list "${1:?Provide domain name}" | jq -r "
+            _ali_dns_record_ls "${1:?Provide domain name}" | jq -r "
                 .[] | 
                 if .RR | test(\"$regex\")      then .
                 elif .Value | test(\"$regex\")      then .
@@ -89,7 +89,7 @@ _ali_dns_record_list(){
 
 ali_dns_record_exact_id(){
     local s
-    s="$(_ali_dns_record_list "$@")"
+    s="$(_ali_dns_record_ls "$@")"
     local len
     len="$(echo "$s" | jq ' . | length ')"
     case $len in
@@ -170,7 +170,7 @@ ali_dns_record_put(){
     local Value=${4:?"Provide IP"}
 
     local item
-    item="$(_ali_dns_record_list "$DomainName" "^$RR$")"
+    item="$(_ali_dns_record_ls "$DomainName" "^$RR$")"
     local len
     len="$(echo "$item" | jq '. | length')"
 

@@ -18,6 +18,8 @@ ali_zone(){
 }
 
 
+xrc ui
+
 ali_table_json(){
     local arg
     local args
@@ -35,7 +37,6 @@ ali_table_json(){
     done
     args="${args#,}"
 
-    xrc ui
     local line
     ui table -
     IFS="

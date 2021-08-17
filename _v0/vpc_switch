@@ -1,0 +1,36 @@
+
+vpc_switch_list(){
+    param <<A
+subcommand:
+    ls                  "list"
+    quick               "quick"
+    del                 "delete"
+    modify              "start instance"
+    attr                "stop instance"
+    create              "stop instance"
+A
+
+    if [ -z "$PARAM_SUBCMD" ]; then
+        ali_ec_quick "$@"
+        return
+    fi
+
+    "ali_ec_$PARAM_SUBCMD" "$@"
+}
+
+vpc_switch_create(){
+    :
+}
+
+vpc_switch_del(){
+    :
+}
+
+vpc_switch_modify(){
+    :
+}
+
+vpc_info(){
+    :
+}
+
