@@ -28,6 +28,7 @@ subcommand:
     eip                 "Elastics ip address"
     region              "Region"
     zone                "Zone"
+    instance            "instance"
 A
 
     if [ -z "$PARAM_SUBCMD" ]; then
