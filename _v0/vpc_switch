@@ -1,6 +1,6 @@
 # shellcheck shell=sh disable=SC3043
 
-ali_vpc_switch_list(){
+ali_vpc_switch(){
     param <<A
 subcommand:
     ls                  "list"
@@ -12,18 +12,22 @@ subcommand:
 A
 
     if [ -z "$PARAM_SUBCMD" ]; then
-        ali_ec_quick "$@"
+        ali_vpc_switch_quick "$@"
         return
     fi
 
-    "ali_ec_$PARAM_SUBCMD" "$@"
+    "ali_vpc_switch_$PARAM_SUBCMD" "$@"
+}
+
+ali_vpc_switch_quick(){
+    ali_vpc_switch_ls "$@"
 }
 
 ali_vpc_switch_ls(){
     if [ ! -t 1 ]; then
         _ali_vpc_switch_ls "$@"
     else
-        _ali_vpc_switch_ls "$@" | ali_table_json cidr=.CidrBlock .VpcName .Status .VpcId .VRouterId .CreationTime
+        _ali_vpc_switch_ls "$@" | ali_table_json cidr=.CidrBlock .VSwitchName .Status .VpcId .ZoneId .CreationTime .Description
     fi
 }
 
@@ -52,8 +56,33 @@ _ali_vpc_switch_ls(){
     esac 
 }
 
+
+# ali vpc switch create --vpc it-switch --zone cn-hongkong-a 
 ali_vpc_switch_create(){
-    :
+    param <<A
+options:
+    --vpc       "vpc id or key word to search"      <id>
+    --zone      "zone id"                           <zone-id>
+    --cidr      "Subnet of 172.16.0.0/12, 10.0.0.0/8, 192.168.0.0/16"  
+                                                    <cidr>=""
+    --name      "vswitch name"                      <name>=""
+    --description   "description"                   <des>=""
+A
+
+    local id
+    if ! id="$(ali_vpc_exact_id "$vpc")"; then
+        return
+    fi
+
+    name="${name:-"xcmd-ali-v0-vpc-$(date +%y%m%d%H%m)"}"
+
+    aliyun ecs CreateVSwitch \
+        ${vpc+--VpcId "$id"}    \
+        ${zone+--ZoneId "$zone"} \
+        ${cidr+--CidrBlock "$cidr"} \
+        ${description+--Description "$description"} \
+        ${name+--VSwitchName "$name"}
+
 }
 
 ali_vpc_switch_del(){

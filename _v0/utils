@@ -9,9 +9,9 @@ ali_region(){
 }
 
 ali_zone(){
-    if [ -t 0 ]; then
-        aliyun ecs DescribeZones | jq '.Zones.Zone[] | { LocalName: .LocalName, ZoneId: .ZoneId }' | jq -s .
-    
+    if [ -t 1 ]; then
+        # aliyun ecs DescribeZones | jq '.Zones.Zone[] | { LocalName: .LocalName, ZoneId: .ZoneId }' | jq -s .
+        aliyun ecs DescribeZones | jq '.Zones.Zone[] | { LocalName: .LocalName, ZoneId: .ZoneId }' | jq -s . | ali_table_json .LocalName .ZoneId
     else
         aliyun ecs DescribeZones | jq .Zones.Zone
     fi

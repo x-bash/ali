@@ -1,6 +1,8 @@
 # shellcheck shell=sh disable=SC3043
 
 
+. ./_v0/vpc_switch
+
 ali_vpc(){
     param <<A
 subcommand:
@@ -95,6 +97,11 @@ _ali_vpc_ls(){
     esac 
 }
 
+ali_vpc_exact_id(){
+    ali_vpc_exact "$@" | jq -r .VpcId
+}
+
+
 ali_vpc_exact(){
     local s
     s="$(_ali_vpc_ls "${1:-Provide regex}")"
@@ -120,7 +127,7 @@ options:
                                         <cidr>=""
 A
 
-    name="${name:-"xcmd-ali-v0-$(date +%y%m%d%H%m%S)"}"
+    name="${name:-"xcmd-ali-v0-vpc-$(date +%y%m%d%H%m)"}"
 
     # 172.16.0.0/12
     # 10.0.0.0/8
@@ -132,11 +139,9 @@ A
 }
 
 ali_vpc_del(){
-    local instance
-    if instance="$(ali_vpc_exact "$@")"; then
-        local VpcId
-        VpcId=$(echo "$instance" | jq -r .VpcId)
-        ali_log info "Instance ID: $VpcId"
-        aliyun ecs DeleteVpc --VpcId "$VpcId"
+    local id
+    if id="$(ali_vpc_exact_id "$@")"; then
+        ali_log info "Instance ID: $id"
+        aliyun ecs DeleteVpc --VpcId "$id"
     fi
 }
