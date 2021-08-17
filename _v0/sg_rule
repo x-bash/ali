@@ -232,13 +232,8 @@ A
     "ali_sg_rule_ingress_$PARAM_SUBCMD" "$@"
 }
 
-ali_sg_rule_ingress_add(){
-    ali_sg_rule_func AuthorizeSecurityGroup "$@"
-}
-
-ali_sg_rule_ingress_del(){
-    ali_sg_rule_func RevokeSecurityGroup "$@"
-}
+ali_sg_rule_ingress_add(){      ali_sg_rule_func AuthorizeSecurityGroup "$@";   }
+ali_sg_rule_ingress_del(){      ali_sg_rule_func RevokeSecurityGroup "$@";      }
 
 ali_sg_rule_egress(){
     param <<A
@@ -255,13 +250,8 @@ A
     "ali_sg_rule_egress_$PARAM_SUBCMD" "$@"
 }
 
-ali_sg_rule_egress_add(){
-    ali_sg_rule_func AuthorizeSecurityGroupEgress "$@"
-}
-
-ali_sg_rule_egress_del(){
-    ali_sg_rule_func RevokeSecurityGroup "$@"
-}
+ali_sg_rule_egress_add(){       ali_sg_rule_func AuthorizeSecurityGroupEgress "$@";     }
+ali_sg_rule_egress_del(){       ali_sg_rule_func RevokeSecurityGroup "$@";              }
 
 eval_echo(){
     echo "$@"
