@@ -113,8 +113,6 @@ A
         return 0
     fi
 
-    
-
     local ip
     if ip=$(_ali_get_dns "$pattern"); then
         jq "

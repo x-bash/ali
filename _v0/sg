@@ -9,10 +9,10 @@ ali_sg(){
     param <<A
 subcommand:
     create|+        "create security group"
-    del|-        "delete security group"
+    del|-           "delete security group"
     ls              "list security group"
-    join            "join"
-    leave           "leave"
+    include         "join an ec instance"
+    exclude         "exclude an ec instance"
     refer           "list reference"
     rule            "sg rule managment"
 A
@@ -123,5 +123,35 @@ _ali_sg_refer(){
         return 0
     fi
     return 1
+}
+
+ali_sg_include(){
+    local id
+    if ! id="$(ali_sg_exact_id "$1")"; then
+        return
+    fi
+
+    shift
+
+    local ecid
+    if ! ecid="$(ali_ec_exact_id "$1")"; then
+        return
+    fi
+    aliyun ecs JoinSecurityGroup --SecurityGroupId "$id" --InstanceId "$ecid"
+}
+
+ali_sg_exclude(){
+local id
+    if ! id="$(ali_sg_exact_id "$1")"; then
+        return
+    fi
+
+    shift
+
+    local ecid
+    if ! ecid="$(ali_ec_exact_id "$1")"; then
+        return
+    fi
+    aliyun ecs LeaveSecurityGroup --SecurityGroupId "$id" --InstanceId "$ecid"
 }
 
