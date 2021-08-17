@@ -19,6 +19,39 @@ A
     "ali_ec_$PARAM_SUBCMD" "$@"
 }
 
+ali_vpc_switch_ls(){
+    if [ ! -t 1 ]; then
+        _ali_vpc_switch_ls "$@"
+    else
+        _ali_vpc_switch_ls "$@" | ali_table_json cidr=.CidrBlock .VpcName .Status .VpcId .VRouterId .CreationTime
+    fi
+}
+
+_ali_vpc_switch_ls(){
+    case "$#" in
+        0)  aliyun ecs DescribeVSwitches | jq .VSwitches.VSwitch ;;
+        1)
+            local vpc
+            if ! vpc="$(ali_vpc_exact "${1:?Provide keyword}")"; then
+                return
+            fi
+            local vpc_id
+            vpc_id="$(printf "%s" "$vpc" | jq .VpcId)"
+            aliyun ecs DescribeVSwitches --VpcId "$vpc_id" | jq .VSwitches.VSwitch
+            ;;
+        *)  
+            local vpckw="${1}"
+            local regex="${2}"
+            _ali_vpc_switch_ls "$vpckw" | jq "
+                .[] | 
+                if      .CidrBlock | test(\"$regex\")       then .
+                elif    .VSwitchName | test(\"$regex\")     then .
+                else empty end
+            " | jq -s .
+            ;;
+    esac 
+}
+
 ali_vpc_switch_create(){
     :
 }
