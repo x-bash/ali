@@ -168,11 +168,10 @@ _ali_sg_rule_ls_origin(){
 # }
 
 ali_sg_rule_str(){
-    jq '. | 
-        if .SourceGroupId != ""       then    [ .NicType, .IpProtocol, .PortRange, .DestCidrIp, .SourcePortRange, .SourceGroupId, .Policy, .Priority ]
-        elif .SourcePrefixListId != ""  then    [ .NicType, .IpProtocol, .PortRange, .DestCidrIp, .SourcePortRange, .SourcePrefixListId, .Policy, .Priority ]
-        else                                    [ .NicType, .IpProtocol, .PortRange, .DestCidrIp, .SourcePortRange, .SourceCidrIp, .Policy, .Priority ]
-        end | join("|")'
+    jq "
+        $ALI_SG_JQ_CODE
+        . | fff
+    "
 }
 
 
