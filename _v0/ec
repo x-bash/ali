@@ -144,11 +144,29 @@ ali_ec_start(){
     fi
 }
 
+# reboot forcely
+ali_ec_reboot(){
+    local id
+    if id="$(ali_ec_exact_id "$@")"; then
+        ali_log info "Instance ID: $id"
+        aliyun ecs RebootInstance --InstanceId "$id"
+    fi
+}
+
+
 ali_ec_stop(){
     local id
     if id="$(ali_ec_exact_id "$@")"; then
         ali_log info "Instance ID: $id"
         aliyun ecs StopInstance --InstanceId "$id"
+    fi
+}
+
+ali_ec_del(){
+    local id
+    if id="$(ali_ec_exact_id "$@")"; then
+        ali_log info "Instance ID: $id"
+        aliyun ecs DeleteInstance --InstanceId "$id"
     fi
 }
 
