@@ -22,6 +22,7 @@ A
     "ali_sg_rule_$PARAM_SUBCMD" "$@"
 }
 
+
 _ali_sg_rule_quick_title(){
     s=$(ali_sg_rule_ls "$@")
     printf "%s" "$s" | _ali_sg_rule_ls_format
@@ -41,7 +42,7 @@ ali_sg_rule_quick(){
 
     _ali_sg_rule_quick_title "$@"
 
-    while printf "> " && read -r line; do
+    while printf "> " && ali_read line; do
         [ "$line" = q ] && break
         case "$line" in
             +*)    
