@@ -28,7 +28,7 @@ ali_eip_quick(){
         -*) ali_eip_allocate "${1#-}"      
             ;;
         *)   
-            ali_eip_list "$@"   
+            ali_eip_ls "$@"   
             ;;
     esac
 }
@@ -49,24 +49,32 @@ A
 }
 
 # shellcheck disable=SC2120
-ali_eip_list(){
+ali_eip_ls(){
     case $# in
         0)  aliyun ecs DescribeEipAddresses | jq .EipAddresses.EipAddress
             ;;
         *)  local regex="${1:-Provide regex pattern}"
-            ali_eip_list | jq -r "
+            ali_eip_ls | jq -r "
                 .[] | 
                 if .IpAddress | test(\"$regex\")      then .
                 elif .AllocationId | test(\"$regex\")      then .
                 else empty end
             " | jq -s .
             ;;
-    esac
+    esac | {
+        if [ -t 1 ]; then
+            ali_table_json \
+                ip=.IpAddress bw=.Bandwidth charge=.ChargeType time=.AllocationTime \
+                insId=.InstanceId insCharge=.InternetChargeType
+        else
+            cat
+        fi
+    }
 }
 
 ali_eip_exact_id(){
     local s
-    s="$(ali_eip_list "${1:-Provide ip}")"
+    s="$(ali_eip_ls "${1:-Provide ip}")"
     local len
     len="$(echo "$s" | jq ' . | length ')"
     case $len in
