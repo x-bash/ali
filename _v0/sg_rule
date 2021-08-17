@@ -43,6 +43,7 @@ ali_sg_rule_quick(){
 
     _ali_sg_rule_quick_title "$@"
 
+    local line
     while printf "> " && ali_read line; do
         [ "$line" = q ] && break
         case "$line" in
@@ -90,6 +91,13 @@ _ali_sg_rule_ls_format(){
         # .NicType .IpProtocol
 }
 
+
+ALI_SG_JQ_CODE='
+def fff:    if .SourceGroupId != ""                 then    [ .NicType, .IpProtocol, .PortRange, .DestCidrIp, .SourcePortRange, .SourceGroupId, .Policy, .Priority ]
+            elif .SourcePrefixListId != ""          then    [ .NicType, .IpProtocol, .PortRange, .DestCidrIp, .SourcePortRange, .SourcePrefixListId, .Policy, .Priority ]
+            else                                            [ .NicType, .IpProtocol, .PortRange, .DestCidrIp, .SourcePortRange, .SourceCidrIp, .Policy, .Priority ] end | join("|") ;
+'
+
 # shellcheck disable=SC2120
 _ali_sg_rule_ls(){
     local id
@@ -98,13 +106,10 @@ _ali_sg_rule_ls(){
     fi
 
     case $# in
-        1)  aliyun ecs DescribeSecurityGroupAttribute --SecurityGroupId "$id" | jq '
-            def fff: if .SourceGroupId != ""           then    [ .NicType, .IpProtocol, .PortRange, .DestCidrIp, .SourcePortRange, .SourceGroupId, .Policy, .Priority ]
-                elif .SourcePrefixListId != ""          then    [ .NicType, .IpProtocol, .PortRange, .DestCidrIp, .SourcePortRange, .SourcePrefixListId, .Policy, .Priority ]
-                else                                            [ .NicType, .IpProtocol, .PortRange, .DestCidrIp, .SourcePortRange, .SourceCidrIp, .Policy, .Priority ] end | join("|") ;
-            
-            .Permissions.Permission[] |= . + { short: . | fff }
-    '       | jq .Permissions.Permission
+        1)  aliyun ecs DescribeSecurityGroupAttribute --SecurityGroupId "$id" | jq "
+                $ALI_SG_JQ_CODE
+                .Permissions.Permission[] |= . + { short: . | fff }
+            " | jq .Permissions.Permission
             ;;
         *)  local regex="${2:-Provide regex pattern}"
             ali_sg_rule_ls "$1" | jq "
