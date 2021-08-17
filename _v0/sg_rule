@@ -14,7 +14,7 @@ A
         if [ $# -eq 0 ]; then
             ali_sg_rule help
         else
-            ali_sg_rule_ls "$@"
+            ali_sg_rule_quick "$@"
         fi
         return
     fi
@@ -22,18 +22,63 @@ A
     "ali_sg_rule_$PARAM_SUBCMD" "$@"
 }
 
+_ali_sg_rule_quick_title(){
+    s=$(ali_sg_rule_ls "$@")
+    printf "%s" "$s" | _ali_sg_rule_ls_format
+
+    cat <<A
+Commands:
+  + <rule-string, like intranet|TCP|80-91|||0.0.0.0/0|accept|1>  
+  - <index, starting from 0>
+  r   reload
+  q   quit
+
+A
+}
+
+ali_sg_rule_quick(){
+    local s
+
+    _ali_sg_rule_quick_title "$@"
+
+    while printf "> " && read -r line; do
+        [ "$line" = q ] && break
+        case "$line" in
+            +*)    
+                ali_sg_rule_add "$@" "${line#+}"
+                ;;
+            -*)     
+                # ali_sg_rule_add "${line#+}"
+                line=${line#-}
+                line=$(echo "$line" | tr -cd '0-9')
+                rule="$(printf "%s" "$s" | jq ".[$line]" | ali_sg_rule_str)"
+                eval ali_sg_rule_del "$@" "$rule"
+                ;;
+            r)  
+                _ali_sg_rule_quick_title "$@"
+                ;;
+            q)  break 
+                ;;
+
+        esac
+    done
+
+}
+
 ali_sg_rule_ls(){
     if [ ! -t 1 ]; then
         _ali_sg_rule_ls "$@"
     else
-        _ali_sg_rule_ls "$@" \
-            | ali_table_json \
-                .CreateTime .Direction .NicType .IpProtocol \
-                .PortRange .DestCidrIp .SourcePortRange .SourceCidrIp \
-                .Policy .Priority .Description 
+        _ali_sg_rule_ls "$@" | _ali_sg_rule_ls_format
     fi
 }
 
+_ali_sg_rule_ls_format(){
+    ali_table_json \
+        .CreateTime .Direction .NicType .IpProtocol \
+        .PortRange .DestCidrIp .SourcePortRange .SourceCidrIp \
+        .Policy .Priority .Description 
+}
 
 # shellcheck disable=SC2120
 _ali_sg_rule_ls(){
@@ -103,12 +148,35 @@ ali_sg_rule_str(){
 # ali_sg_rule_parsing "intranet|TCP|80-91|src-prefix-ip||0.0.0.0/0|accept|1"
 ali_sg_rule_parsing(){
     echo "${1:-Provide}" | awk -v FS='|' '
+BEGIN{
+    false = 0
+    true = 1
+}
+
+function str_startswith(s, tgt){
+    if (substr(s, 1, length(tgt)) == tgt) return true
+    return false
+}
+
+function str_trim(astr){
+    gsub(/^[ \t\b\v\n]+/, "", astr)
+    gsub(/[ \t\b\v\n]+$/, "", astr)
+    return astr
+}
+
 function pprint(name, val){
     if (val == "") return
-    printf("%s \"%s\" ", name, val)
+    printf("%s \"%s\" ", name, str_trim(val))
 }
     
 {
+    if (($1 != "internet") && ($1 != "intranet")) {
+        if (str_startswith($0, "|") == true) {
+            $0 = "intranet" $0
+        } else {
+            $0 = "intranet|" $0
+        }
+    }
     pprint( "--NicType",         $1 )
     pprint( "--IpProtocol",      $2 )
     pprint( "--PortRange",       $3 )
