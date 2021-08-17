@@ -28,6 +28,7 @@ _ali_sg_rule_quick_title(){
     printf "%s" "$s" | _ali_sg_rule_ls_format
 
     cat <<A
+
 Commands:
   + <rule-string, like intranet|TCP|80-91|||0.0.0.0/0|accept|1>  
   - <index, starting from 0>
@@ -52,7 +53,13 @@ ali_sg_rule_quick(){
                 # ali_sg_rule_add "${line#+}"
                 line=${line#-}
                 line=$(echo "$line" | tr -cd '0-9')
-                rule="$(printf "%s" "$s" | jq ".[$line]" | ali_sg_rule_str)"
+                
+                if [ -z "$(echo "$line" | tr -d '0-9')" ]; then
+                    rule="$(printf "%s" "$s" | jq ".[$line]" | ali_sg_rule_str)"
+                else
+                    rule="$line"
+                fi
+
                 eval ali_sg_rule_del "$@" "$rule"
                 ;;
             r)  
@@ -76,9 +83,11 @@ ali_sg_rule_ls(){
 
 _ali_sg_rule_ls_format(){
     ali_table_json \
-        .CreateTime .Direction .NicType .IpProtocol \
+        .short  .Direction \
         .PortRange .DestCidrIp .SourcePortRange .SourceCidrIp \
-        .Policy .Priority .Description 
+        .CreateTime .Description 
+        # .Policy .Priority  
+        # .NicType .IpProtocol
 }
 
 # shellcheck disable=SC2120
@@ -89,7 +98,34 @@ _ali_sg_rule_ls(){
     fi
 
     case $# in
-        1)  aliyun ecs DescribeSecurityGroupAttribute --SecurityGroupId "$id" | jq .Permissions.Permission
+        1)  aliyun ecs DescribeSecurityGroupAttribute --SecurityGroupId "$id" | jq '
+            def fff: if .SourceGroupId != ""           then    [ .NicType, .IpProtocol, .PortRange, .DestCidrIp, .SourcePortRange, .SourceGroupId, .Policy, .Priority ]
+                elif .SourcePrefixListId != ""          then    [ .NicType, .IpProtocol, .PortRange, .DestCidrIp, .SourcePortRange, .SourcePrefixListId, .Policy, .Priority ]
+                else                                            [ .NicType, .IpProtocol, .PortRange, .DestCidrIp, .SourcePortRange, .SourceCidrIp, .Policy, .Priority ] end | join("|") ;
+            
+            .Permissions.Permission[] |= . + { short: . | fff }
+    '       | jq .Permissions.Permission
+            ;;
+        *)  local regex="${2:-Provide regex pattern}"
+            ali_sg_rule_ls "$1" | jq "
+                .[] | 
+                if .Description | test(\"$regex\")      then .
+                elif .Priority == $regex                then .
+                else empty end
+            " | jq -s .
+            ;;
+    esac
+}
+
+# shellcheck disable=SC2120
+_ali_sg_rule_ls_origin(){
+    local id
+    if ! id=$(ali_sg_exact_id "${1:?Provide rule regex}"); then
+        return
+    fi
+
+    case $# in
+        1)  aliyun ecs DescribeSecurityGroupAttribute --SecurityGroupId "$id" | jq '.Permissions.Permission'
             ;;
         *)  local regex="${2:-Provide regex pattern}"
             ali_sg_rule_ls "$1" | jq "
@@ -140,6 +176,7 @@ ali_sg_rule_str(){
         else                                    [ .NicType, .IpProtocol, .PortRange, .DestCidrIp, .SourcePortRange, .SourceCidrIp, .Policy, .Priority ]
         end | join("|")'
 }
+
 
 # TCP|24|0.0.0.0/0|ACCEPT|HIGH
 
