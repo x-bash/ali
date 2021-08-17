@@ -30,6 +30,7 @@ Commands:
   -             Format: del <part of the vpc's name or id>
   r             reload
   q             quit
+
 A
 }
 
