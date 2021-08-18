@@ -43,20 +43,7 @@ _ali_ec_ls(){
     esac
 }
 
-ali_ec_exact_id(){
-    local s
-    s="$(ali_ec_ls "${1:-Provide ip}")"
-    local len
-    len="$(echo "$s" | jq ' . | length ')"
-    case $len in
-        0)  ali_log warn "No such ec server found.";;
-        1)  echo "$s" | jq -r .[0].InstanceId
-            return 0
-            ;;
-        *)  ali_log warn "Multiple ec server found.";;
-    esac
-    return 1
-}
+ali_exactor_declare ali_ec "No such ec server found." "Multiple ec server found." InstanceId
 
 _ali_get_dns(){
     # Using dig/nslookup is much better for icmp might be disable.
@@ -131,7 +118,7 @@ ali_ec_op(){
 
 ali_ec_start(){
     local id
-    if id="$(ali_ec_exact_id "$@")"; then
+    if id="$(ali_ec_exactid "$@")"; then
         ali_log info "Instance ID: $id"
         aliyun ecs StartInstance --InstanceId "$id"
     fi
@@ -140,7 +127,7 @@ ali_ec_start(){
 # reboot forcely
 ali_ec_reboot(){
     local id
-    if id="$(ali_ec_exact_id "$@")"; then
+    if id="$(ali_ec_exactid "$@")"; then
         ali_log info "Instance ID: $id"
         aliyun ecs RebootInstance --InstanceId "$id"
     fi
@@ -149,7 +136,7 @@ ali_ec_reboot(){
 
 ali_ec_stop(){
     local id
-    if id="$(ali_ec_exact_id "$@")"; then
+    if id="$(ali_ec_exactid "$@")"; then
         ali_log info "Instance ID: $id"
         aliyun ecs StopInstance --InstanceId "$id"
     fi
@@ -157,7 +144,7 @@ ali_ec_stop(){
 
 ali_ec_del(){
     local id
-    if id="$(ali_ec_exact_id "$@")"; then
+    if id="$(ali_ec_exactid "$@")"; then
         ali_log info "Instance ID: $id"
         aliyun ecs DeleteInstance --InstanceId "$id"
     fi

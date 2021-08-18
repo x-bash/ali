@@ -123,7 +123,7 @@ ali_sg_include(){
     shift
 
     local ecid
-    if ! ecid="$(ali_ec_exact_id "$1")"; then
+    if ! ecid="$(ali_ec_exactid "$1")"; then
         return
     fi
     aliyun ecs JoinSecurityGroup --SecurityGroupId "$id" --InstanceId "$ecid"
@@ -138,7 +138,7 @@ local id
     shift
 
     local ecid
-    if ! ecid="$(ali_ec_exact_id "$1")"; then
+    if ! ecid="$(ali_ec_exactid "$1")"; then
         return
     fi
     aliyun ecs LeaveSecurityGroup --SecurityGroupId "$id" --InstanceId "$ecid"
