@@ -75,8 +75,8 @@ ali_vpc_switch_exact(){
     esac
 }
 
-ali_vpc_switch_exact_id(){
-    ali_vpc_switch_exact "$@" | jq .[0].VSwitchId
+ali_vpc_switch_exactid(){
+    ali_vpc_switch_exact "$@" | jq -r .[0].VSwitchId
 }
 
 # ali vpc switch create --vpc it-switch --zone cn-hongkong-a --cidr 10.0.0.3/14 --name hi
@@ -109,7 +109,7 @@ A
 
 ali_vpc_switch_del(){
     local id
-    id="$(ali_vpc_switch_exact_id "$1")"
+    id="$(ali_vpc_switch_exactid "$1")"
     eval aliyun ecs DeleteVSwitch --VSwitchId "$id"
 }
 

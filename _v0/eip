@@ -95,9 +95,9 @@ ali_eip_associate(){
     local ecs_id
 
     if eip_id="$(ali_eip_exact_id "${1:?Provide eip keyword}")" && \
-        ecs_id="$(ali_ecs_exact_id "${2:?Provide ecs keyword}")"
+        ecs_id="$(ali_ec_exactid "${2:?Provide ecs keyword}")"
     then
-        aliyun ecs AssociateEipAddress "$eip_id" "$ecs_id"
+        aliyun ecs AssociateEipAddress --AllocationId "$eip_id" --InstanceId "$ecs_id"
     fi
 }
 
@@ -108,9 +108,9 @@ ali_eip_unassociate(){
     local ecs_id
 
     if eip_id="$(ali_eip_exact_id "${1:?Provide eip keyword}")" && \
-        ecs_id="$(ali_ecs_exact_id "${2:?Provide ecs keyword}")"
+        ecs_id="$(ali_ec_exactid "${2:?Provide ecs keyword}")"
     then
-        aliyun ecs UnasssociateEipAddress "$eip_id" "$ecs_id"
+        aliyun ecs UnassociateEipAddress --AllocationId "$eip_id" --InstanceId "$ecs_id"
     fi
 }
 
