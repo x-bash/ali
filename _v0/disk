@@ -22,7 +22,6 @@ ali_disk_quick(){
 }
 
 ali_disk_ls(){
-
     _ali_disk_ls "$@" | {
         if [ ! -t 1 ]; then
             cat
