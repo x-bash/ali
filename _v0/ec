@@ -184,7 +184,7 @@ options:
 A
 
     local image_id
-    if ! image_id=$(ali_image_exact_id "$image"); then
+    if ! image_id=$(ali_image_exactid "$image"); then
         return
     fi
 

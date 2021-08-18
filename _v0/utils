@@ -108,13 +108,13 @@ ali_exactor_declare(){
     local func="${1:?Provide funname}"
     local msg0="${2:?Provide msg0}"
     local msgn="${3:?Provide msgn}"
-    local id_eval="${4:?Provide id}"
-    eval "${func}_extract(){
+    local id_eval="${4:?Provide id eval}"
+    eval "${func}_exact(){
         ali_exactor ${func}_ls \"$msg0\" \"$msgn\" \"\$@\"
     }
     
-    ${func}_exact_id(){
-        ${func}_extract \"\$@\" | jq -r \'$id_eval\'
+    ${func}_exactid(){
+        ${func}_exact \"\$@\" | jq -r '.[0].$id_eval'
     }
     "
 }

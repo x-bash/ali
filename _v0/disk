@@ -4,6 +4,8 @@ ali_disk(){
     param <<A
 subcommand:
     ls      "list"
+    exact   "eaxct"
+    exactid "exactid"
 A
     
     if [ -z "$PARAM_SUBCMD" ]; then
@@ -21,7 +23,7 @@ ali_disk_quick(){
 
 ali_disk_ls(){
 
-    _ali_disk_ls | {
+    _ali_disk_ls "$@" | {
         if [ ! -t 1 ]; then
             cat
             return
@@ -32,7 +34,6 @@ ali_disk_ls(){
     }
 }
 
-# shellcheck disable=SC2120
 _ali_disk_ls(){
     case $# in
         0)  aliyun ecs DescribeDisks | jq .Disks.Disk
@@ -48,5 +49,5 @@ _ali_disk_ls(){
 
 }
 
-ali_exactor_declare ali_disk "No such disk found." "Multiple disk found" .DiskId
+ali_exactor_declare ali_disk "No such disk found." "Multiple disk found" DiskId
 

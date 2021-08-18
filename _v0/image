@@ -5,10 +5,13 @@ ali_image(){
     param <<A
 subcommand:
     ls      "list"
+    exact   "eaxct"
+    exactid "exactid"
 A
     
     if [ -z "$PARAM_SUBCMD" ]; then
-        echo "help" >&2
+        ali_image_quick "$@"
+        return
     fi
 
     "ali_image_$PARAM_SUBCMD" "$@"
@@ -62,29 +65,35 @@ A
         fi
     } | jq -s . | {
         if [ -t 1 ]; then
-            ali_table_json .ImageId .OSName .OSType .Platform arch=.Architecture .CreationTime
+
+            jq ".[] |= . + { 
+                CreationTime: .CreationTime[0:10],
+                OSName: .OSName[0:30]
+            }" | ali_table_json .ImageId .OSName  .CreationTime # arch=.Architecture  .OSType  .Platform
         else
             cat
         fi
     }
 }
 
-ali_image_exact(){
-    local ret
-    ret="$(ali_image_ls "$@")"
-    local len
-    len="$(printf "%s" "$ret" | jq '. | length')"
+ali_exactor_declare ali_image "No such image found." "Multiple images found." ImageId
 
-    case "$len" in
-        0)  ali_log warn "No such image found.";;
-        1)  printf "%s" "$ret";;
-        *)  ali_log warn "Multiple images found.";;
-    esac
-}
+# ali_image_exact(){
+#     local ret
+#     ret="$(ali_image_ls "$@")"
+#     local len
+#     len="$(printf "%s" "$ret" | jq '. | length')"
 
-ali_image_exact_id(){
-    ali_image_exact "$@" | jq -r .[0].ImageId
-}
+#     case "$len" in
+#         0)  ali_log warn "No such image found.";;
+#         1)  printf "%s" "$ret";;
+#         *)  ali_log warn "Multiple images found.";;
+#     esac
+# }
+
+# ali_image_exact_id(){
+#     ali_image_exact "$@" | jq -r .[0].ImageId
+# }
 
 # Create Image from an Instance
 
@@ -92,4 +101,8 @@ ali_image_exact_id(){
 # 2. Save snapshot to image
 
 
+
+ali_image_quick(){
+    ali_image_ls "$@"
+}
 
