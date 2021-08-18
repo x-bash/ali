@@ -11,6 +11,9 @@ subcommand:
     start               "start instance"
     stop                "stop instance"
     create              "create instance"
+    exact               "eaxct"
+    exactid             "exactid"
+    
 A
 
     if [ -z "$PARAM_SUBCMD" ]; then
