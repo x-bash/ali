@@ -168,6 +168,36 @@ ali_ec_del(){
 # check ip
 # check dns name
 # check
+
+ali_ec_disk_args(){
+    printf "%s" "$1" | awk -v FS='|' '
+function str_trim(astr){
+    gsub(/^[ \t\b\v\n]+/, "", astr)
+    gsub(/[ \t\b\v\n]+$/, "", astr)
+    return astr
+}
+
+function pprint(name, val){
+    if (val == "") return
+    printf("%s \"%s\" ", name, str_trim(val))
+}
+
+{
+    pprint("--SystemDisk.Size",         $1)
+
+    if ($2 ~ /PL[0-3]/) {
+        pprint("--SystemDisk.Category",             "cloud_essd")
+        pprint("--SystemDisk.PerformanceLevel",     $2)
+    } else {
+        if ($2 != "")   $2 = "cloud_efficiency"
+        pprint("--SystemDisk.Category",     $2)
+    }
+    pprint("--SystemDisk.DiskName",     $3)
+    pprint("--SystemDisk.Description",  $4)
+}    
+'
+}
+
 ali_ec_create(){
     param <<A
 options:
@@ -189,12 +219,14 @@ A
 
     echo "$image_id"
 
+    local disk_args
+    disk_args="$(ali_ec_disk_args "$sysdisk")"
 
     eval_echo aliyun ecs CreateInstance \
         --InstanceType "$type" \
         --ImageId "$image_id" \
-        --VSwitchId "$switch_id"
-
+        --VSwitchId "$switch_id" \
+        "$disk_args"
 }
 
 
