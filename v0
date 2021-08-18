@@ -56,6 +56,9 @@ ali_quick(){
         i-*)       
             ali ec "$1"     
             ;;
+        d-*)      
+            ali disk "$1"     
+            ;;
         sg-*) 
             ali sg rule "$1" 
             ;;

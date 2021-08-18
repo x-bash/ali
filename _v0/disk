@@ -7,12 +7,17 @@ subcommand:
 A
     
     if [ -z "$PARAM_SUBCMD" ]; then
-        echo "help" >&2
+        ali_disk_quick "$@"
+        return
     fi
 
     "ali_disk_$PARAM_SUBCMD" "$@"
 }
 
+
+ali_disk_quick(){
+    ali_disk_ls "$@"
+}
 
 ali_disk_ls(){
 
