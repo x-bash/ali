@@ -6,8 +6,8 @@ eval_echo(){
 }
 
 ali_region(){
-    if [ -t 0 ]; then
-        aliyun ecs DescribeRegions | jq .Regions.Region
+    if [ -t 1 ]; then
+        aliyun ecs DescribeRegions | jq .Regions.Region | ali_table_json .LocalName .RegionEndpoint .RegionId
     else
         aliyun ecs DescribeRegions | jq .Regions.Region
     fi
