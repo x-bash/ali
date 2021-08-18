@@ -12,7 +12,7 @@ subcommand:
     del                 "delete"
     modify              "start instance"
     attr                "stop instance"
-    switch              "Switcher management"
+    switch|sw           "Switcher management"
 A
 
     if [ -z "$PARAM_SUBCMD" ]; then

@@ -1,0 +1,19 @@
+ali_available_instance(){
+    aliyun ecs DescribeAvailableResource \
+        --DestinationResource InstanceType \
+            | jq .AvailableZones.AvailableZone \
+            | jq ".[] | 
+                if .ZoneId == \"$zone\" then .
+                else empty  end
+            " \
+            | jq '.AvailableResources.AvailableResource[0].SupportedResources.SupportedResource' \
+        | {
+            if [ ! -t 1 ]; then
+                cat
+                return
+            fi
+
+            ali_table_json .Value .Status .StatusCategory 
+        }
+}
+

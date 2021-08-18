@@ -11,6 +11,7 @@ subcommand:
     start               "start instance"
     stop                "stop instance"
     create              "create instance"
+    del                 "delete instance"
     exact               "eaxct"
     exactid             "exactid"
     
@@ -32,7 +33,7 @@ ali_ec_ls(){
     
     _ali_ec_ls "$@" \
         | ali_table_json \
-            .InstanceId .StartTime .Status .OSNameEn   .Cpu    .Memory .HostName    .EipAddress.IpAddress   
+            .InstanceId .HostName .StartTime .Status .OSNameEn   .Cpu    .Memory     .EipAddress.IpAddress .StoppedMode  
 
 }
 
@@ -198,13 +199,15 @@ function pprint(name, val){
 '
 }
 
+# ali ec create --image ubuntu_20_04_x64 --switch inner-d --type ecs.t6-c1m1.large --disk "40||brand|disk for test"
 ali_ec_create(){
     param <<A
 options:
+    --name      "ec name"               <instance-name>=""
     --image     "Image keyword"         <image>="ubuntu_20_04_x64"
     --switch    "switch"                <switch>=""
     --type      "instance keyword"      <instance-type>
-    --sysdisk   "system disk"           <40|cloud_essd|name>="40|cloud_ssd|diskname|diskdescription"
+    --disk      "system disk"           <disk>="40|cloud_ssd|diskname|diskdescription"
 A
 
     local image_id
@@ -217,10 +220,10 @@ A
         return
     fi
 
-    echo "$image_id"
+    name="${name:-"$type-$(date +%y%m%d%H%m)"}"
 
     local disk_args
-    disk_args="$(ali_ec_disk_args "$sysdisk")"
+    disk_args="$(ali_ec_disk_args "$disk")"
 
     eval_echo aliyun ecs CreateInstance \
         --InstanceType "$type" \
