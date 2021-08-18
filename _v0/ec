@@ -20,14 +20,6 @@ A
     "ali_ec_$PARAM_SUBCMD" "$@"
 }
 
-ali_ec_quick(){
-    ali_ec_ls "$@"
-
-    if [ -t 1 ]; then
-        : Consider providing interative ui.
-    fi
-}
-
 ali_ec_ls(){
     if [ ! -t 1 ]; then
         _ali_ec_ls "$@"
@@ -186,5 +178,14 @@ ali_ec_del(){
 # check
 ali_ec_create(){
     aliyun ecs
+}
+
+
+ali_ec_quick(){
+    ali_ec_ls "$@"
+
+    if [ -t 1 ]; then
+        : Consider providing interative ui.
+    fi
 }
 

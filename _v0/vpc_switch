@@ -19,60 +19,6 @@ A
     "ali_vpc_switch_$PARAM_SUBCMD" "$@"
 }
 
-_ali_vpc_switch_quick_title(){
-    s=$(aliyun ecs DescribeVSwitches --VpcId "$1" | jq .VSwitches.VSwitch)
-    printf "%s" "$s" | ali_vpc_switch_ls_format
-
-    cat <<A
-
-Commands:
-  +|create      Format: create  < --zone <zone_id> > < --cidr <cidr like 172.16.0.0/16> >  [ --name <switch name> ] 
-  -             Format: del <part of the vpc's name or id>
-  r             reload
-  q             quit
-
-A
-}
-
-ali_vpc_switch_quick(){
-    local vpc
-    if ! vpc="$(ali_vpc_exact_id "${1:?Provide vpc keyword}")"; then
-        return
-    fi
-
-    local s
-    s=$(aliyun ecs DescribeVSwitches --VpcId "$vpc")
-
-    if [ ! -t 1 ]; then
-        printf "%s\n" "$s"
-        return
-    fi
-
-    _ali_vpc_switch_quick_title "$vpc"
-
-    local line
-    while printf "> " && ali_read line; do
-        eval set -- "$line"
-        local cmd=$1;   shift
-        case "$cmd" in
-            +|create)
-                ali_vpc_switch_create "$@" --vpc "$vpc"
-                _ali_vpc_switch_quick_title "$vpc"
-                ;;
-            -|del)
-                ali_vpc_switch_del "$@"
-                _ali_vpc_switch_quick_title "$vpc"
-                ;;
-            r)  
-                _ali_vpc_switch_quick_title "$vpc"
-                ;;
-            q)  break 
-                ;;
-            "") ;;
-            *)  ali vpc switch "$@" --vpc "$vpc"
-        esac
-    done
-}
 
 ali_vpc_switch_ls_format(){
     ali_table_json cidr=.CidrBlock .VSwitchName id=.VSwitchId  .Status .VpcId .ZoneId .CreationTime .Description
@@ -169,5 +115,61 @@ ali_vpc_switch_del(){
 
 ali_vpc_switch_modify(){
     :
+}
+
+
+_ali_vpc_switch_quick_title(){
+    s=$(aliyun ecs DescribeVSwitches --VpcId "$1" | jq .VSwitches.VSwitch)
+    printf "%s" "$s" | ali_vpc_switch_ls_format
+
+    cat <<A
+
+Commands:
+  +|create      Format: create  < --zone <zone_id> > < --cidr <cidr like 172.16.0.0/16> >  [ --name <switch name> ] 
+  -             Format: del <part of the vpc's name or id>
+  r             reload
+  q             quit
+
+A
+}
+
+ali_vpc_switch_quick(){
+    local vpc
+    if ! vpc="$(ali_vpc_exact_id "${1:?Provide vpc keyword}")"; then
+        return
+    fi
+
+    local s
+    s=$(aliyun ecs DescribeVSwitches --VpcId "$vpc")
+
+    if [ ! -t 1 ]; then
+        printf "%s\n" "$s"
+        return
+    fi
+
+    _ali_vpc_switch_quick_title "$vpc"
+
+    local line
+    while printf "> " && ali_read line; do
+        eval set -- "$line"
+        local cmd=$1;   shift
+        case "$cmd" in
+            +|create)
+                ali_vpc_switch_create "$@" --vpc "$vpc"
+                _ali_vpc_switch_quick_title "$vpc"
+                ;;
+            -|del)
+                ali_vpc_switch_del "$@"
+                _ali_vpc_switch_quick_title "$vpc"
+                ;;
+            r)  
+                _ali_vpc_switch_quick_title "$vpc"
+                ;;
+            q)  break 
+                ;;
+            "") ;;
+            *)  ali vpc switch "$@" --vpc "$vpc"
+        esac
+    done
 }
 

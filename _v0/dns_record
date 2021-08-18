@@ -22,58 +22,6 @@ A
 
 }
 
-_ali_dns_record_quick_title(){
-    s=$(ali_dns_record_ls "${1:?Provide domain name}")
-    printf "%s" "$s" | ali_dns_record_ls_format
-
-    cat <<A
-
-Commands:
-  +|add         Format: add <name> <address>
-  -|del         Format: del <part of the vpc's name or id>
-  r             reload
-  q             quit
-
-A
-}
-
-ali_dns_record_quick(){
-    # local domain_id
-    # if ! domain_id="$(ali_dns_domain_exact_id "${1:?Provide domain keyword}")"; then
-    #     return
-    # fi
-
-    local domain_name="$1"
-
-    _ali_dns_record_quick_title "$domain_name"
-
-    echo hi1 >&2
-    local line
-    while printf "> " && ali_read line; do
-        eval set -- "$line"
-        local cmd=$1;   shift
-        case "$cmd" in
-            +|add)
-                echo hi2 >&2
-                ali_dns_record_put2 "$@" >&2
-                _ali_dns_record_quick_title "$domain_name"
-                ;;
-            -|del)
-                ali_dns_record_del "$@"
-                _ali_dns_record_quick_title "$domain_name"
-                ;;
-            r)  
-                _ali_dns_record_quick_title "$domain_name"
-                ;;
-            q)  break 
-                ;;
-            "") ;;
-            *)  ali dns record "$@"
-        esac
-    done
-
-}
-
 ali_dns_record_add(){
     local DomainName=${1:?"Domain Name. If you want to setup 'xxx.domain.com', please input 'domain.com'"}
     local RR=${2:?"Provide RR. If you want to setup 'xxx.domain.com', please input 'xxx'"}
@@ -261,5 +209,58 @@ ali_dns_record_put(){
     fi
 }
 
+
+
+_ali_dns_record_quick_title(){
+    s=$(ali_dns_record_ls "${1:?Provide domain name}")
+    printf "%s" "$s" | ali_dns_record_ls_format
+
+    cat <<A
+
+Commands:
+  +|add         Format: add <name> <address>
+  -|del         Format: del <part of the vpc's name or id>
+  r             reload
+  q             quit
+
+A
+}
+
+ali_dns_record_quick(){
+    # local domain_id
+    # if ! domain_id="$(ali_dns_domain_exact_id "${1:?Provide domain keyword}")"; then
+    #     return
+    # fi
+
+    local domain_name="$1"
+
+    _ali_dns_record_quick_title "$domain_name"
+
+    echo hi1 >&2
+    local line
+    while printf "> " && ali_read line; do
+        eval set -- "$line"
+        local cmd=$1;   shift
+        case "$cmd" in
+            +|add)
+                echo hi2 >&2
+                ali_dns_record_put2 "$@" >&2
+                _ali_dns_record_quick_title "$domain_name"
+                ;;
+            -|del)
+                ali_dns_record_del "$@"
+                _ali_dns_record_quick_title "$domain_name"
+                ;;
+            r)  
+                _ali_dns_record_quick_title "$domain_name"
+                ;;
+            q)  break 
+                ;;
+            "") ;;
+            *)  ali dns record "$@"
+        esac
+    done
+
+}
 
 

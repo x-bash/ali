@@ -23,57 +23,6 @@ A
 }
 
 
-_ali_sg_rule_quick_title(){
-    s=$(ali_sg_rule_ls "$@")
-    printf "%s" "$s" | _ali_sg_rule_ls_format
-
-    cat <<A
-
-Commands:
-  + <rule-string, like intranet|TCP|80-91|||0.0.0.0/0|accept|1>  
-  - <index, starting from 0>
-  r   reload
-  q   quit
-
-A
-}
-
-ali_sg_rule_quick(){
-    local s
-
-    _ali_sg_rule_quick_title "$@"
-
-    local line
-    while printf "> " && ali_read line; do
-        [ "$line" = q ] && break
-        case "$line" in
-            +*)    
-                ali_sg_rule_add "$@" "${line#+}"
-                ;;
-            -*)     
-                # ali_sg_rule_add "${line#+}"
-                local newline
-                newline=${line#-}
-
-                case "${newline}" in
-                    *\|*)           rule=$newline  ;;
-                    *)              newline=$(echo "$newline" | tr -cd '0-9')
-                                    rule="$(printf "%s" "$s" | jq ".[$newline]" | ali_sg_rule_str)" ;;
-                esac
-
-                ali_sg_rule_del "$@" "$rule"
-                ;;
-            r)  
-                _ali_sg_rule_quick_title "$@"
-                ;;
-            q)  break 
-                ;;
-
-        esac
-    done
-
-}
-
 ali_sg_rule_ls(){
     if [ ! -t 1 ]; then
         _ali_sg_rule_ls "$@"
@@ -271,3 +220,56 @@ ali_sg_rule_func(){
         ) || return  
     done
 }
+
+
+_ali_sg_rule_quick_title(){
+    s=$(ali_sg_rule_ls "$@")
+    printf "%s" "$s" | _ali_sg_rule_ls_format
+
+    cat <<A
+
+Commands:
+  + <rule-string, like intranet|TCP|80-91|||0.0.0.0/0|accept|1>  
+  - <index, starting from 0>
+  r   reload
+  q   quit
+
+A
+}
+
+ali_sg_rule_quick(){
+    local s
+
+    _ali_sg_rule_quick_title "$@"
+
+    local line
+    while printf "> " && ali_read line; do
+        [ "$line" = q ] && break
+        case "$line" in
+            +*)    
+                ali_sg_rule_add "$@" "${line#+}"
+                ;;
+            -*)     
+                # ali_sg_rule_add "${line#+}"
+                local newline
+                newline=${line#-}
+
+                case "${newline}" in
+                    *\|*)           rule=$newline  ;;
+                    *)              newline=$(echo "$newline" | tr -cd '0-9')
+                                    rule="$(printf "%s" "$s" | jq ".[$newline]" | ali_sg_rule_str)" ;;
+                esac
+
+                ali_sg_rule_del "$@" "$rule"
+                ;;
+            r)  
+                _ali_sg_rule_quick_title "$@"
+                ;;
+            q)  break 
+                ;;
+
+        esac
+    done
+
+}
+

@@ -32,6 +32,30 @@ A
     "ali_dns_$PARAM_SUBCMD" "$@"
 }
 
+ali_dns_ls(){
+    if [ $# = 0 ]; then
+        # ali_dns_domain_list
+        ali_dns_record_ls
+        return
+    fi
+
+    local name=$1
+    if [ "$name" = "${name%.*.*.}" ]; then
+        ali_dns_record_ls "$name"
+    else
+        ali_dns_domain_ls "$name"
+    fi
+}
+
+
+# ali dns a.lteam.top 192.168.1.1
+# ali dns b.lteam.top b.lteam.top
+
+# ali dns lteam.top             > show information of domain
+# ali dns a.lteam.top           > show information of this record
+
+
+
 ali_dns_quick(){
     case $# in
         0)  ali_dns_domain_ls
@@ -57,26 +81,3 @@ ali_dns_quick(){
             ;;
     esac
 }
-
-ali_dns_ls(){
-    if [ $# = 0 ]; then
-        # ali_dns_domain_list
-        ali_dns_record_ls
-        return
-    fi
-
-    local name=$1
-    if [ "$name" = "${name%.*.*.}" ]; then
-        ali_dns_record_ls "$name"
-    else
-        ali_dns_domain_ls "$name"
-    fi
-}
-
-
-# ali dns a.lteam.top 192.168.1.1
-# ali dns b.lteam.top b.lteam.top
-
-# ali dns lteam.top             > show information of domain
-# ali dns a.lteam.top           > show information of this record
-

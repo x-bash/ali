@@ -23,55 +23,6 @@ A
     "ali_vpc_$PARAM_SUBCMD" "$@"
 }
 
-# shellcheck disable=SC2120
-_ali_vpc_quick_title(){
-    s=$(ali_vpc_ls "$@")
-    printf "%s" "$s" | ali_table_json cidr=.CidrBlock .VpcName .Status .VpcId .VRouterId .CreationTime
-
-    cat <<A
-
-Commands:
-  +|create      Format: create [ --name <vpc name> ] 
-  -             Format: del <part of the vpc's name or id>
-  r             reload
-  q             quit
-
-A
-}
-
-ali_vpc_quick(){
-    if [ ! -t 1 ]; then
-        ali_vpc_ls "$@"
-        return
-    fi
-
-    local s
-    _ali_vpc_quick_title
-
-    local line
-    while printf "> " && ali_read line; do
-        eval set -- "$line"
-        local cmd=$1;   shift
-        case "$cmd" in
-            +|create)    
-                echo ali_vpc_create "$@"
-                ali_vpc_create "$@"
-                _ali_vpc_quick_title
-                ;;
-            -|del)
-                ali_vpc_del "$@"
-                _ali_vpc_quick_title
-                ;;
-            r)  
-                _ali_vpc_quick_title
-                ;;
-            q)  break 
-                ;;
-            *)  ali vpc "$@"
-        esac
-    done
-
-}
 
 ali_vpc_ls(){
     if [ ! -t 1 ]; then
@@ -144,4 +95,55 @@ ali_vpc_del(){
         ali_log info "Instance ID: $id"
         aliyun ecs DeleteVpc --VpcId "$id"
     fi
+}
+
+
+# shellcheck disable=SC2120
+_ali_vpc_quick_title(){
+    s=$(ali_vpc_ls "$@")
+    printf "%s" "$s" | ali_table_json cidr=.CidrBlock .VpcName .Status .VpcId .VRouterId .CreationTime
+
+    cat <<A
+
+Commands:
+  +|create      Format: create [ --name <vpc name> ] 
+  -             Format: del <part of the vpc's name or id>
+  r             reload
+  q             quit
+
+A
+}
+
+ali_vpc_quick(){
+    if [ ! -t 1 ]; then
+        ali_vpc_ls "$@"
+        return
+    fi
+
+    local s
+    _ali_vpc_quick_title
+
+    local line
+    while printf "> " && ali_read line; do
+        eval set -- "$line"
+        local cmd=$1;   shift
+        case "$cmd" in
+            +|create)    
+                echo ali_vpc_create "$@"
+                ali_vpc_create "$@"
+                _ali_vpc_quick_title
+                ;;
+            -|del)
+                ali_vpc_del "$@"
+                _ali_vpc_quick_title
+                ;;
+            r)  
+                _ali_vpc_quick_title
+                ;;
+            q)  break 
+                ;;
+            *)  ali vpc "$@"
+        esac
+    done
+
 }
