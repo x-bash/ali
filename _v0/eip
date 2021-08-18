@@ -21,16 +21,66 @@ A
     "ali_eip_$PARAM_SUBCMD" "$@"
 }
 
+_ali_eip_quick_title(){
+    s=$(ali_eip_ls)
+    printf "%s" "$s" | ali_eip_ls_format
+
+    cat <<A
+
+Commands:
+  +|allocate        Format: allocate [ -b bandwidth ] [ --pay_by_bandwidth ] [ --bgp_pro ]
+  -|release         Format: release <ip or allocation id>
+  r                 reload
+  q                 quit
+
+A
+}
+
 ali_eip_quick(){
-    case "$1" in
-        +*) ali_eip_allocate "${1#+}"
-            ;;
-        -*) ali_eip_allocate "${1#-}"      
-            ;;
-        *)   
-            ali_eip_ls "$@"   
-            ;;
-    esac
+    # case "$1" in
+    #     +*) ali_eip_allocate "${1#+}"
+    #         ;;
+    #     -*) ali_eip_allocate "${1#-}"      
+    #         ;;
+    #     *)   
+    #         ali_eip_ls "$@"   
+    #         ;;
+    # esac
+
+    local s
+    
+    if [ ! -t 1 ]; then
+        s=$(ali_eip_ls)
+        printf "%s\n" "$s"
+        return
+    fi
+
+    _ali_eip_quick_title
+
+    local line
+    while printf "> " && ali_read line; do
+        eval set -- "$line"
+        local cmd=$1;   shift
+        case "$cmd" in
+            +|allocate)
+                ali_eip_allocate "$@"
+                _ali_eip_quick_title
+                ;;
+            -|release)
+                ali_eip_release "$@"
+                _ali_eip_quick_title
+                ;;
+            r)  
+                _ali_eip_quick_title
+                ;;
+            q)  break 
+                ;;
+            "") ;;
+            *)  ali eip "$@"
+        esac
+    done
+
+
 }
 
 ali_eip_allocate(){
@@ -48,6 +98,12 @@ A
     eval aliyun ecs AllocateEipAddress --Bandwidth "${bandwidth}" "$args"
 }
 
+ali_eip_ls_format(){
+    ali_table_json \
+        ip=.IpAddress bw=.Bandwidth charge=.ChargeType time=.AllocationTime \
+        insId=.InstanceId insCharge=.InternetChargeType
+}
+
 # shellcheck disable=SC2120
 ali_eip_ls(){
     case $# in
@@ -63,9 +119,7 @@ ali_eip_ls(){
             ;;
     esac | {
         if [ -t 1 ]; then
-            ali_table_json \
-                ip=.IpAddress bw=.Bandwidth charge=.ChargeType time=.AllocationTime \
-                insId=.InstanceId insCharge=.InternetChargeType
+            ali_eip_ls_format
         else
             cat
         fi
