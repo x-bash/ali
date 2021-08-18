@@ -84,3 +84,38 @@ A
     }
 
 }
+
+
+ali_exactor(){
+    local code="${1:?Provide code}"
+    local msg0="${2:?Provide msg0}"
+    local msgn="${3:?Provide msgn}"
+    shift 3
+
+    local ret
+    ret="$("$code" "$@")"
+    local len
+    len="$(printf "%s" "$ret" | jq '. | length')"
+
+    case "$len" in
+        0)  ali_log warn "$msg0";;
+        1)  printf "%s" "$ret";;
+        *)  ali_log warn "$msgn";;
+    esac
+}
+
+ali_exactor_declare(){
+    local func="${1:?Provide funname}"
+    local msg0="${2:?Provide msg0}"
+    local msgn="${3:?Provide msgn}"
+    local id_eval="${4:?Provide id}"
+    eval "${func}_extract(){
+        ali_exactor ${func}_ls \"$msg0\" \"$msgn\" \"\$@\"
+    }
+    
+    ${func}_exact_id(){
+        ${func}_extract \"\$@\" | jq -r \'$id_eval\'
+    }
+    "
+}
+

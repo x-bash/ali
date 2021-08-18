@@ -1,0 +1,95 @@
+# shellcheck shell=sh disable=SC3043
+
+
+ali_image(){
+    param <<A
+subcommand:
+    ls      "list"
+A
+    
+    if [ -z "$PARAM_SUBCMD" ]; then
+        echo "help" >&2
+    fi
+
+    "ali_image_$PARAM_SUBCMD" "$@"
+}
+
+# --OSType
+# --PageSize
+
+ali_image_ls(){
+    param <<A
+subcommand:
+    linux           "Linux"
+    debian          "debian"
+    ubuntu          "ubuntu"
+    aliyun          "Aliyun"
+    centos          "CentOS"
+    win             "Windows Server 2019"
+    fedora          "Fedora"
+    suse            "suse"
+    coreos          "coreos"
+A
+
+    local ARGS="--OSType linux"
+
+    local platform=""
+    case "$PARAM_SUBCMD" in
+        win)        ARGS="--OSType windows" ;;
+        linux)      ARGS="--OSType linux"  ;;
+        debian)     platform=Debian ;;
+        ubuntu)     platform=Ubuntu ;;
+        aliyun)     platform=Aliyun ;;
+        centos)     platform=CentOS ;;
+        fedora)     platform=Fedora ;;
+        suse)       platform=SUSE ;;
+        coreos)     platform=CoreOS ;;
+        gentoo)     platform=Gentoo ;;
+        *)          ARGS=""
+                    platform="$1"
+                    ;;
+    esac
+
+    eval aliyun ecs DescribeImages "$ARGS" --PageSize 100 | jq .Images.Image[] | {
+        if [ -z "$platform" ]; then
+            cat
+        else
+            jq ". | 
+                if .Platform==\"$platform\" then . 
+                elif .ImageId | test(\"$platform\") then .
+                else empty end"
+            # cat
+        fi
+    } | jq -s . | {
+        if [ -t 1 ]; then
+            ali_table_json .ImageId .OSName .OSType .Platform arch=.Architecture .CreationTime
+        else
+            cat
+        fi
+    }
+}
+
+ali_image_exact(){
+    local ret
+    ret="$(ali_image_ls "$@")"
+    local len
+    len="$(printf "%s" "$ret" | jq '. | length')"
+
+    case "$len" in
+        0)  ali_log warn "No such image found.";;
+        1)  printf "%s" "$ret";;
+        *)  ali_log warn "Multiple images found.";;
+    esac
+}
+
+ali_image_exact_id(){
+    ali_image_exact "$@" | jq -r .[0].ImageId
+}
+
+# Create Image from an Instance
+
+# 1. Take Snapshot
+# 2. Save snapshot to image
+
+
+

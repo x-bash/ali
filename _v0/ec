@@ -10,6 +10,7 @@ subcommand:
     quick               "quick"
     start               "start instance"
     stop                "stop instance"
+    create              "create instance"
 A
 
     if [ -z "$PARAM_SUBCMD" ]; then
@@ -177,7 +178,20 @@ ali_ec_del(){
 # check dns name
 # check
 ali_ec_create(){
-    aliyun ecs
+    param <<A
+options:
+    --image     "Image keyword"     <image>="ubuntu_20_04_x64"
+A
+
+    local image_id
+    if ! image_id=$(ali_image_exact_id "$image"); then
+        return
+    fi
+
+    echo "$image_id"
+
+    aliyun ecs CreateInstance \
+        --ImageId "$image_id"
 }
 
 

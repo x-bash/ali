@@ -10,9 +10,11 @@ xrc param/v0
 . ./_v0/ec
 . ./_v0/vpc
 . ./_v0/dns
+. ./_v0/image
 . ./_v0/eip
 . ./_v0/sg
 . ./_v0/utils
+. ./_v0/disk
 
 xrc log init ali
 
@@ -28,18 +30,45 @@ subcommand:
     fc                  "function control"
     redis               "redis management"
     eip                 "Elastics ip address"
+    disk                "disk"
     region              "Region"
     zone                "Zone"
     instance            "instance"
+    image               "Image managment"
+    quick               "quick"
 A
 
     if [ -z "$PARAM_SUBCMD" ]; then
-        ali help
+        ali_quick "$@"
         return 1
     fi
 
     "ali_$PARAM_SUBCMD" "$@"
+}
 
+ali_quick(){
+    if [ -z "$1" ]; then
+        ali help
+        return 0
+    fi
+
+    case "$1" in
+        i-*)       
+            ali ec "$1"     
+            ;;
+        sg-*) 
+            ali sg rule "$1" 
+            ;;
+        vpc-*) 
+            ali vpc switch "$1" 
+            ;;
+        *.*.*.*) 
+            ali eip "$1"
+            ;;
+        *.*)
+            ali dns "$1" 
+            ;;
+    esac
 }
 
 ali_is_ip(){

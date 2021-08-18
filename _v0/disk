@@ -1,0 +1,47 @@
+# shellcheck shell=sh disable=SC3043
+
+ali_disk(){
+    param <<A
+subcommand:
+    ls      "list"
+A
+    
+    if [ -z "$PARAM_SUBCMD" ]; then
+        echo "help" >&2
+    fi
+
+    "ali_disk_$PARAM_SUBCMD" "$@"
+}
+
+
+ali_disk_ls(){
+
+    _ali_disk_ls | {
+        if [ ! -t 1 ]; then
+            cat
+            return
+        fi
+
+        ali_table_json \
+            id=.DiskId charge=.DiskChargeType .RegioId .InstanceId .Size .Status .Category .Device
+    }
+}
+
+# shellcheck disable=SC2120
+_ali_disk_ls(){
+    case $# in
+        0)  aliyun ecs DescribeDisks | jq .Disks.Disk
+            ;;
+        *)  _ali_disk_ls | jq "
+                .[] | 
+                if      .DiskId | test(\"$1\")      then .
+                elif    .DiskName | test(\"$1\")      then .
+                else    empty end
+            " | jq -s .
+            ;;
+    esac
+
+}
+
+ali_exactor_declare ali_disk "No such disk found." "Multiple disk found" .DiskId
+
