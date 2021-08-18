@@ -29,12 +29,22 @@ A
 ali_sg_create(){
     param <<A
 options:
+    --vpc                       "Provide vpc information"                   <vpc>
     --name                      "Default is a auto generated name"          <name>=""
     --type                      "Default is normal"                         <type>=normal               =   normal     enterprise
     --desc|--description        "Provide description"                       <description-string>=""
 A
 
+    local id
+    if ! id="$(ali_vpc_exact_id "$vpc")"; then
+        return
+    fi
+
+    [ -n "$1" ] && name="$1"
+    [ -n "$2" ] && desc="$2"
+
     eval aliyun ecs CreateSecurityGroup \
+        --VpcId "$id" \
         ${name+--SecurityGroupName "$name"} \
         --SecurityGroupType "${type}" \
         ${name+--Description "$desc"}
@@ -46,7 +56,7 @@ ali_sg_ls(){
     if [ ! -t 1 ]; then
         _ali_sg_ls "$@"
     else
-        _ali_sg_ls "$@" | ali_table_json .CreationTime .SecurityGroupId .SecurityGroupName .SecurityGroupType
+        _ali_sg_ls "$@" | ali_table_json .CreationTime .SecurityGroupId .SecurityGroupName .VpcId .SecurityGroupType
     fi
 }
 

@@ -35,7 +35,7 @@ _ali_sg_rule_ls_format(){
     ali_table_json \
         .short  .Direction \
         .PortRange .DestCidrIp .SourcePortRange .SourceCidrIp \
-        .CreateTime .Description 
+        .CreateTime .Description
         # .Policy .Priority  
         # .NicType .IpProtocol
 }
@@ -147,9 +147,22 @@ function pprint(name, val){
     }
     pprint( "--NicType",         $1 )
     pprint( "--IpProtocol",      $2 )
+
+    if ($3 == "") {
+        if ($2 == "TCP") {
+            $3 = "1/65535"
+        } else {
+            $3 = "-1/-1"
+        }
+    }
     pprint( "--PortRange",       $3 )
+
     pprint( "--DestCidrIp",      $4 )
     pprint( "--SourcePortRange", $5 )
+
+    # if ($6 == "") {
+    #     $6 = "0.0.0.0/0"
+    # }
     pprint( "--SourceCidrIp",    $6 )
     pprint( "--Policy",          $7 )
     pprint( "--Priority",        $8 )
@@ -174,7 +187,8 @@ subcommand:
 A
 
     if [ -z "$PARAM_SUBCMD" ]; then
-        ali_sg_quick "$@"
+        ali_sg_rule_ingress help
+        # ali_sg_ingress_quick "$@"
         return
     fi
 
@@ -200,7 +214,7 @@ A
 }
 
 ali_sg_rule_egress_add(){       ali_sg_rule_func AuthorizeSecurityGroupEgress "$@";     }
-ali_sg_rule_egress_del(){       ali_sg_rule_func RevokeSecurityGroup "$@";              }
+ali_sg_rule_egress_del(){       ali_sg_rule_func RevokeSecurityGroupEgress "$@";        }
 
 ali_sg_rule_func(){
     local func="${1:-Provide function}"
@@ -215,8 +229,9 @@ ali_sg_rule_func(){
     local rule_args
     for rule in "$@"; do
         (
-            rule_args="$(ali_sg_rule_parsing "${rule}")" &&
+            if rule_args="$(ali_sg_rule_parsing "${rule}")"; then
                 eval aliyun ecs "$func" --SecurityGroupId "$id" "$rule_args"
+            fi
         ) || return  
     done
 }
@@ -239,35 +254,32 @@ A
 
 ali_sg_rule_quick(){
     local s
+    local id="${1:-Provide sg id}"
 
-    _ali_sg_rule_quick_title "$@"
+    _ali_sg_rule_quick_title "$id"
 
     local line
     while printf "> " && ali_read line; do
-        [ "$line" = q ] && break
-        case "$line" in
-            +*)    
-                ali_sg_rule_add "$@" "${line#+}"
+        local cmd=$line;   shift
+        case "$cmd" in
+            +*|add*)    
+                ali_sg_rule_add "$id" "${cmd#* }"
+                _ali_sg_rule_quick_title "$id"
                 ;;
-            -*)     
+            -*|del*)     
                 # ali_sg_rule_add "${line#+}"
-                local newline
-                newline=${line#-}
 
-                case "${newline}" in
-                    *\|*)           rule=$newline  ;;
-                    *)              newline=$(echo "$newline" | tr -cd '0-9')
-                                    rule="$(printf "%s" "$s" | jq ".[$newline]" | ali_sg_rule_str)" ;;
-                esac
-
-                ali_sg_rule_del "$@" "$rule"
+                ali_sg_rule_del "$id" "${cmd#* }"
+                _ali_sg_rule_quick_title "$id"
                 ;;
             r)  
-                _ali_sg_rule_quick_title "$@"
+                _ali_sg_rule_quick_title "$id"
                 ;;
             q)  break 
                 ;;
-
+            *)
+                set -- "$line"
+                ali sg rule "$@"
         esac
     done
 
