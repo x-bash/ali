@@ -254,13 +254,14 @@ ali_dns_record_quick(){
             r)  
                 _ali_dns_record_quick_title "$domain_name"
                 ;;
-            q)  break 
+            q)  printf "\n"
+                return 
                 ;;
             "") ;;
             *)  ali dns record "$@"
         esac
     done
-
+    printf "\n"
 }
 
 

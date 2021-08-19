@@ -80,4 +80,5 @@ ali_dns_quick(){
             return
             ;;
     esac
+    printf "\n"
 }

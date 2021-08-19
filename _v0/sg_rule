@@ -275,13 +275,14 @@ ali_sg_rule_quick(){
             r)  
                 _ali_sg_rule_quick_title "$id"
                 ;;
-            q)  break 
+            q)  printf "\n"
+                return 
                 ;;
             *)
                 set -- "$line"
                 ali sg rule "$@"
         esac
     done
-
+    printf "\n"
 }
 

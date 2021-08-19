@@ -167,7 +167,8 @@ ali_eip_quick(){
             r)  
                 _ali_eip_quick_title
                 ;;
-            q)  break 
+            q)  printf "\n"
+                return 
                 ;;
             "") ;;
             *)  ali eip "$@"

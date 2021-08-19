@@ -4,9 +4,9 @@
 ali_image(){
     param <<A
 subcommand:
-    ls      "list"
-    exact   "eaxct"
-    exactid "exactid"
+    ls              "list"
+    exact           "eaxct"
+    exactid         "exactid"
 A
     
     if [ -z "$PARAM_SUBCMD" ]; then

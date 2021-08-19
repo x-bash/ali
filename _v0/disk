@@ -39,8 +39,8 @@ _ali_disk_ls(){
             ;;
         *)  _ali_disk_ls | jq "
                 .[] | 
-                if      .DiskId | test(\"$1\")      then .
-                elif    .DiskName | test(\"$1\")      then .
+                if      .DiskId | test(\"$1\")          then .
+                elif    .DiskName | test(\"$1\")        then .
                 else    empty end
             " | jq -s .
             ;;

@@ -155,11 +155,12 @@ _ali_keypair_quick_title(){
     cat <<A
 
 Commands:
-    i|import      i <keypair-name> <the name of ssh-keypair under ~/.ssh/ folder, or public key body>      
-    del           Format: del <part of the vpc's name or id>
-    create        Format: create [ --name <vpc name> ]
-    r             reload
-    q             quit
+    i|import        i <keypair-name> <the name of ssh-keypair under ~/.ssh/ folder, or public key body>      
+    del             Format: del <part of the vpc's name or id>
+    create          Format: create [ --name <vpc name> ]
+    r               reload
+    q               quit
+    :               : <cmd> [ ... <args> ]
 A
 }
 
@@ -173,7 +174,7 @@ ali_keypair_quick(){
     _ali_keypair_quick_title
 
     local line
-    while printf "> " && ali_read line; do
+    while printf "ali kp> " && ali_read line; do
         eval set -- "$line"
         local cmd=$1;   shift
         case "$cmd" in
@@ -193,7 +194,8 @@ ali_keypair_quick(){
             r)  
                 _ali_keypair_quick_title
                 ;;
-            q)  return 
+            q)  printf "\n"
+                return 
                 ;;
             :*) eval "$@"
                 ;;

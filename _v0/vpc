@@ -106,10 +106,11 @@ _ali_vpc_quick_title(){
     cat <<A
 
 Commands:
-  +|create      Format: create [ --name <vpc name> ] 
-  -             Format: del <part of the vpc's name or id>
-  r             reload
-  q             quit
+    +|create      Format: create [ --name <vpc name> ] 
+    -             Format: del <part of the vpc's name or id>
+    r             reload
+    q             quit
+    :               : <cmd> [ ... <args> ]
 
 A
 }
@@ -124,7 +125,7 @@ ali_vpc_quick(){
     _ali_vpc_quick_title
 
     local line
-    while printf "> " && ali_read line; do
+    while printf "ali vpc> " && ali_read line; do
         eval set -- "$line"
         local cmd=$1;   shift
         case "$cmd" in
@@ -140,10 +141,13 @@ ali_vpc_quick(){
             r)  
                 _ali_vpc_quick_title
                 ;;
-            q)  break 
+            q)  printf "\n"
+                return 
+                ;;
+            :*) eval "$@"
                 ;;
             *)  ali vpc "$@"
         esac
     done
-
+    printf "\n"
 }
