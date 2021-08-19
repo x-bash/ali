@@ -62,7 +62,7 @@ _ali_keypair_ls(){
 ali_exactor_declare ali_keypair \
     "No such keypair found." \
     "Multiple keypair found." \
-    .KeyPairFingerName
+    KeyPairFingerName
 
 ali_keypair_import(){
     param <<A
@@ -145,7 +145,7 @@ ali_keypair_attach(){
         return 1
     fi
 
-    aliyun ecs AttachKeyPair --KeyPairName "$kpid" --InstanceIds "$ecid"
+    aliyun ecs AttachKeyPair --KeyPairName "$kpid" --InstanceIds "[\"${ecid}\"]"
 }
 
 ali_keypair_detach(){
@@ -161,7 +161,7 @@ ali_keypair_detach(){
         ali_log warn "EC Not found"
     fi
 
-    aliyun ecs DetachKeyPair --KeyPairName "$kpid" --InstanceIds "$ecid"
+    aliyun ecs DetachKeyPair --KeyPairName "$kpid" --InstanceIds "[\"${ecid}\"]"
 
 }
 

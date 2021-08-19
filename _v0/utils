@@ -125,6 +125,12 @@ echo_eval(){
 }
 
 
+_ali_quicker_run(){
+    # echo "$("$@")"
+    eval "$@"
+    # "$@"
+}
+
 ali_quicker(){
     local func="${1:?provide func}"
     local prompt="${2:?Provide prompt}"
@@ -169,18 +175,9 @@ A
             :*) eval "${cmd#:}" "$@"
                 ;;
             *)  
-                # if ! "${func}_${cmd}" "$@"; then
-                #     continue
-                # fi
-                # TODO: figure out why this fail
-                # if ! "${func}_${cmd}" "$@"; then
-                #     continue
-                # fi
-                echo fuck
-                command ali_keypair_attach
-                # if ! eval_echo "${func}_${cmd}" "$@"; then
-                #     continue
-                # fi
+                if ! _ali_quicker_run "${func}_${cmd}" "$@"; then
+                    continue
+                fi
         esac
 
         eval "
