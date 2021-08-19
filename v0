@@ -35,7 +35,7 @@ subcommand:
     region              "Region"
     zone                "Zone"
     instance            "instance"
-    image               "Image managment"
+    image|img           "Image managment"
     quick               "quick"
     keypair|kp          "keypair management"
 A
