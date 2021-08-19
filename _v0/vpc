@@ -59,11 +59,11 @@ ali_vpc_exact(){
     local len
     len="$(echo "$s" | jq ' . | length ')"
     case $len in
-        0)  ali_log warn "No such ec server found.";;
+        0)  ali_log warn "No such vpc found.";;
         1)  echo "$s" | jq -r .[0]
             return 0
             ;;
-        *)  ali_log warn "Multiple ec server found.";;
+        *)  ali_log warn "Multiple vpc found.";;
     esac
     return 1
 }
