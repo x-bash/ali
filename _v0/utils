@@ -150,7 +150,8 @@ ali_quicker(){
 CLICOMMANDS:
     r               reload
     q               quit
-    :               : <cmd> [ ... <args> ]
+    :               : <SUBCOMMAND> [ ... <args> ]
+    <cmd> [ ... <args> ]
 $(${func} help)
 
 A
@@ -172,16 +173,18 @@ A
                 ;;
             "") continue            ;;
             r)  ;;
-            :*) eval "${cmd#:}" "$@"
-                ;;
-            *)  
-                if ! _ali_quicker_run "${func}_${cmd}" "$@"; then
+            :*)  
+                if ! _ali_quicker_run "${func}_${cmd#:}" "$@"; then
                     continue
                 fi
+                ;;
+            *)  
+                eval "${cmd}" "$@"
+                continue
         esac
 
         eval "
-        case \"\$cmd\" in
+        case \"\${cmd#:}\" in
             r) ;;
             $reload_function) ;;  
             *) continue ;;

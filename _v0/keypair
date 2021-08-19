@@ -62,7 +62,7 @@ _ali_keypair_ls(){
 ali_exactor_declare ali_keypair \
     "No such keypair found." \
     "Multiple keypair found." \
-    KeyPairFingerName
+    KeyPairName
 
 ali_keypair_import(){
     param <<A

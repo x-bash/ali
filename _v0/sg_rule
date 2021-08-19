@@ -221,6 +221,14 @@ A
 ali_sg_rule_egress_add(){       ali_sg_rule_func AuthorizeSecurityGroupEgress "$@";     }
 ali_sg_rule_egress_del(){       ali_sg_rule_func RevokeSecurityGroupEgress "$@";        }
 
+ali_sg_rule_egress_add_ssh(){
+    :
+}
+
+ali_sg_rule_egress_add_icmp(){
+    :
+}
+
 ali_sg_rule_func(){
     local func="${1:-Provide function}"
     
@@ -240,6 +248,7 @@ ali_sg_rule_func(){
         ) || return  
     done
 }
+
 
 
 ali_sg_rule_quick(){
