@@ -8,8 +8,8 @@
 ali_sg(){
     param <<A
 subcommand:
-    create|+        "create security group"
-    del|-           "delete security group"
+    create          "create security group"
+    del             "delete security group"
     ls              "list security group"
     include         "join an ec instance"
     exclude         "exclude an ec instance"
