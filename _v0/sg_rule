@@ -50,7 +50,7 @@ def fff:    if .SourceGroupId != ""                 then    [ .NicType, .IpProto
 # shellcheck disable=SC2120
 _ali_sg_rule_ls(){
     local id
-    if ! id=$(ali_sg_exact_id "${1:?Provide rule regex}"); then
+    if ! id=$(ali_sg_exactid "${1:?Provide rule regex}"); then
         return
     fi
 
@@ -74,7 +74,7 @@ _ali_sg_rule_ls(){
 # shellcheck disable=SC2120
 _ali_sg_rule_ls_origin(){
     local id
-    if ! id=$(ali_sg_exact_id "${1:?Provide rule regex}"); then
+    if ! id=$(ali_sg_exactid "${1:?Provide rule regex}"); then
         return
     fi
 
@@ -220,7 +220,7 @@ ali_sg_rule_func(){
     local func="${1:-Provide function}"
     
     local id
-    if ! id=$(ali_sg_exact_id "${2:?Provide rule regex}"); then
+    if ! id=$(ali_sg_exactid "${2:?Provide rule regex}"); then
         return
     fi
 

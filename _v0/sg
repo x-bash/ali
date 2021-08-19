@@ -11,6 +11,7 @@ subcommand:
     create          "create security group"
     del             "delete security group"
     ls              "list security group"
+    info            "info"
     include         "join an ec instance"
     exclude         "exclude an ec instance"
     refer           "list reference"
@@ -55,6 +56,17 @@ ali_sg_ls_format(){
     ali_table_json .CreationTime .SecurityGroupId .SecurityGroupName .VpcId .SecurityGroupType
 }
 
+ali_sg_info(){
+    local data
+    if ! data="$(ali_sg_exact "$@")"; then
+        return
+    fi
+
+    data="$(printf "%s" "$data" | jq .[0])"
+
+    echo "$data"
+}
+
 # shellcheck disable=SC2120
 ali_sg_ls(){
     if [ ! -t 1 ]; then
@@ -79,26 +91,16 @@ _ali_sg_ls(){
     esac
 }
 
-ali_sg_exact_id(){
-    local s
-    s="$(ali_sg_ls "${1:-Provide ip}")"
-    local len
-    len="$(echo "$s" | jq ' . | length ')"
-    case $len in
-        0)  ali_log warn "No such security group found.";;
-        1)  echo "$s" | jq -r .[0].SecurityGroupId
-            return 0
-            ;;
-        *)  ali_log warn "Multiple security group found.";;
-    esac
-    return 1
-}
 
+ali_exactor_declare ali_sg \
+    "No such security group found." \
+    "Multiple security group found." \
+    .SecurityGroupId
 
 
 ali_sg_del(){
     local id
-    if id="$(ali_sg_exact_id "$@")"; then
+    if id="$(ali_sg_exactid "$@")"; then
         ali_log info "SecurityGroup ID: $id"
         aliyun ecs DeleteSecurityGroup  --SecurityGroupId "$id"
     fi
@@ -120,7 +122,7 @@ A
 
 _ali_sg_refer(){
     local id
-    if id="$(ali_sg_exact_id "$@")"; then
+    if id="$(ali_sg_exactid "$@")"; then
         ali_log info "SecurityGroup ID: $id"
         aliyun ecs DescribeSecurityGroupReferences  --SecurityGroupId.1 "$id" | jq .SecurityGroupReferences.SecurityGroupReference
         return 0
@@ -130,7 +132,7 @@ _ali_sg_refer(){
 
 ali_sg_include(){
     local id
-    if ! id="$(ali_sg_exact_id "$1")"; then
+    if ! id="$(ali_sg_exactid "$1")"; then
         return
     fi
 
@@ -145,7 +147,7 @@ ali_sg_include(){
 
 ali_sg_exclude(){
     local id
-    if ! id="$(ali_sg_exact_id "$1")"; then
+    if ! id="$(ali_sg_exactid "$1")"; then
         return
     fi
 

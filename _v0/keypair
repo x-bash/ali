@@ -3,12 +3,13 @@ ali_keypair(){
     param <<A
 subcommands:
     ls                  "ls"
+    info                "info"
     attach              "attach"
     detach              "detach"
     import              "import"
     create              "Create"
     delete|del          "delete"
-    info                "info"
+    
 A
 
     if [ -z "$PARAM_SUBCMD" ]; then
@@ -26,14 +27,14 @@ ali_keypair_ls_format(){
 
 ali_keypair_info(){
     # unique in region
-    local kp
-    if ! kp="$(ali_keypair_exact "${1:-keypair name}")"; then
+    local data
+    if ! data="$(ali_keypair_exact "${1:-keypair name}")"; then
         return
     fi
 
-    kp="$(printf "%s" "$kp" | jq .[0])"
+    data="$(printf "%s" "$data" | jq .[0])"
 
-    echo "$kp"
+    echo "$data"
 }
 
 ali_keypair_ls(){
@@ -58,7 +59,10 @@ _ali_keypair_ls(){
     esac
 }
 
-ali_exactor_declare ali_keypair "No such keypair found." "Multiple keypair found." .KeyPairFingerName
+ali_exactor_declare ali_keypair \
+    "No such keypair found." \
+    "Multiple keypair found." \
+    .KeyPairFingerName
 
 ali_keypair_import(){
     param <<A
