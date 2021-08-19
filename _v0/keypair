@@ -178,28 +178,16 @@ ali_keypair_quick(){
         eval set -- "$line"
         local cmd=$1;   shift
         case "$cmd" in
-            +|create)    
-                echo ali keypair create "$@"
-                ali keypair create "$@"
-                _ali_keypair_quick_title
-                ;;
-            -|del)
-                ali keypair del "$@"
-                _ali_keypair_quick_title
-                ;;
-            i|import)
-                ali keypair import "$@"
-                _ali_keypair_quick_title
-                ;; 
-            r)  
-                _ali_keypair_quick_title
-                ;;
             q)  printf "\n"
                 return 
                 ;;
             :*) eval "$@"
                 ;;
             *)  ali keypair "$cmd" "$@"
+        esac
+
+        case "$cmd" in
+            r|create|del|import|i)      _ali_keypair_quick_title ;;
         esac
     done
 
