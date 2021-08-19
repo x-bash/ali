@@ -120,7 +120,7 @@ ali_exactor_declare(){
 }
 
 
-ali_quick_quicker(){
+ali_quicker(){
     local func="${1:-ali_keypair}"
     local reload_function="$2"
     shift 2
