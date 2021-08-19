@@ -52,7 +52,7 @@ _ali_vpc_ls(){
     esac 
 }
 
-ali_vpc_exact_id(){
+ali_vpc_exactid(){
     ali_vpc_exact "$@" | jq -r .VpcId
 }
 
@@ -95,7 +95,7 @@ A
 
 ali_vpc_del(){
     local id
-    if id="$(ali_vpc_exact_id "$@")"; then
+    if id="$(ali_vpc_exactid "$@")"; then
         ali_log info "Instance ID: $id"
         aliyun ecs DeleteVpc --VpcId "$id"
     fi

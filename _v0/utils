@@ -99,9 +99,10 @@ ali_exactor(){
 
     case "$len" in
         0)  ali_log warn "$msg0";;
-        1)  printf "%s" "$ret";;
+        1)  printf "%s" "$ret"; return 0;;
         *)  ali_log warn "$msgn";;
     esac
+    return 1
 }
 
 ali_exactor_declare(){

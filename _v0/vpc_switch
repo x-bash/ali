@@ -39,11 +39,22 @@ _ali_vpc_switch_ls(){
             fi
             aliyun ecs DescribeVSwitches | jq .VSwitches.VSwitch ;;
         1)
+            local kw="${1:?Provide keyword}"
+            echo "$kw" >&2
             local vpcid
-            if ! vpcid="$(ali_vpc_exact_id "${1:?Provide keyword}")"; then
-                return
+            if ! vpcid="$(ali_vpc_exactid "$kw")"; then
+                echo "$kw NOt" >&2
+                aliyun ecs DescribeVSwitches | jq .VSwitches.VSwitch | jq "
+                    .[] | 
+                    if      .CidrBlock | test(\"$kw\")       then .
+                    elif    .VSwitchName | test(\"$kw\")     then .
+                    elif    .VSwitchId | test(\"$kw\")       then .
+                    else empty end
+                " | jq -s .
+            else
+                aliyun ecs DescribeVSwitches --VpcId "$vpcid" | jq .VSwitches.VSwitch
             fi
-            aliyun ecs DescribeVSwitches --VpcId "$vpcid" | jq .VSwitches.VSwitch
+            
             ;;
         *)  
             local vpckw="${1}"
@@ -59,7 +70,7 @@ _ali_vpc_switch_ls(){
     esac
 }
 
-ali_exactor_declare ali_keypair "No such vpc switch found." "Multiple vpc switch found." .VSwitchId
+ali_exactor_declare ali_vpc_switch "No such vpc switch found." "Multiple vpc switch found." VSwitchId
 
 # ali vpc switch create --vpc it-switch --zone cn-hongkong-a --cidr 10.0.0.3/14 --name hi
 ali_vpc_switch_create(){
@@ -82,7 +93,7 @@ A
     fi
 
     local id
-    if ! id="$(ali_vpc_exact_id "$vpc")"; then
+    if ! id="$(ali_vpc_exactid "$vpc")"; then
         return
     fi
 
@@ -114,7 +125,7 @@ ali_vpc_switch_quick(){
 
     if [ -n "$ALI_VPCID" ]; then
         local vpcid
-        if ! vpcid="$(ali_vpc_exact_id "${ALI_VPCID}")"; then
+        if ! vpcid="$(ali_vpc_exactid "${ALI_VPCID}")"; then
             return
         fi
         ALI_VPCID="$vpcid"

@@ -37,7 +37,7 @@ options:
 A
 
     local id
-    if ! id="$(ali_vpc_exact_id "$vpc")"; then
+    if ! id="$(ali_vpc_exactid "$vpc")"; then
         return
     fi
 

@@ -33,7 +33,7 @@ ali_ec_ls(){
     
     _ali_ec_ls "$@" \
         | ali_table_json \
-            .InstanceId .HostName .StartTime .Status .OSNameEn   .Cpu    .Memory     .EipAddress.IpAddress .StoppedMode  
+            .InstanceId .HostName .StartTime .Status .OSNameEn   CP=.Cpu    MEM=.Memory     IP=.EipAddress.IpAddress .InstanceType .StoppedMode  
 
 }
 
