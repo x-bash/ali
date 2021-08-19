@@ -19,12 +19,17 @@ A
 
 }
 
+ali_keypair_ls_format(){
+    ali_table_json \
+            .KeyPairFingerPrint .KeyPairName .ResourceGroupId .CreationTime .RegionId
+}
+
+
 ali_keypair_ls(){
     if [ ! -t 1 ]; then
         _ali_keypair_ls "$@"
     else
-        _ali_keypair_ls "$@" | ali_table_json \
-            .KeyPairFingerPrint .KeyPairName .ResourceGroupId .CreationTime .RegionId
+        _ali_keypair_ls "$@" | ali_keypair_ls_format
     fi
 }
 
@@ -91,13 +96,12 @@ A
 ali_keypair_create(){
     param <<A
 options:
-    #n      "keypair name list"
+    #1      "keypair name"
+    #2      "filepath to save private keypair"
 A
 
-    local keypairname
-    for keypairname in "$@"; do
-        aliyun ecs CreateKeyPair --KeyPairName "${keypairname}"
-    done
+    local keypairname="${1:?Keypair name}"
+    aliyun ecs CreateKeyPair --KeyPairName "${keypairname}" | jq -r .PrivateKeyBody>"${2:-"/dev/stdout"}"
 }
 
 ali_keypair_delete(){
@@ -143,7 +147,60 @@ ali_keypair_detach(){
 
 }
 
+# shellcheck disable=SC2120
+_ali_keypair_quick_title(){
+    s=$(ali_keypair_ls "$@")
+    printf "%s" "$s" | ali_keypair_ls_format
+
+    cat <<A
+
+Commands:
+    i|import      i <keypair-name> <the name of ssh-keypair under ~/.ssh/ folder, or public key body>      
+    del           Format: del <part of the vpc's name or id>
+    create        Format: create [ --name <vpc name> ]
+    r             reload
+    q             quit
+A
+}
+
 ali_keypair_quick(){
-    ali_keypair_ls "$@"
+    if [ ! -t 1 ]; then
+        ali_keypair_ls "$@"
+        return
+    fi
+
+    local s
+    _ali_keypair_quick_title
+
+    local line
+    while printf "> " && ali_read line; do
+        eval set -- "$line"
+        local cmd=$1;   shift
+        case "$cmd" in
+            +|create)    
+                echo ali keypair create "$@"
+                ali keypair create "$@"
+                _ali_keypair_quick_title
+                ;;
+            -|del)
+                ali keypair del "$@"
+                _ali_keypair_quick_title
+                ;;
+            i|import)
+                ali keypair import "$@"
+                _ali_keypair_quick_title
+                ;; 
+            r)  
+                _ali_keypair_quick_title
+                ;;
+            q)  return 
+                ;;
+            :*) eval "$@"
+                ;;
+            *)  ali keypair "$cmd" "$@"
+        esac
+    done
+
+    
 }
 
