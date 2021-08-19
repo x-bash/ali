@@ -15,6 +15,7 @@ xrc param/v0
 . ./_v0/eip
 . ./_v0/sg
 . ./_v0/disk
+. ./_v0/keypair
 
 xrc log init ali
 
@@ -36,6 +37,7 @@ subcommand:
     instance            "instance"
     image               "Image managment"
     quick               "quick"
+    keypair|kp          "keypair management"
 A
 
     if [ -z "$PARAM_SUBCMD" ]; then

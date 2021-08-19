@@ -1,0 +1,149 @@
+
+ali_keypair(){
+    param <<A
+subcommands:
+    ls                  "ls"
+    attach              "attach"
+    detach              "detach"
+    import              "import"
+    create              "Create"
+    delete|del          "delete"
+A
+
+    if [ -z "$PARAM_SUBCMD" ]; then
+        ali_keypair_quick "$@"
+        return
+    fi
+
+    "ali_keypair_$PARAM_SUBCMD" "$@"
+
+}
+
+ali_keypair_ls(){
+    if [ ! -t 1 ]; then
+        _ali_keypair_ls "$@"
+    else
+        _ali_keypair_ls "$@" | ali_table_json \
+            .KeyPairFingerPrint .KeyPairName .ResourceGroupId .CreationTime .RegionId
+    fi
+}
+
+_ali_keypair_ls(){
+    case "$#" in
+        0)  aliyun ecs DescribeKeyPairs | jq .KeyPairs.KeyPair ;;
+        1)  local regex="${1:-Provide regex pattern}"
+            _ali_vpc_ls | jq "
+                .[] | 
+                if      .KeyPairName | test(\"$regex\")                 then .
+                elif    .KeyPairFingerPrint | test(\"$regex\")         then .
+                else    empty       end
+            " | jq -s .
+            ;;
+    esac
+}
+
+ali_exactor_declare ali_ec "No such keypair found." "Multiple keypair found." .KeyPairFingerName
+
+ali_keypair_import(){
+    param <<A
+options:
+    #1      "keypair name"
+    #2      "keypair body"
+A
+
+    local name="${1:?keypair name}"
+    local body="${2}"
+
+    if [ -z "$body" ]; then
+        if [ -t 0 ]; then
+            local key
+            printf "%s" "Import the $HOME/.ssh/id_rsa? (Enter to continue, otherwise abort): "
+            ali_read key
+            case "$key" in
+                "") ali_log info "Using the $HOME/.ssh/id_rsa" 
+                    body="$(cat "$HOME/.ssh/id_rsa.pub")"
+                    ;;
+                *)  ali_log warn "Abort." ;;
+            esac
+        else
+            body="$(cat)"
+        fi
+    else
+        if [ "$body" = "${body#ssh-rsa }" ]; then
+            if [ -f "$HOME/.ssh/$body.pub" ]; then
+                body="$(cat "$HOME/.ssh/$body.pub")"
+            elif [ -f "$HOME/.ssh/$body" ]; then
+                body="$(cat "$HOME/.ssh/$body")"
+            else
+                ali_log error "Not a valid key"
+                return
+            fi
+        fi
+    fi
+
+
+    aliyun ecs ImportKeyPair \
+        --KeyPairName "$name" \
+        --PublicKeyBody "$body"
+
+}
+
+ali_keypair_create(){
+    param <<A
+options:
+    #n      "keypair name list"
+A
+
+    local keypairname
+    for keypairname in "$@"; do
+        aliyun ecs CreateKeyPair --KeyPairName "${keypairname}"
+    done
+}
+
+ali_keypair_delete(){
+    param <<A
+options:
+    #n      "keypair name list"
+A
+
+    local keypairname
+    for keypairname in "$@"; do
+        aliyun ecs DeleteKeyPairs --KeyPairNames "[\"${keypairname}\"]"
+    done
+}
+
+ali_keypair_attach(){
+    # unique in region
+    local kpid 
+    if ! kpid="$(ali_keypair_exactid "${1:-keypair name}")"; then
+        ali_log warn "KP Not found"
+    fi
+
+    local ecid
+    if ! ecid="$(ali_ec_exactid "${2:-ec-id}")"; then
+        ali_log warn "EC Not found"
+    fi
+
+    aliyun ecs AttachKeyPair --KeyPairName "$kpid" --InstanceIds "$ecid"
+}
+
+ali_keypair_detach(){
+    # unique in region
+    local kpid 
+    if ! kpid="$(ali_keypair_exactid "${1:-keypair name}")"; then
+        ali_log warn "KP Not found"
+    fi
+
+    local ecid
+    if ! ecid="$(ali_ec_exactid "${2:-ec-id}")"; then
+        ali_log warn "EC Not found"
+    fi
+
+    aliyun ecs DetachKeyPair --KeyPairName "$kpid" --InstanceIds "$ecid"
+
+}
+
+ali_keypair_quick(){
+    ali_keypair_ls "$@"
+}
+
