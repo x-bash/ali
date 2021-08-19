@@ -195,5 +195,5 @@ ali_keypair_quick(){
 }
 
 ali_keypair_quick(){
-    ali_quick_generate "ali_keypair" "create|del|import|i" "$@"
+    ali_quicker "ali_keypair" "create|del|import|i" "$@"
 }
