@@ -101,7 +101,6 @@ ali_vpc_del(){
     fi
 }
 
-
 ali_vpc_quick(){
     local prompt
     prompt="

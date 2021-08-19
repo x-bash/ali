@@ -211,6 +211,6 @@ ali_keypair_quick(){
 
 ali_keypair_quick(){
     ali_quicker "ali_keypair" \
-        "\033[1;33mali vpc switch >\033[0m " \
-        "create|del|import|i" "$@"
+        "\033[1;33mali keypair >\033[0m " \
+        "create|del|import" "$@"
 }

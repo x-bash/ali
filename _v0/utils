@@ -119,6 +119,11 @@ ali_exactor_declare(){
     "
 }
 
+echo_eval(){
+    echo "$@"
+    eval "$@"
+}
+
 
 ali_quicker(){
     local func="${1:?provide func}"
@@ -163,16 +168,26 @@ A
             r)  ;;
             :*) eval "${cmd#:}" "$@"
                 ;;
-            *)  $func "$cmd" "$@"
+            *)  
+                # if ! "${func}_${cmd}" "$@"; then
+                #     continue
+                # fi
+                # TODO: figure out why this fail
+                if ! "${func}_${cmd}" "$@"; then
+                    continue
+                fi
+                # if ! eval_echo "${func}_${cmd}" "$@"; then
+                #     continue
+                # fi
         esac
 
-        eval "
+        echo_eval "
         case \"\$cmd\" in
-            r)                  ;;
-            $reload_function)           ;;  
-            *)      continue            ;;
+            r) ;;
+            $reload_function) ;;  
+            *) continue ;;
         esac
-        " 2>/dev/null
+        "
 
         s="$(${func}_ls $filter)"   # TODO: figure out why ${filter+"${filter}"} fails
         printf "%s" "$s" | "${func}_ls_format"
