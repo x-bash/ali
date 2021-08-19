@@ -52,35 +52,14 @@ _ali_vpc_switch_ls(){
                 .[] | 
                 if      .CidrBlock | test(\"$regex\")       then .
                 elif    .VSwitchName | test(\"$regex\")     then .
+                elif    .VSwitchId | test(\"$regex\")       then .
                 else empty end
             " | jq -s .
             ;;
     esac
 }
 
-ali_vpc_switch_exact(){
-    local kw="${1:?Provivde keyword}"
-    local s
-    s="$(_ali_vpc_switch_ls | jq "
-    .[] |
-    if      .VSwitchId | test(\"$kw\")          then .
-    elif    .VSwitchName | test(\"$kw\")        then .
-    else    empty       end
-    " | jq -s .)"
-
-    local len
-    len="$(printf "%s" "$s" | jq '. | length')"
-    
-    case "$len" in
-        0)  ali_log warn "No such vpc switch found.";;
-        1)  printf "%s" "$s";;
-        *)  ali_log warn "Multiple vpc switch found.";;
-    esac
-}
-
-ali_vpc_switch_exactid(){
-    ali_vpc_switch_exact "$@" | jq -r .[0].VSwitchId
-}
+ali_exactor_declare ali_keypair "No such vpc switch found." "Multiple vpc switch found." .VSwitchId
 
 # ali vpc switch create --vpc it-switch --zone cn-hongkong-a --cidr 10.0.0.3/14 --name hi
 ali_vpc_switch_create(){

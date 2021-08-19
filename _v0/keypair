@@ -47,7 +47,7 @@ _ali_keypair_ls(){
     esac
 }
 
-ali_exactor_declare ali_ec "No such keypair found." "Multiple keypair found." .KeyPairFingerName
+ali_exactor_declare ali_keypair "No such keypair found." "Multiple keypair found." .KeyPairFingerName
 
 ali_keypair_import(){
     param <<A
