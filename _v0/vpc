@@ -24,11 +24,15 @@ A
 }
 
 
+ali_vpc_ls_format(){
+    ali_table_json cidr=.CidrBlock .VpcName .Status .VpcId .VRouterId .CreationTime
+}
+
 ali_vpc_ls(){
     if [ ! -t 1 ]; then
         _ali_vpc_ls "$@"
     else
-        _ali_vpc_ls "$@" | ali_table_json cidr=.CidrBlock .VpcName .Status .VpcId .VRouterId .CreationTime
+        _ali_vpc_ls "$@" | ali_vpc_ls_format
     fi
 }
 
@@ -98,56 +102,13 @@ ali_vpc_del(){
 }
 
 
-# shellcheck disable=SC2120
-_ali_vpc_quick_title(){
-    s=$(ali_vpc_ls "$@")
-    printf "%s" "$s" | ali_table_json cidr=.CidrBlock .VpcName .Status .VpcId .VRouterId .CreationTime
-
-    cat <<A
-
-Commands:
-    +|create      Format: create [ --name <vpc name> ] 
-    -             Format: del <part of the vpc's name or id>
-    r             reload
-    q             quit
-    :               : <cmd> [ ... <args> ]
-
-A
-}
-
 ali_vpc_quick(){
-    if [ ! -t 1 ]; then
-        ali_vpc_ls "$@"
-        return
-    fi
+    local prompt
+    prompt="
+\033[1;33mali vpc >\033[0m "
 
-    local s
-    _ali_vpc_quick_title
-
-    local line
-    while printf "ali vpc> " && ali_read line; do
-        eval set -- "$line"
-        local cmd=$1;   shift
-        case "$cmd" in
-            +|create)    
-                echo ali_vpc_create "$@"
-                ali_vpc_create "$@"
-                _ali_vpc_quick_title
-                ;;
-            -|del)
-                ali_vpc_del "$@"
-                _ali_vpc_quick_title
-                ;;
-            r)  
-                _ali_vpc_quick_title
-                ;;
-            q)  printf "\n"
-                return 
-                ;;
-            :*) eval "$@"
-                ;;
-            *)  ali vpc "$@"
-        esac
-    done
-    printf "\n"
+    ali_quicker "ali_vpc" \
+        "${prompt}"\
+        "create|del" "$@"
 }
+
