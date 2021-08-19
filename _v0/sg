@@ -95,7 +95,7 @@ _ali_sg_ls(){
 ali_exactor_declare ali_sg \
     "No such security group found." \
     "Multiple security group found." \
-    .SecurityGroupId
+    SecurityGroupId
 
 
 ali_sg_del(){

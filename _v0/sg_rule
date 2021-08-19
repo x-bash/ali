@@ -27,15 +27,20 @@ ali_sg_rule_ls(){
     if [ ! -t 1 ]; then
         _ali_sg_rule_ls "$@"
     else
-        _ali_sg_rule_ls "$@" | _ali_sg_rule_ls_format
+        _ali_sg_rule_ls "$@" | ali_sg_rule_ls_format
     fi
 }
 
-_ali_sg_rule_ls_format(){
+ali_sg_rule_ls_format(){
     ali_table_json \
-        .short  .Direction \
-        .PortRange .DestCidrIp .SourcePortRange .SourceCidrIp \
-        .CreateTime .Description
+        .short \
+        .Direction \
+        .PortRange \
+        DstCidr=.DestCidrIp \
+        SrcPortR=.SourcePortRange \
+        SrcCidr=.SourceCidrIp \
+        .CreateTime \
+        .Description
         # .Policy .Priority  
         # .NicType .IpProtocol
 }
@@ -237,52 +242,9 @@ ali_sg_rule_func(){
 }
 
 
-_ali_sg_rule_quick_title(){
-    s=$(ali_sg_rule_ls "$@")
-    printf "%s" "$s" | _ali_sg_rule_ls_format
-
-    cat <<A
-
-Commands:
-  +     <rule-string, like intranet|TCP|80-91|||0.0.0.0/0|accept|1>  
-  -     <index, starting from 0>
-  r     reload
-  q     quit
-
-A
-}
-
 ali_sg_rule_quick(){
-    local s
-    local id="${1:-Provide sg id}"
-
-    _ali_sg_rule_quick_title "$id"
-
-    local line
-    while printf "> " && ali_read line; do
-        local cmd=$line;   shift
-        case "$cmd" in
-            +*|add*)    
-                ali_sg_rule_add "$id" "${cmd#* }"
-                _ali_sg_rule_quick_title "$id"
-                ;;
-            -*|del*)     
-                # ali_sg_rule_add "${line#+}"
-
-                ali_sg_rule_del "$id" "${cmd#* }"
-                _ali_sg_rule_quick_title "$id"
-                ;;
-            r)  
-                _ali_sg_rule_quick_title "$id"
-                ;;
-            q)  printf "\n"
-                return 
-                ;;
-            *)
-                set -- "$line"
-                ali sg rule "$@"
-        esac
-    done
-    printf "\n"
+    ali_quicker "ali_sg_rule" \
+        "\033[1;33mali sg rule >\033[0m " \
+        "add|del" "$@"
 }
 
