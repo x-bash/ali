@@ -5,8 +5,8 @@
 ali_eip(){
     param <<A
 subcommand:
-    allocate|+          "handle_domains"
-    release|-           "handling record"
+    allocate            "handle_domains"
+    release             "handling record"
     associate           "associate the ip to the instance"
     unassociate         "unassociate the ip to the instance"
     ls                  "list"
@@ -38,10 +38,20 @@ A
 }
 
 ali_eip_ls_format(){
-    ali_table_json \
-        ip=.IpAddress bw=.Bandwidth charge=.ChargeType time=.AllocationTime \
-        insId=.InstanceId insCharge=.InternetChargeType
+    case "$LANG" in
+        zh_CN*) 
+            ali_table_json \
+                IP地址=.IpAddress 带宽=.Bandwidth  分配时间=.AllocationTime \
+                实例ID=.InstanceId 收费类型=.ChargeType 收费模式=.InternetChargeType ;;
+        *)      
+            ali_table_json \
+                ip=.IpAddress bw=.Bandwidth charge=.ChargeType time=.AllocationTime \
+                insId=.InstanceId insCharge=.InternetChargeType ;;
+    esac
 }
+
+# Translate title
+# Translate title
 
 # shellcheck disable=SC2120
 ali_eip_ls(){
@@ -114,67 +124,77 @@ ali_eip_unassociate(){
     fi
 }
 
-
-_ali_eip_quick_title(){
-    s=$(ali_eip_ls)
-    printf "%s" "$s" | ali_eip_ls_format
-
-    cat <<A
-
-Commands:
-  +|allocate        Format: allocate [ -b bandwidth ] [ --pay_by_bandwidth ] [ --bgp_pro ]
-  -|release         Format: release <ip or allocation id>
-  r                 reload
-  q                 quit
-
-A
-}
-
 ali_eip_quick(){
-    # case "$1" in
-    #     +*) ali_eip_allocate "${1#+}"
-    #         ;;
-    #     -*) ali_eip_allocate "${1#-}"      
-    #         ;;
-    #     *)   
-    #         ali_eip_ls "$@"   
-    #         ;;
-    # esac
+    local prompt
+    prompt="
+\033[1;33mali eip >\033[0m "
 
-    local s
-    
-    if [ ! -t 1 ]; then
-        s=$(ali_eip_ls)
-        printf "%s\n" "$s"
-        return
-    fi
-
-    _ali_eip_quick_title
-
-    local line
-    while printf "> " && ali_read line; do
-        eval set -- "$line"
-        local cmd=$1;   shift
-        case "$cmd" in
-            +|allocate)
-                ali_eip_allocate "$@"
-                _ali_eip_quick_title
-                ;;
-            -|release)
-                ali_eip_release "$@"
-                _ali_eip_quick_title
-                ;;
-            r)  
-                _ali_eip_quick_title
-                ;;
-            q)  printf "\n"
-                return 
-                ;;
-            "") ;;
-            *)  ali eip "$@"
-        esac
-    done
-
-
+    ali_quicker "ali_eip" \
+        "${prompt}"\
+        "allocate|release" "$@"
 }
+
+
+# _ali_eip_quick_title(){
+#     s=$(ali_eip_ls)
+#     printf "%s" "$s" | ali_eip_ls_format
+
+#     cat <<A
+
+# Commands:
+#   +|allocate        Format: allocate [ -b bandwidth ] [ --pay_by_bandwidth ] [ --bgp_pro ]
+#   -|release         Format: release <ip or allocation id>
+#   r                 reload
+#   q                 quit
+
+# A
+# }
+
+# ali_eip_quick(){
+#     # case "$1" in
+#     #     +*) ali_eip_allocate "${1#+}"
+#     #         ;;
+#     #     -*) ali_eip_allocate "${1#-}"      
+#     #         ;;
+#     #     *)   
+#     #         ali_eip_ls "$@"   
+#     #         ;;
+#     # esac
+
+#     local s
+    
+#     if [ ! -t 1 ]; then
+#         s=$(ali_eip_ls)
+#         printf "%s\n" "$s"
+#         return
+#     fi
+
+#     _ali_eip_quick_title
+
+#     local line
+#     while printf "> " && ali_read line; do
+#         eval set -- "$line"
+#         local cmd=$1;   shift
+#         case "$cmd" in
+#             +|allocate)
+#                 ali_eip_allocate "$@"
+#                 _ali_eip_quick_title
+#                 ;;
+#             -|release)
+#                 ali_eip_release "$@"
+#                 _ali_eip_quick_title
+#                 ;;
+#             r)  
+#                 _ali_eip_quick_title
+#                 ;;
+#             q)  printf "\n"
+#                 return 
+#                 ;;
+#             "") ;;
+#             *)  ali eip "$@"
+#         esac
+#     done
+
+
+# }
 
