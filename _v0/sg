@@ -51,12 +51,16 @@ A
 
 }
 
+ali_sg_ls_format(){
+    ali_table_json .CreationTime .SecurityGroupId .SecurityGroupName .VpcId .SecurityGroupType
+}
+
 # shellcheck disable=SC2120
 ali_sg_ls(){
     if [ ! -t 1 ]; then
         _ali_sg_ls "$@"
     else
-        _ali_sg_ls "$@" | ali_table_json .CreationTime .SecurityGroupId .SecurityGroupName .VpcId .SecurityGroupType
+        _ali_sg_ls "$@" | ali_sg_ls_format
     fi
 }
 
@@ -140,7 +144,7 @@ ali_sg_include(){
 }
 
 ali_sg_exclude(){
-local id
+    local id
     if ! id="$(ali_sg_exact_id "$1")"; then
         return
     fi
@@ -154,56 +158,13 @@ local id
     aliyun ecs LeaveSecurityGroup --SecurityGroupId "$id" --InstanceId "$ecid"
 }
 
-# shellcheck disable=SC2120
-_ali_sg_quick_title(){
-    s=$(ali_keypair_ls)
-    printf "%s" "$s" | ali_keypair_ls_format
-
-    cat <<A
-
-Commands:
-    create          Format: create [ --name <vpc name> ]
-    del             Format: del <part of the vpc's name or id>
-    r               reload
-    q               quit
-    :               : <cmd> [ ... <args> ]
-A
-}
-
 ali_sg_quick(){
-    if [ ! -t 1 ]; then
-        ali_sg_ls "$@"
-        return
-    fi
+    local prompt
 
-    local s
-    _ali_sg_quick_title
+    prompt="
+\033[1;33mali sg >\033[0m "
 
-    local line
-    while printf "ali sg> " && ali_read line; do
-        eval set -- "$line"
-        local cmd=$1;   shift
-        case "$cmd" in
-            create)
-                ali sg create "$@"
-                _ali_sg_quick_title
-                ;;
-            del)
-                ali sg del "$@"
-                _ali_sg_quick_title
-                ;;
-            r)  
-                _ali_keypair_quick_title
-                ;;
-            q)  printf "\n"
-                return 
-                ;;
-            :*) eval_echo "${cmd#:}" "$@"
-                ;;
-            *)  ali sg "$cmd" "$@"
-        esac
-    done
-    printf "\n"
+    ali_quicker "ali_sg" \
+        "${prompt}"\
+        "create|del" "$@"
 }
-
-
