@@ -40,7 +40,7 @@ _ali_keypair_ls(){
             _ali_vpc_ls | jq "
                 .[] | 
                 if      .KeyPairName | test(\"$regex\")                 then .
-                elif    .KeyPairFingerPrint | test(\"$regex\")         then .
+                elif    .KeyPairFingerPrint | test(\"$regex\")          then .
                 else    empty       end
             " | jq -s .
             ;;
