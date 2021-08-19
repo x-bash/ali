@@ -144,7 +144,7 @@ A
 )"
 
     local s
-    s=$(${func}_ls "$@")
+    s="$(${func}_ls $kw)"
     printf "%s" "$s" | "${func}_ls_format"
     printf "%s\n" "$interactive_command_help"
 
@@ -174,9 +174,7 @@ A
         esac
         " 2>/dev/null
 
-        echo ${func}_ls ${kw+"$kw"} >&2
-
-        s=$(${func}_ls ${kw+"$kw"}) 
+        s="$(${func}_ls $kw)"   # TODO: figure out why ${kw+"${kw}"} fails
         printf "%s" "$s" | "${func}_ls_format"
     done
 }
