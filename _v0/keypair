@@ -17,7 +17,6 @@ A
     fi
 
     "ali_keypair_$PARAM_SUBCMD" "$@"
-
 }
 
 ali_keypair_ls_format(){
