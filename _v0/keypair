@@ -8,6 +8,7 @@ subcommands:
     import              "import"
     create              "Create"
     delete|del          "delete"
+    info                "info"
 A
 
     if [ -z "$PARAM_SUBCMD" ]; then
@@ -21,9 +22,20 @@ A
 
 ali_keypair_ls_format(){
     ali_table_json \
-            .KeyPairFingerPrint .KeyPairName .ResourceGroupId .CreationTime .RegionId
+            .KeyPairFingerPrint .KeyPairName .ResourceGroupId .CreationTime
 }
 
+ali_keypair_info(){
+    # unique in region
+    local kp
+    if ! kp="$(ali_keypair_exact "${1:-keypair name}")"; then
+        return
+    fi
+
+    kp="$(printf "%s" "$kp" | jq .[0])"
+
+    echo "$kp"
+}
 
 ali_keypair_ls(){
     if [ ! -t 1 ]; then
@@ -37,7 +49,7 @@ _ali_keypair_ls(){
     case "$#" in
         0)  aliyun ecs DescribeKeyPairs | jq .KeyPairs.KeyPair ;;
         1)  local regex="${1:-Provide regex pattern}"
-            _ali_vpc_ls | jq "
+            _ali_keypair_ls | jq "
                 .[] | 
                 if      .KeyPairName | test(\"$regex\")                 then .
                 elif    .KeyPairFingerPrint | test(\"$regex\")          then .
@@ -196,6 +208,6 @@ ali_keypair_quick(){
 
 ali_keypair_quick(){
     ali_quicker "ali_keypair" \
-        "\033[1;33mali vpc switch >\033[0m" \
+        "\033[1;33mali vpc switch >\033[0m " \
         "create|del|import|i" "$@"
 }
