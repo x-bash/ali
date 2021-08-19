@@ -133,14 +133,16 @@ A
 
 ali_keypair_attach(){
     # unique in region
-    local kpid 
-    if ! kpid="$(ali_keypair_exactid "${1:-keypair name}")"; then
+    local kpid="${1:?Please provide keypair name}"
+    if ! kpid="$(ali_keypair_exactid "$kpid")"; then
         ali_log warn "KP Not found"
+        return 1
     fi
 
-    local ecid
-    if ! ecid="$(ali_ec_exactid "${2:-ec-id}")"; then
+    local ecid="${2:?ec-id}"
+    if ! ecid="$(ali_ec_exactid "${ecid}")"; then
         ali_log warn "EC Not found"
+        return 1
     fi
 
     aliyun ecs AttachKeyPair --KeyPairName "$kpid" --InstanceIds "$ecid"
@@ -148,65 +150,19 @@ ali_keypair_attach(){
 
 ali_keypair_detach(){
     # unique in region
-    local kpid 
-    if ! kpid="$(ali_keypair_exactid "${1:-keypair name}")"; then
+    local kpid="${1:?Please provide keypair name}"
+    if ! kpid="$(ali_keypair_exactid "$kpid")"; then
         ali_log warn "KP Not found"
+        return 1
     fi
 
-    local ecid
-    if ! ecid="$(ali_ec_exactid "${2:-ec-id}")"; then
+    local ecid="${2:?ec-id}"
+    if ! ecid="$(ali_ec_exactid "${ecid}")"; then
         ali_log warn "EC Not found"
     fi
 
     aliyun ecs DetachKeyPair --KeyPairName "$kpid" --InstanceIds "$ecid"
 
-}
-
-# shellcheck disable=SC2120
-_ali_keypair_quick_title(){
-    s=$(ali_keypair_ls "$@")
-    printf "%s" "$s" | ali_keypair_ls_format
-
-    cat <<A
-
-Commands:
-    i|import        i <keypair-name> <the name of ssh-keypair under ~/.ssh/ folder, or public key body>      
-    del             Format: del <part of the vpc's name or id>
-    create          Format: create [ --name <vpc name> ]
-    r               reload
-    q               quit
-    :               : <cmd> [ ... <args> ]
-A
-}
-
-ali_keypair_quick(){
-    if [ ! -t 1 ]; then
-        ali_keypair_ls "$@"
-        return
-    fi
-
-    local s
-    _ali_keypair_quick_title
-
-    local line
-    while printf "ali kp> " && ali_read line; do
-        eval set -- "$line"
-        local cmd=$1;   shift
-        case "$cmd" in
-            q)  printf "\n"
-                return 
-                ;;
-            :*) eval "$@"
-                ;;
-            *)  ali keypair "$cmd" "$@"
-        esac
-
-        case "$cmd" in
-            r|create|del|import|i)      _ali_keypair_quick_title ;;
-        esac
-    done
-
-    
 }
 
 ali_keypair_quick(){
