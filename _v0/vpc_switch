@@ -43,7 +43,6 @@ _ali_vpc_switch_ls(){
             echo "$kw" >&2
             local vpcid
             if ! vpcid="$(ali_vpc_exactid "$kw")"; then
-                echo "$kw NOt" >&2
                 aliyun ecs DescribeVSwitches | jq .VSwitches.VSwitch | jq "
                     .[] | 
                     if      .CidrBlock | test(\"$kw\")       then .

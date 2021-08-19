@@ -115,7 +115,12 @@ ali_exactor_declare(){
     }
     
     ${func}_exactid(){
-        ${func}_exact \"\$@\" | jq -r '.[0].$id_eval'
+        local s
+        if s=\$(${func}_exact \"\$@\"); then
+            printf \"%s\" \"\$s\" | jq -r '.[0].$id_eval'
+        else
+            return \$?
+        fi
     }
     "
 }

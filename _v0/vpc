@@ -52,26 +52,10 @@ _ali_vpc_ls(){
     esac 
 }
 
-ali_vpc_exactid(){
-    ali_vpc_exact "$@" | jq -r .VpcId
-}
-
-
-ali_vpc_exact(){
-    local s
-    s="$(_ali_vpc_ls "${1:-Provide regex}")"
-    local len
-    len="$(echo "$s" | jq ' . | length ')"
-    case $len in
-        0)  ali_log warn "No such vpc found.";;
-        1)  echo "$s" | jq -r .[0]
-            return 0
-            ;;
-        *)  ali_log warn "Multiple vpc found.";;
-    esac
-    return 1
-}
-
+ali_exactor_declare ali_vpc \
+    "No such vpc found." \
+    "Multiple vpc found." \
+    VpcId
 
 ali_vpc_create(){
     param <<A

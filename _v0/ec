@@ -14,6 +14,7 @@ subcommand:
     del                 "delete instance"
     exact               "eaxct"
     exactid             "exactid"
+    info                "info"
     
 A
 
@@ -23,6 +24,10 @@ A
     fi
 
     "ali_ec_$PARAM_SUBCMD" "$@"
+}
+
+ali_ec_info(){
+    ali_ec_exact "${1:?Provide keyword}"
 }
 
 ali_ec_ls(){
