@@ -20,6 +20,10 @@ A
 # --OSType
 # --PageSize
 
+ali_image_ls_format(){
+    ali_table_json .ImageId .OSName  .CreationTime # arch=.Architecture  .OSType  .Platform
+}
+
 ali_image_ls(){
     param <<A
 subcommand:
@@ -65,11 +69,10 @@ A
         fi
     } | jq -s . | {
         if [ -t 1 ]; then
-
             jq ".[] |= . + { 
                 CreationTime: .CreationTime[0:10],
                 OSName: .OSName[0:30]
-            }" | ali_table_json .ImageId .OSName  .CreationTime # arch=.Architecture  .OSType  .Platform
+            }" | ali_image_ls_format
         else
             cat
         fi
@@ -101,8 +104,9 @@ ali_exactor_declare ali_image "No such image found." "Multiple images found." Im
 # 2. Save snapshot to image
 
 
-
 ali_image_quick(){
-    ali_image_ls "$@"
+    ali_quicker "ali_image" \
+        "\033[1;33mali image >\033[0m " \
+        "create|del|import" "$@"
 }
 
