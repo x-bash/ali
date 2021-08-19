@@ -166,5 +166,5 @@ ali_sg_quick(){
 
     ali_quicker "ali_sg" \
         "${prompt}"\
-        "create|del" "$@"
+        "create|del|include|exclude" "$@"
 }
