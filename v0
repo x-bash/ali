@@ -16,6 +16,7 @@ xrc param/v0
 . ./_v0/sg
 . ./_v0/disk
 . ./_v0/keypair
+. ./_v0/easy
 
 xrc log init ali
 
@@ -38,6 +39,7 @@ subcommand:
     image|img           "Image managment"
     quick               "quick"
     keypair|kp          "keypair management"
+    easy                "easy"
 A
 
     if [ -z "$PARAM_SUBCMD" ]; then

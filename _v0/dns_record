@@ -6,7 +6,6 @@ subcommand:
     put         "put record"
     add         "add record"
     get         "get record"
-    put2        "put2 record"
     del         "del record"
     id          "add record"
     ls          "list all records"
@@ -162,7 +161,7 @@ ali_dns_record_del(){
     
 }
 
-ali_dns_record_put2(){
+ali_dns_record_put(){
     if [ $# = 2 ]; then
         local name=${1}
         local rr=${name%.*.*}
@@ -170,16 +169,20 @@ ali_dns_record_put2(){
 
         local rec=${2}
         if ali_is_ip "$rec"; then
-            ali_dns_record_put "$domain" "$rr" A "$rec"
+            _ali_dns_record_put "$domain" "$rr" A "$rec"
+            return 0
         else
             :
             # TODO: Maybe using other method.
+            return 1
         fi
     fi
-    return 1
+
+    _ali_dns_record_put "$@"
+    return
 }
 
-ali_dns_record_put(){
+_ali_dns_record_put(){
     local DomainName=${1:?"Domain Name"}
     local RR=${2:?"Provide RR"}
     local Type=${3:?"Provide Type"}
@@ -244,7 +247,7 @@ ali_dns_record_quick(){
         case "$cmd" in
             +|add)
                 echo hi2 >&2
-                ali_dns_record_put2 "$@" >&2
+                ali_dns_record_put "$@" >&2
                 _ali_dns_record_quick_title "$domain_name"
                 ;;
             -|del)

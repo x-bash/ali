@@ -237,7 +237,6 @@ A
         "$disk_args"
 }
 
-
 ali_ec_quick(){
     ali_ec_ls "$@"
 
