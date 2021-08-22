@@ -7,18 +7,18 @@ eval_echo(){
 
 ali_region(){
     if [ -t 1 ]; then
-        aliyun ecs DescribeRegions | jq .Regions.Region | ali_table_json .LocalName .RegionEndpoint .RegionId
+        ccmd -- aliyun ecs DescribeRegions | jq .Regions.Region | ali_table_json .LocalName .RegionEndpoint .RegionId
     else
-        aliyun ecs DescribeRegions | jq .Regions.Region
+        ccmd -- aliyun ecs DescribeRegions | jq .Regions.Region
     fi
 }
 
 ali_zone(){
     if [ -t 1 ]; then
         # aliyun ecs DescribeZones | jq '.Zones.Zone[] | { LocalName: .LocalName, ZoneId: .ZoneId }' | jq -s .
-        aliyun ecs DescribeZones | jq '.Zones.Zone[] | { LocalName: .LocalName, ZoneId: .ZoneId }' | jq -s . | ali_table_json .LocalName .ZoneId
+        ccmd -- aliyun ecs DescribeZones | jq '.Zones.Zone[] | { LocalName: .LocalName, ZoneId: .ZoneId }' | jq -s . | ali_table_json .LocalName .ZoneId
     else
-        aliyun ecs DescribeZones | jq .Zones.Zone
+        ccmd -- aliyun ecs DescribeZones | jq .Zones.Zone
     fi
 }
 
@@ -62,7 +62,7 @@ options:
 A
 
     {
-        aliyun ecs DescribeInstanceTypes | jq .InstanceTypes.InstanceType[] | jq '
+        ccmd -- aliyun ecs DescribeInstanceTypes | jq .InstanceTypes.InstanceType[] | jq '
             def fun: if . == null then "" else . end;
             . |= . + { credit: .InitialCredit | fun }
         '
