@@ -57,7 +57,7 @@ A
                     ;;
     esac
 
-    eval aliyun ecs DescribeImages "$ARGS" --PageSize 100 | jq .Images.Image[] | {
+    eval ccmd 3h -- aliyun ecs DescribeImages "$ARGS" --PageSize 100 | jq .Images.Image[] | {
         if [ -z "$platform" ]; then
             cat
         else
