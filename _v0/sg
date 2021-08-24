@@ -160,17 +160,6 @@ ali_sg_exclude(){
     aliyun ecs LeaveSecurityGroup --SecurityGroupId "$id" --InstanceId "$ecid"
 }
 
-# ali_sg_quick(){
-#     local prompt
-
-#     prompt="
-# \033[1;33mali sg >\033[0m "
-
-#     ali_quicker "ali_sg" \
-#         "${prompt}"\
-#         "create|del|include|exclude" "$@"
-# }
-
 ali_sg_quick(){
     ps1env init "ali sg >"
     ps1env alias + "ali sg ls"
