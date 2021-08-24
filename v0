@@ -21,6 +21,7 @@ xrc ccmd/v0
 
 xrc log init ali
 
+xrc ps1env/v0
 
 
 ali(){

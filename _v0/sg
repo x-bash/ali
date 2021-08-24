@@ -78,7 +78,7 @@ ali_sg_ls(){
 
 _ali_sg_ls(){
     case $# in
-        0)  aliyun ecs DescribeSecurityGroups | jq .SecurityGroups.SecurityGroup
+        0)  ccmd 10m -- aliyun ecs DescribeSecurityGroups | jq .SecurityGroups.SecurityGroup
             ;;
         *)  local regex="${1:-Provide regex pattern}"
             ali_sg_ls | jq "
@@ -160,13 +160,27 @@ ali_sg_exclude(){
     aliyun ecs LeaveSecurityGroup --SecurityGroupId "$id" --InstanceId "$ecid"
 }
 
+# ali_sg_quick(){
+#     local prompt
+
+#     prompt="
+# \033[1;33mali sg >\033[0m "
+
+#     ali_quicker "ali_sg" \
+#         "${prompt}"\
+#         "create|del|include|exclude" "$@"
+# }
+
 ali_sg_quick(){
-    local prompt
+    ps1env init "ali sg >"
+    ps1env alias + "ali sg ls"
+    ps1env alias +h "ali sg help"
+    local IFS
+    local subcmd
+    for subcmd in $(ali sg _param_list_subcmd); do
+        ps1env alias "+$subcmd" "ali sg $subcmd"
+    done
 
-    prompt="
-\033[1;33mali sg >\033[0m "
-
-    ali_quicker "ali_sg" \
-        "${prompt}"\
-        "create|del|include|exclude" "$@"
+    ali sg ls "$@"
 }
+
