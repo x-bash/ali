@@ -95,22 +95,7 @@ function j(a){
 
 }
 
-if read -e XRC_ALI_READ_TEST <<A
-a
-A
-then
 
-    ali_read(){
-        read -e -r "$@"
-    }
-
-else
-
-    ali_read(){
-        read -r "$@"
-    }
-
-fi
 
 
 if [ -z "$XRC_NO_ADVISE" ] && [ -n "${BASH_VERSION}${ZSH_VERSION}" ] && [ "${-#*i}" != "$-" ]; then

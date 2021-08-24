@@ -8,7 +8,6 @@ ali_vpc(){
 subcommand:
     ls                  "list"
     create              "create"
-    quick               "quick"
     del                 "delete"
     modify              "start instance"
     attr                "stop instance"
@@ -86,12 +85,14 @@ ali_vpc_del(){
 }
 
 ali_vpc_quick(){
-    local prompt
-    prompt="
-\033[1;33mali vpc >\033[0m "
+    ps1env init "ali vpc >"
+    ps1env alias + "ali vpc ls"
+    ps1env alias +h "ali vpc help"
+    local IFS
+    local subcmd
+    for subcmd in $(ali vpc _param_list_subcmd); do
+        ps1env alias "+$subcmd" "ali vpc $subcmd"
+    done
 
-    ali_quicker "ali_vpc" \
-        "${prompt}"\
-        "create|del" "$@"
+    ali vpc ls "$@"
 }
-
