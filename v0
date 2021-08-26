@@ -5,19 +5,16 @@ xrc ccmd/v0
 
 # ALIYUN_BIN=$(command -v aliyun)
 
-# xrc ali/_v0/ecs
-# xrc ali/_v0/dns
-
-. ./_v0/utils
-. ./_v0/ec
-. ./_v0/vpc
-. ./_v0/dns
-. ./_v0/image
-. ./_v0/eip
-. ./_v0/sg
-. ./_v0/disk
-. ./_v0/keypair
-. ./_v0/easy
+xrc ali/_v0/utils
+xrc ali/_v0/ec
+xrc ali/_v0/vpc
+xrc ali/_v0/dns
+xrc ali/_v0/image
+xrc ali/_v0/eip
+xrc ali/_v0/sg
+xrc ali/_v0/disk
+xrc ali/_v0/keypair
+xrc ali/_v0/easy
 
 xrc log init ali
 
