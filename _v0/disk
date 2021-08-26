@@ -29,7 +29,7 @@ ali_disk_ls(){
         fi
 
         ali_table_json \
-            id=.DiskId charge=.DiskChargeType .RegioId .InstanceId .Size .Status .Category .Device
+            id=.DiskId charge=.DiskChargeType .RegionId .InstanceId .Size .Status .Category .Device
     }
 }
 
