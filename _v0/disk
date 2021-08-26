@@ -50,3 +50,15 @@ _ali_disk_ls(){
 
 ali_exactor_declare ali_disk "No such disk found." "Multiple disk found" DiskId
 
+ali_disk_quick(){
+    ps1env init "ali disk>"
+    ps1env alias + "ali disk ls"
+    ps1env alias +h "ali disk help"
+    local IFS
+    local subcmd
+    for subcmd in $(ali disk _param_list_subcmd); do
+        ps1env alias "+$subcmd" "ali disk $subcmd"
+    done
+
+    ali disk ls "$@"
+}
