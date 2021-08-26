@@ -129,7 +129,7 @@ ali_eip_unassociate(){
 ali_eip_quick(){
     ps1env init "ali eip>"
     ps1env alias + "ali eip ls"
-    ps1env alias +h "ali eip help"
+    ps1env alias :h "ali eip help"
     local IFS
     local subcmd
     for subcmd in $(ali eip _param_list_subcmd); do

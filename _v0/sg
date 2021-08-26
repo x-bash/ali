@@ -163,7 +163,7 @@ ali_sg_exclude(){
 ali_sg_quick(){
     ps1env init "ali sg >"
     ps1env alias + "ali sg ls"
-    ps1env alias +h "ali sg help"
+    ps1env alias :h "ali sg help"
     local IFS
     local subcmd
     for subcmd in $(ali sg _param_list_subcmd); do
