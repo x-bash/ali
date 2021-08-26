@@ -114,7 +114,7 @@ ali_exactor_declare ali_image "No such image found." "Multiple images found." Im
 # }
 
 ali_image_quick(){
-    ps1env init "ali image >"
+    ps1env init "ali image>"
     ps1env alias + "ali image ls"
     ps1env alias +h "ali image help"
     local IFS
