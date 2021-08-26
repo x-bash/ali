@@ -85,7 +85,7 @@ ali_vpc_del(){
 }
 
 ali_vpc_quick(){
-    ps1env init "ali vpc >"
+    ps1env init "ali vpc>"
     ps1env alias + "ali vpc ls"
     ps1env alias +h "ali vpc help"
     local IFS
