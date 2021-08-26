@@ -35,7 +35,7 @@ ali_disk_ls(){
 
 _ali_disk_ls(){
     case $# in
-        0)  aliyun ecs DescribeDisks | jq .Disks.Disk
+        0)  ccmd 5m -- aliyun ecs DescribeDisks | jq .Disks.Disk
             ;;
         *)  _ali_disk_ls | jq "
                 .[] | 
