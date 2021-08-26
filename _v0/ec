@@ -30,6 +30,7 @@ ali_ec_info(){
     ali_ec_exact "${1:?Provide keyword}"
 }
 
+# shellcheck disable=SC2120
 ali_ec_ls(){
     if [ ! -t 1 ]; then
         _ali_ec_ls "$@"
@@ -238,10 +239,15 @@ A
 }
 
 ali_ec_quick(){
-    ali_ec_ls "$@"
+    ps1env init "ali ec >"
+    ps1env alias + "ali ec ls"
+    ps1env alias +h "ali ec help"
+    local IFS
+    local subcmd
+    for subcmd in $(ali ec _param_list_subcmd); do
+        ps1env alias "+$subcmd" "ali ec $subcmd"
+    done
 
-    if [ -t 1 ]; then
-        : Consider providing interative ui.
-    fi
+    ali ec ls "$@"
 }
 
