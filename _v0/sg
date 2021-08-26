@@ -3,7 +3,7 @@
 
 # https://help.aliyun.com/document_detail/25553.html?spm=a2c4g.11186623.6.1551.67ff7b6fhY3woe
 
-. ./_v0/sg_rule
+xrc ali/_v0/sg_rule
 
 ali_sg(){
     param <<A

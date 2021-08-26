@@ -1,7 +1,7 @@
 # shellcheck shell=sh disable=SC3043,SC2154
 
 
-. ./_v0/vpc_switch
+xrc ali/_v0/vpc_switch
 
 ali_vpc(){
     param <<A

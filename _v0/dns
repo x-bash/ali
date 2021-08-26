@@ -1,7 +1,7 @@
 # shellcheck shell=sh disable=SC3043
 
-. ./_v0/dns_record
-. ./_v0/dns_domain
+xrc ali/_v0/dns_record
+xrc ali/_v0/dns_domain
 
 
 # ali dns lteam.top =lteamtop
