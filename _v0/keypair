@@ -39,12 +39,13 @@ ali_keypair_info(){
 
 ali_keypair_ls(){
     if [ ! -t 1 ]; then
-        _ali_keypair_ls "$@"
+        ccmd 5m -- _ali_keypair_ls "$@"
     else
-        _ali_keypair_ls "$@" | ali_keypair_ls_format
+        ccmd 5m -- _ali_keypair_ls "$@" | ali_keypair_ls_format
     fi
 }
 
+# shellcheck disable=SC2120
 _ali_keypair_ls(){
     case "$#" in
         0)  aliyun ecs DescribeKeyPairs | jq .KeyPairs.KeyPair ;;
@@ -166,7 +167,14 @@ ali_keypair_detach(){
 }
 
 ali_keypair_quick(){
-    ali_quicker "ali_keypair" \
-        "\033[1;33mali keypair >\033[0m " \
-        "create|del|import" "$@"
+    ps1env init "ali keypair>"
+    ps1env alias + "ali keypair ls"
+    ps1env alias +h "ali keypair help"
+    local IFS
+    local subcmd
+    for subcmd in $(ali keypair _param_list_subcmd); do
+        ps1env alias "+$subcmd" "ali keypair $subcmd"
+    done
+
+    ali keypair ls "$@"
 }
