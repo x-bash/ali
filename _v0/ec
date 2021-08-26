@@ -49,7 +49,7 @@ ali_ec_ls(){
 # shellcheck disable=SC2120
 _ali_ec_ls(){
     case $# in
-        0)  ccmd -- aliyun ecs DescribeInstances | jq .Instances.Instance
+        0)  ccmd 5m -- aliyun ecs DescribeInstances | jq .Instances.Instance
             ;;
         *)  _ali_ec_ls | jq .[] | _ali_ec_filter "${1:-Provide regex pattern}" | jq -s .
             ;;
@@ -242,7 +242,7 @@ A
 }
 
 ali_ec_quick(){
-    ps1env init "ali ec >"
+    ps1env init "ali ec>"
     ps1env alias + "ali ec ls"
     ps1env alias +h "ali ec help"
     local IFS
