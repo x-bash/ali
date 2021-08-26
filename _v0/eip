@@ -124,13 +124,18 @@ ali_eip_unassociate(){
     fi
 }
 
-ali_eip_quick(){
-    local prompt
-    prompt="
-\033[1;33mali eip >\033[0m "
 
-    ali_quicker "ali_eip" \
-        "${prompt}"\
-        "allocate|release" "$@"
+
+ali_sg_quick(){
+    ps1env init "ali eip >"
+    ps1env alias + "ali eip ls"
+    ps1env alias +h "ali eip help"
+    local IFS
+    local subcmd
+    for subcmd in $(ali eip _param_list_subcmd); do
+        ps1env alias "+$subcmd" "ali eip $subcmd"
+    done
+
+    ali eip ls "$@"
 }
 
