@@ -212,59 +212,20 @@ _ali_dns_record_put(){
     fi
 }
 
-
-
-_ali_dns_record_quick_title(){
-    s=$(ali_dns_record_ls "${1:?Provide domain name}")
-    printf "%s" "$s" | ali_dns_record_ls_format
-
-    cat <<A
-
-Commands:
-  +|add         Format: add <name> <address>
-  -|del         Format: del <part of the vpc's name or id>
-  r             reload
-  q             quit
-
-A
-}
-
 ali_dns_record_quick(){
-    # local domain_id
-    # if ! domain_id="$(ali_dns_domain_exact_id "${1:?Provide domain keyword}")"; then
-    #     return
-    # fi
+    if [ "$#" -eq 0 ]; then
+        ali_log warn "Please provide keyword"
+        return 1
+    fi
 
-    local domain_name="$1"
-
-    _ali_dns_record_quick_title "$domain_name"
-
-    echo hi1 >&2
-    local line
-    while printf "> " && ali_read line; do
-        eval set -- "$line"
-        local cmd=$1;   shift
-        case "$cmd" in
-            +|add)
-                echo hi2 >&2
-                ali_dns_record_put "$@" >&2
-                _ali_dns_record_quick_title "$domain_name"
-                ;;
-            -|del)
-                ali_dns_record_del "$@"
-                _ali_dns_record_quick_title "$domain_name"
-                ;;
-            r)  
-                _ali_dns_record_quick_title "$domain_name"
-                ;;
-            q)  printf "\n"
-                return 
-                ;;
-            "") ;;
-            *)  ali dns record "$@"
-        esac
+    ps1env init "ali dns record>"
+    ps1env alias + "ali dns record ls"
+    ps1env alias +h "ali dns record help"
+    local IFS
+    local subcmd
+    for subcmd in $(ali dns record _param_list_subcmd); do
+        ps1env alias "+$subcmd" "ali dns record $subcmd"
     done
-    printf "\n"
+
+    ali dns record ls "$@"
 }
-
-
