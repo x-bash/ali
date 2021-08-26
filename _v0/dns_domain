@@ -3,21 +3,12 @@
 ali_dns_domain(){
     param <<A
 subcommand:
-    list|ls     "list all records"
+    ls|list     "list all records"
 A
 
     if [ -z "$PARAM_SUBCMD" ]; then
-        case $# in
-            0)  ali_dns_domain help;        
-                return 0
-                ;;
-            1)  ali_dns_domain_search "$1"
-                return
-                ;;
-            *)  ali_dns_domain_new "$@"
-                return
-                ;;
-        esac
+        ali_dns_domain_quick "$@"
+        return
     fi
 
     ali_dns_domain_"$PARAM_SUBCMD" "$@"
@@ -62,5 +53,18 @@ ali_dns_domain_exact_id(){
         *)  ali_log warn "Multiple ip found.";;
     esac
     return 1
+}
+
+ali_dns_domain_quick(){
+    ps1env init "ali dns domain>"
+    ps1env alias + "ali dns domain ls"
+    ps1env alias +h "ali dns domain help"
+    local IFS
+    local subcmd
+    for subcmd in $(ali dns domain _param_list_subcmd); do
+        ps1env alias "+$subcmd" "ali dns domain $subcmd"
+    done
+
+    ali dns domain ls "$@"
 }
 

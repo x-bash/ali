@@ -54,14 +54,12 @@ ali_dns_ls(){
 # ali dns lteam.top             > show information of domain
 # ali dns a.lteam.top           > show information of this record
 
-
-
 ali_dns_quick(){
     case $# in
-        0)  ali_dns_domain_ls
+        0)  ali dns domain
             return 0
             ;;
-        1)
+        1)  ali dns record "$@"
             case "$1" in
                 :*)   ali_dns_record_del "${1#:}" ;;
                 # *)    ali_dns_ls "$1"      ;;
@@ -72,13 +70,9 @@ ali_dns_quick(){
         2)
             local name=$1
             ali_dns_record_put "$name" "$2"
-
-            # ali dns server1.lteam.top 47.11.12.18
-            # ali dns server1.lteam.top =lteamtop    # ali dns new server1.lteam.top lteam_top
+            ali dns record "$name"
             ;;
-        *)  ali_dns_record_put "$@"
-            return
+        *)  ali dns record "$@"
             ;;
     esac
-    printf "\n"
 }
