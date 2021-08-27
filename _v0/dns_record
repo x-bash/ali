@@ -207,7 +207,7 @@ ali_dns_record_quick(){
     ali dns record ls "$@" && {
         ps1env init "ali dns record>"
         ps1env alias + "ali dns record ls"
-        ps1env alias +h "ali dns record help"
+        ps1env alias :h "ali dns record help"
         local IFS
         local subcmd
         for subcmd in $(ali dns record _param_list_subcmd); do

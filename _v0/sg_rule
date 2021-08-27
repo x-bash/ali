@@ -253,7 +253,7 @@ ali_sg_rule_func(){
 ali_sg_rule_quick(){
     ps1env init "ali sg rule >"
     ps1env alias + "ali sg rule ls"
-    ps1env alias +h "ali sg rule help"
+    ps1env alias :h "ali sg rule help"
     local IFS
     local subcmd
     for subcmd in $(ali sg rule _param_list_subcmd); do

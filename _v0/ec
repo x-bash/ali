@@ -243,8 +243,8 @@ A
 
 ali_ec_quick(){
     ps1env init "ali ec>"
-    ps1env alias + "ali ec ls"
-    ps1env alias +h "ali ec help"
+    ps1env alias + "ali ec"
+    ps1env alias :h "ali ec help"
     local IFS
     local subcmd
     for subcmd in $(ali ec _param_list_subcmd); do
