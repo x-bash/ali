@@ -3,29 +3,40 @@
 ali_dns_record(){
     param <<A
 subcommand:
+    ls          "list all records"
     put         "put record"
     add         "add record"
-    get         "get record"
     del         "del record"
-    id          "add record"
-    ls          "list all records"
-    quick       "quick"
 A
 
     if [ -z "$PARAM_SUBCMD" ]; then
         ali_dns_record_quick "$@"
-        return 1
+        return
     fi
 
     ali_dns_record_"$PARAM_SUBCMD" "$@"
-
 }
 
 ali_dns_record_add(){
-    local DomainName=${1:?"Domain Name. If you want to setup 'xxx.domain.com', please input 'domain.com'"}
-    local RR=${2:?"Provide RR. If you want to setup 'xxx.domain.com', please input 'xxx'"}
-    local Type=${3:?"Provide Type: A"}
-    local Value=${4:?"Provide IP"}
+    param <<A
+options:
+    #1              "Domain Name. If you want to setup 'xxx.domain.com', please input 'domain.com'"             <DomainName>    =~ [^\.]\.[^\.]
+    #2              "RR. If you want to setup 'xxx.domain.com', please input 'xxx'"                             <RR>
+    #3              "Valuem like IP, or txt name"                                                               <Value>
+    #4              "record type, if not provided, type default is A when value is an ip, otherwise cname"      <Type>=A       =~  A   TXT
+A
+
+    local DomainName=${1}
+    local RR=${2}
+    local Value=${3}
+    local Type=${4}
+    if [ -z "$Type" ]; then
+        if ali_is_ip "$Value"; then
+            Type="A"
+        else
+            Type="CNAME"
+        fi
+    fi
 
     aliyun alidns AddDomainRecord \
         --DomainName "$DomainName" \
@@ -34,48 +45,30 @@ ali_dns_record_add(){
         --Value "$Value"
 }
 
-ali_dns_record_id(){
-    aliyun alidns DescribeDomainRecords \
-        --DomainName "$1" \
-        --RRKeyWord "$2" | \
-    jq -r '.DomainRecords.Record[].RecordId'
-}
-
-ali_dns_record_get(){
-    aliyun alidns DescribeDomainRecords \
-        --DomainName "$1" \
-        --RRKeyWord "$2" | \
-    jq -r '.DomainRecords.Record[]'
-}
-
 ali_dns_record_ls_format(){
     ali_table_json \
-            .RecordId .Status .DomainName .RR .Type .Value .Weight  # .Line .Locked
+        .RecordId .Status .DomainName .RR .Type .Value .Weight  # .Line .Locked
 }
 
 ali_dns_record_ls(){
     if [ ! -t 1 ]; then
         _ali_dns_record_ls "$@"
-        return
+    else
+        _ali_dns_record_ls "$@" | ali_dns_record_ls_format
     fi
-    
-    _ali_dns_record_ls "$@" | ali_dns_record_ls_format
 }
-
 
 _ali_dns_record_ls(){
     case $# in
         0)  ali dns domain ls | jq -r .[].DomainName | while read -r line; do
                 _ali_dns_record_ls "$line"
             done
-
-            # If in tty, should be ui and interactive form. Otherwise, a json list
             ;;
         1)  local name=${1}
             local rr=${name%.*.*}
             local domain=${name#${rr}.}
             if [ "$rr" = "$name" ]; then
-                aliyun alidns DescribeDomainRecords --DomainName "$name" | jq -r '.DomainRecords.Record'
+                ccmd 5m -- aliyun alidns DescribeDomainRecords --DomainName "$name" | jq -r '.DomainRecords.Record'
             else
                 _ali_dns_record_ls "$domain" "^$rr$"
             fi
@@ -93,34 +86,10 @@ _ali_dns_record_ls(){
     esac    
 }
 
-ali_dns_record_exact_id(){
-    local s
-    s="$(_ali_dns_record_ls "$@")"
-    local len
-    len="$(printf "%s" "$s" | jq ' . | length ')"
-    case $len in
-        0)  ali_log warn "No such ip found.";;
-        1)  echo "$s" | jq -r .[0].RecordId
-            return 0
-            ;;
-        *)  ali_log warn "Multiple ip found.";;
-    esac
-    return 1
-}
-
-ali_dns_record_id_exact(){
-    aliyun alidns DescribeDomainRecords \
-        --DomainName "$1" \
-        --RRKeyWord "$2" | \
-    jq -r ".DomainRecords.Record[] | select(.RR == \"$2\") | .RecordId"
-}
-
-ali_dns_record_get_exact(){
-    aliyun alidns DescribeDomainRecords \
-        --DomainName "$1" \
-        --RRKeyWord "$2" | \
-    jq ".DomainRecords.Record[] | select(.RR == \"$2\")"
-}
+ali_exactor_declare ali_dns_record \
+    "No such ip found." \
+    "Multiple ip found." \
+    RecordId
 
 ali_dns_record_update(){
     local RecordId=${1:?"Provide RecordId"}
@@ -153,7 +122,7 @@ ali_dns_record_del(){
         local DomainName=${1:?"Domain Name"}
         local RR=${2:?"Provide RR"}
         local RID
-        RID=$(ali_dns_record_id_exact "$DomainName" "$RR") && \
+        RID=$(ali_dns_record_exact_id "$DomainName" "$RR") && \
         if aliyun alidns DeleteDomainRecord --RecordId "$RID"; then
             ali_log info "ali_dns_record_del success."
         fi
