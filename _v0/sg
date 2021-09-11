@@ -58,6 +58,7 @@ ali_sg_ls_format(){
 }
 
 ali_sg_info(){
+    param:void
     local data
     if ! data="$(ali_sg_exact "$@")"; then
         return
@@ -70,6 +71,7 @@ ali_sg_info(){
 
 # shellcheck disable=SC2120
 ali_sg_ls(){
+    param:void
     if [ ! -t 1 ]; then
         _ali_sg_ls "$@"
     else
@@ -100,6 +102,7 @@ ali_exactor_declare ali_sg \
 
 
 ali_sg_del(){
+    param:void
     local id
     if id="$(ali_sg_exactid "$@")"; then
         ali_log info "SecurityGroup ID: $id"
@@ -109,6 +112,7 @@ ali_sg_del(){
 
 
 ali_sg_refer(){
+    param:void
     if [ ! -t 1 ]; then
         _ali_sg_refer "$@"
     else
@@ -132,6 +136,7 @@ _ali_sg_refer(){
 }
 
 ali_sg_include(){
+    param:void
     local id
     if ! id="$(ali_sg_exactid "$1")"; then
         return
@@ -147,6 +152,7 @@ ali_sg_include(){
 }
 
 ali_sg_exclude(){
+    param:void
     local id
     if ! id="$(ali_sg_exactid "$1")"; then
         return
@@ -162,6 +168,7 @@ ali_sg_exclude(){
 }
 
 ali_sg_quick(){
+    param:void
     ps1env init "ali sg >"
     ps1env alias + "ali sg ls"
     ps1env alias :h "ali sg help"

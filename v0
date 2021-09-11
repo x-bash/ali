@@ -52,6 +52,7 @@ A
 }
 
 ali_quick(){
+    param:void
     if [ -z "$1" ]; then
         ali help
         return 0

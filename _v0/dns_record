@@ -56,6 +56,7 @@ ali_dns_record_ls(){
 }
 
 _ali_dns_record_ls(){
+    param:void
     case $# in
         0)  ali dns domain ls | x jq -r .[].DomainName | while read -r line; do
                 _ali_dns_record_ls "$line"
@@ -113,6 +114,8 @@ ali_dns_record_update(){
 }
 
 ali_dns_record_del(){
+    param:void
+    
     if [ "$#" -eq 1 ]; then
         case "$1" in
             *\.*)
@@ -148,6 +151,7 @@ ali_dns_record_put(){
 #     #2              "Value like IP, or txt name"                                                                <Value>
 #     #3              "record type, if not provided, type default is A when value is an ip, otherwise CNAME"      <Type>=A       =  A   CNAME    NS TXT  MX AAAA SRV
 # A
+    param:void
 
     local name=${1}
     # TODO

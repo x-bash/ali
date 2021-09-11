@@ -28,6 +28,7 @@ ali_vpc_ls_format(){
 }
 
 ali_vpc_ls(){
+    param:void
     if [ ! -t 1 ]; then
         _ali_vpc_ls "$@"
     else
@@ -77,6 +78,7 @@ A
 }
 
 ali_vpc_del(){
+    param:void
     local id
     if id="$(ali_vpc_exactid "$@")"; then
         ali_log info "Instance ID: $id"
@@ -85,6 +87,7 @@ ali_vpc_del(){
 }
 
 ali_vpc_quick(){
+    param:void
     ps1env init "ali vpc>"
     ps1env alias + "ali vpc ls"
     ps1env alias :h "ali vpc help"

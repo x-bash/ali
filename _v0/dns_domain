@@ -16,6 +16,7 @@ A
 }
 
 ali_dns_domain_ls(){
+    param:void
     if [ ! -t 1 ]; then
         _ali_dns_domain_ls "$@"
         return
@@ -28,6 +29,7 @@ ali_dns_domain_ls(){
 
 # shellcheck disable=SC2120
 _ali_dns_domain_ls(){
+    param:void
     case $# in
         0)  aliyun alidns DescribeDomains | x jq .Domains.Domain
             ;;
@@ -42,6 +44,7 @@ _ali_dns_domain_ls(){
 }
 
 ali_dns_domain_exact_id(){
+    param:void
     local s
     s="$(_ali_dns_domain_ls "${1:-Provide ip}")"
     local len
@@ -57,6 +60,7 @@ ali_dns_domain_exact_id(){
 }
 
 ali_dns_domain_quick(){
+    param:void
     ps1env init "ali dns domain>"
     ps1env alias + "ali dns domain ls"
     ps1env alias :h "ali dns domain help"

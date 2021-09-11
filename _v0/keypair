@@ -27,6 +27,7 @@ ali_keypair_ls_format(){
 }
 
 ali_keypair_info(){
+    param:void
     # unique in region
     local data
     if ! data="$(ali_keypair_exact "${1:-keypair name}")"; then
@@ -39,6 +40,7 @@ ali_keypair_info(){
 }
 
 ali_keypair_ls(){
+    param:void
     if [ ! -t 1 ]; then
         ccmd 1s -- _ali_keypair_ls "$@"
     else
@@ -134,6 +136,7 @@ A
 }
 
 ali_keypair_attach(){
+    param:void
     # unique in region
     local kpid="${1:?Please provide keypair name}"
     if ! kpid="$(ali_keypair_exactid "$kpid")"; then
@@ -151,6 +154,7 @@ ali_keypair_attach(){
 }
 
 ali_keypair_detach(){
+    param:void
     # unique in region
     local kpid="${1:?Please provide keypair name}"
     if ! kpid="$(ali_keypair_exactid "$kpid")"; then
@@ -168,6 +172,7 @@ ali_keypair_detach(){
 }
 
 ali_keypair_quick(){
+    param:void
     ps1env init "ali keypair>"
     ps1env alias + "ali keypair ls"
     ps1env alias :h "ali keypair help"

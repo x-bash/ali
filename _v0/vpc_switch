@@ -26,6 +26,7 @@ ali_vpc_switch_ls_format(){
 }
 
 ali_vpc_switch_ls(){
+    param:void
     if [ ! -t 1 ]; then
         _ali_vpc_switch_ls "$@"
     else
@@ -109,6 +110,7 @@ A
 }
 
 ali_vpc_switch_del(){
+    param:void
     local id
     id="$(ali_vpc_switch_exactid "$1")"
     eval aliyun ecs DeleteVSwitch --VSwitchId "$id"
@@ -119,6 +121,7 @@ ali_vpc_switch_modify(){
 }
 
 ali_vpc_switch_quick(){
+    param:void
     local ALI_VPCID="$1"
 
     local prompt

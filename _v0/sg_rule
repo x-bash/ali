@@ -25,6 +25,7 @@ A
 
 
 ali_sg_rule_ls(){
+    param:void
     if [ ! -t 1 ]; then
         _ali_sg_rule_ls "$@"
     else
@@ -177,11 +178,12 @@ function pprint(name, val){
 }
 
 ali_sg_rule_add(){
+    param:void
     ali_sg_rule_ingress_add "$@"
 }
 
 ali_sg_rule_del(){
-    echo "$@"
+    param:void
     ali_sg_rule_ingress_del "$@"
 }
 
@@ -201,8 +203,8 @@ A
     "ali_sg_rule_ingress_$PARAM_SUBCMD" "$@"
 }
 
-ali_sg_rule_ingress_add(){      ali_sg_rule_func AuthorizeSecurityGroup "$@";   }
-ali_sg_rule_ingress_del(){      ali_sg_rule_func RevokeSecurityGroup "$@";      }
+ali_sg_rule_ingress_add(){      param:void; ali_sg_rule_func AuthorizeSecurityGroup "$@";   }
+ali_sg_rule_ingress_del(){      param:void; ali_sg_rule_func RevokeSecurityGroup "$@";      }
 
 ali_sg_rule_egress(){
     param <<A
@@ -219,8 +221,8 @@ A
     "ali_sg_rule_egress_$PARAM_SUBCMD" "$@"
 }
 
-ali_sg_rule_egress_add(){       ali_sg_rule_func AuthorizeSecurityGroupEgress "$@";     }
-ali_sg_rule_egress_del(){       ali_sg_rule_func RevokeSecurityGroupEgress "$@";        }
+ali_sg_rule_egress_add(){       param:void; ali_sg_rule_func AuthorizeSecurityGroupEgress "$@";     }
+ali_sg_rule_egress_del(){       param:void; ali_sg_rule_func RevokeSecurityGroupEgress "$@";        }
 
 ali_sg_rule_egress_add_ssh(){
     :
@@ -252,6 +254,7 @@ ali_sg_rule_func(){
 
 
 ali_sg_rule_quick(){
+    param:void
     ps1env init "ali sg rule >"
     ps1env alias + "ali sg rule ls"
     ps1env alias :h "ali sg rule help"

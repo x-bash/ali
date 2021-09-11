@@ -28,11 +28,13 @@ A
 }
 
 ali_ec_info(){
+    param:void
     ali_ec_exact "${1:?Provide keyword}"
 }
 
 # shellcheck disable=SC2120
 ali_ec_ls(){
+    param:void
     if [ ! -t 1 ]; then
         _ali_ec_ls "$@"
         return
@@ -122,6 +124,8 @@ A
 }
 
 ali_ec_op(){
+    param:void
+
     local subcmd="${1:?subcmd}"
     case "$subcmd" in
         start)          ;;
@@ -132,6 +136,7 @@ ali_ec_op(){
 }
 
 ali_ec_start(){
+    param:void
     local id
     if id="$(ali_ec_exactid "$@")"; then
         ali_log info "Instance ID: $id"
@@ -141,6 +146,7 @@ ali_ec_start(){
 
 # reboot forcely
 ali_ec_reboot(){
+    param:void
     local id
     if id="$(ali_ec_exactid "$@")"; then
         ali_log info "Instance ID: $id"
@@ -150,6 +156,7 @@ ali_ec_reboot(){
 
 
 ali_ec_stop(){
+    param:void
     local id
     if id="$(ali_ec_exactid "$@")"; then
         ali_log info "Instance ID: $id"
@@ -158,6 +165,7 @@ ali_ec_stop(){
 }
 
 ali_ec_del(){
+    param:void
     local id
     if id="$(ali_ec_exactid "$@")"; then
         ali_log info "Instance ID: $id"
@@ -243,6 +251,7 @@ A
 }
 
 ali_ec_quick(){
+    param:void
     ps1env init "ali ec>"
     ps1env alias + "ali ec"
     ps1env alias :h "ali ec help"

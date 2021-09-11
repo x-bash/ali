@@ -19,10 +19,12 @@ A
 
 
 ali_disk_quick(){
+    param:void
     ali_disk_ls "$@"
 }
 
 ali_disk_ls(){
+    param:void
     _ali_disk_ls "$@" | {
         if [ ! -t 1 ]; then
             cat
@@ -35,6 +37,7 @@ ali_disk_ls(){
 }
 
 _ali_disk_ls(){
+    param:void
     case $# in
         0)  ccmd 1s -- aliyun ecs DescribeDisks | x jq .Disks.Disk
             ;;
@@ -52,6 +55,7 @@ _ali_disk_ls(){
 ali_exactor_declare ali_disk "No such disk found." "Multiple disk found" DiskId
 
 ali_disk_quick(){
+    param:void
     ps1env init "ali disk>"
     ps1env alias + "ali disk ls"
     ps1env alias :h "ali disk help"
