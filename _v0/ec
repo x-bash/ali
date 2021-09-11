@@ -12,7 +12,7 @@ subcommand:
     stop                "stop instance"
     create              "create instance"
     del                 "delete instance"
-    exact               "eaxct"
+    exact               "exact"
     exactid             "exactid"
     info                "info"
     
