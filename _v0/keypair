@@ -40,9 +40,9 @@ ali_keypair_info(){
 
 ali_keypair_ls(){
     if [ ! -t 1 ]; then
-        ccmd 5m -- _ali_keypair_ls "$@"
+        ccmd 1s -- _ali_keypair_ls "$@"
     else
-        ccmd 5m -- _ali_keypair_ls "$@" | ali_keypair_ls_format
+        ccmd 1s -- _ali_keypair_ls "$@" | ali_keypair_ls_format
     fi
 }
 

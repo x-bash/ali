@@ -58,7 +58,7 @@ ali_eip_ls_format(){
 # shellcheck disable=SC2120
 ali_eip_ls(){
     case $# in
-        0)  ccmd 5m -- aliyun ecs DescribeEipAddresses | x jq .EipAddresses.EipAddress
+        0)  ccmd 1s -- aliyun ecs DescribeEipAddresses | x jq .EipAddresses.EipAddress
             ;;
         *)  local regex="${1:-Provide regex pattern}"
             ali_eip_ls | x jq -r "

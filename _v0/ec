@@ -50,7 +50,7 @@ ali_ec_ls(){
 # shellcheck disable=SC2120
 _ali_ec_ls(){
     case $# in
-        0)  ccmd 5m -- aliyun ecs DescribeInstances | x jq .Instances.Instance
+        0)  ccmd 1s -- aliyun ecs DescribeInstances | x jq .Instances.Instance
             ;;
         *)  _ali_ec_ls | x jq .[] | _ali_ec_filter "${1:-Provide regex pattern}" | x jq -s .
             ;;

@@ -80,7 +80,7 @@ ali_dns_record_cache_invalidate(){
 }
 
 _ali_dns_record_ls1(){
-    ccmd 5m -- aliyun alidns DescribeDomainRecords --DomainName "${1:?Provide domain name}" | x jq -r '.DomainRecords.Record'
+    ccmd 1s -- aliyun alidns DescribeDomainRecords --DomainName "${1:?Provide domain name}" | x jq -r '.DomainRecords.Record'
 }
 
 _ali_dns_record_ls2(){
