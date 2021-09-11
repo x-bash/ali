@@ -4,7 +4,7 @@
 xrc ali/_v0/vpc_switch
 
 ali_vpc(){
-    param <<A
+    param:dsl <<A
 subcommand:
     ls                  "list"
     create              "create"

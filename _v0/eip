@@ -3,7 +3,7 @@
 # elastics ip
 
 ali_eip(){
-    param <<A
+    param:dsl <<A
 subcommand:
     allocate            "handle_domains"
     release             "handling record"
@@ -12,6 +12,7 @@ subcommand:
     ls                  "list"
     quick               "quick"
 A
+    param:run
 
     if [ -z "$PARAM_SUBCMD" ]; then
         ali_eip_quick "$@"

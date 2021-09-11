@@ -16,13 +16,14 @@ xrc ali/_v0/dns_domain
 
 # help doc: 'ali dns' is alias for 'ali dns quick'
 ali_dns(){
-    param <<A
+    param:dsl <<A
 subcommand:
     domain          "handle_domains"
     record|rec      "handling record"
     ls              "list"
     quick           "quick"
 A
+    param:run
 
     if [ -z "$PARAM_SUBCMD" ]; then
         ali_dns_quick "$@"

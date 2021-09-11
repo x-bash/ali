@@ -1,7 +1,7 @@
 # shellcheck shell=sh disable=SC3043
 
 ali_keypair(){
-    param <<A
+    param:dsl <<A
 subcommands:
     ls                  "ls"
     info                "info"
@@ -9,9 +9,9 @@ subcommands:
     detach              "detach"
     import              "import"
     create              "Create"
-    delete|del          "delete"
-    
+    delete|del          "delete" 
 A
+    param:run
 
     if [ -z "$PARAM_SUBCMD" ]; then
         ali_keypair_quick "$@"

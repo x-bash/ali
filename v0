@@ -22,7 +22,7 @@ xrc ps1env/v0
 
 
 ali(){
-    param <<A
+    param:dsl <<A
 subcommand:
     ec|ecs              "ecs management"
     sg|securitygroup    "security group management"
@@ -41,6 +41,7 @@ subcommand:
     keypair|kp          "keypair management"
     easy                "easy"
 A
+    param:run
 
     if [ -z "$PARAM_SUBCMD" ]; then
         ali_quick "$@"

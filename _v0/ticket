@@ -1,7 +1,7 @@
 # shellcheck shell=sh disable=SC3043,SC2154
 
 ali_ticket(){
-    param <<A
+    param:dsl <<A
 subcommand:
     create          "create security group"
     del             "delete security group"
@@ -12,7 +12,8 @@ subcommand:
     refer           "list reference"
     rule            "sg rule managment"
 A
-
+    param:run
+    
     if [ -z "$PARAM_SUBCMD" ]; then
         ali_ticket_quick "$@"
         return

@@ -1,10 +1,11 @@
 # shellcheck shell=sh disable=SC3043
 
 ali_dns_domain(){
-    param <<A
+    param:dsl <<A
 subcommand:
     ls|list     "list all records"
 A
+    param:run
 
     if [ -z "$PARAM_SUBCMD" ]; then
         ali_dns_domain_quick "$@"

@@ -1,10 +1,11 @@
 # shellcheck shell=sh disable=SC3043
 
 ali_easy(){
-    param <<A
+    param:dsl <<A
 subcommand:
     switchip          "switch ip"
 A
+    param:run
 
     if [ -z "$PARAM_SUBCMD" ]; then
         ali_easy_quick "$@"

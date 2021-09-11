@@ -6,7 +6,7 @@
 xrc ali/_v0/sg_rule
 
 ali_sg(){
-    param <<A
+    param:dsl <<A
 subcommand:
     create          "create security group"
     del             "delete security group"
@@ -17,6 +17,7 @@ subcommand:
     refer           "list reference"
     rule            "sg rule managment"
 A
+    param:run
 
     if [ -z "$PARAM_SUBCMD" ]; then
         ali_sg_quick "$@"

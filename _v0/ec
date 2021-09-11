@@ -4,7 +4,7 @@
 # maintainer:   Li Junhao
 
 ali_ec(){
-    param <<A
+    param:dsl <<A
 subcommand:
     ls                  "list"
     quick               "quick"
@@ -17,6 +17,7 @@ subcommand:
     info                "info"
     
 A
+    param:run
 
     if [ -z "$PARAM_SUBCMD" ]; then
         ali_ec_quick "$@"

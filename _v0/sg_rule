@@ -1,7 +1,7 @@
 # shellcheck shell=sh disable=SC3043
 
 ali_sg_rule(){
-    param <<A
+    param:dsl <<A
 subcommand:
     ls              "list security group rules"
     add             "add rule"
@@ -9,6 +9,7 @@ subcommand:
     ingress         "ingress"
     egress          "egress"
 A
+    param:run
 
     if [ -z "$PARAM_SUBCMD" ]; then
         if [ $# -eq 0 ]; then

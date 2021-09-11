@@ -1,7 +1,7 @@
 # shellcheck shell=sh disable=SC3043
 
 ali_vpc_switch(){
-    param <<A
+    param:dsl <<A
 subcommand:
     ls                  "list"
     quick               "quick"
@@ -10,6 +10,7 @@ subcommand:
     attr                "stop instance"
     create              "stop instance"
 A
+    param:run
 
     if [ -z "$PARAM_SUBCMD" ]; then
         ali_vpc_switch_quick "$@"

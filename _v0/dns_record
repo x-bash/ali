@@ -1,12 +1,13 @@
 # shellcheck shell=sh disable=SC3043
 
 ali_dns_record(){
-    param <<A
+    param:dsl <<A
 subcommand:
     ls          "list all records"
     put         "put record"
     del         "del record"
 A
+    param:run
 
     if [ -z "$PARAM_SUBCMD" ]; then
         ali_dns_record_quick "$@"

@@ -2,13 +2,14 @@
 
 
 ali_image(){
-    param <<A
+    param:dsl <<A
 subcommand:
     ls              "list"
     exact           "eaxct"
     exactid         "exactid"
 A
-    
+    param:run
+
     if [ -z "$PARAM_SUBCMD" ]; then
         ali_image_quick "$@"
         return
