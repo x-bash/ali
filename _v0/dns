@@ -21,7 +21,6 @@ subcommand:
     domain          "handle_domains"
     record|rec      "handling record"
     ls              "list"
-    quick           "quick"
 A
     param:run
 
