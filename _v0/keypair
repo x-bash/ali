@@ -33,7 +33,7 @@ ali_keypair_info(){
         return
     fi
 
-    data="$(printf "%s" "$data" | jq .[0])"
+    data="$(printf "%s" "$data" | x jq .[0])"
 
     echo "$data"
 }
@@ -49,14 +49,14 @@ ali_keypair_ls(){
 # shellcheck disable=SC2120
 _ali_keypair_ls(){
     case "$#" in
-        0)  aliyun ecs DescribeKeyPairs | jq .KeyPairs.KeyPair ;;
+        0)  aliyun ecs DescribeKeyPairs | x jq .KeyPairs.KeyPair ;;
         1)  local regex="${1:-Provide regex pattern}"
-            _ali_keypair_ls | jq "
+            _ali_keypair_ls | x jq "
                 .[] | 
                 if      .KeyPairName | test(\"$regex\")                 then .
                 elif    .KeyPairFingerPrint | test(\"$regex\")          then .
                 else    empty       end
-            " | jq -s .
+            " | x jq -s .
             ;;
     esac
 }
@@ -118,7 +118,7 @@ options:
 A
 
     local keypairname="${1:?Keypair name}"
-    aliyun ecs CreateKeyPair --KeyPairName "${keypairname}" | jq -r .PrivateKeyBody>"${2:-"/dev/stdout"}"
+    aliyun ecs CreateKeyPair --KeyPairName "${keypairname}" | x jq -r .PrivateKeyBody>"${2:-"/dev/stdout"}"
 }
 
 ali_keypair_delete(){

@@ -57,15 +57,15 @@ ali_eip_ls_format(){
 # shellcheck disable=SC2120
 ali_eip_ls(){
     case $# in
-        0)  ccmd 5m -- aliyun ecs DescribeEipAddresses | jq .EipAddresses.EipAddress
+        0)  ccmd 5m -- aliyun ecs DescribeEipAddresses | x jq .EipAddresses.EipAddress
             ;;
         *)  local regex="${1:-Provide regex pattern}"
-            ali_eip_ls | jq -r "
+            ali_eip_ls | x jq -r "
                 .[] | 
                 if .IpAddress | test(\"$regex\")      then .
                 elif .AllocationId | test(\"$regex\")      then .
                 else empty end
-            " | jq -s .
+            " | x jq -s .
             ;;
     esac | {
         if [ -t 1 ]; then
@@ -80,11 +80,11 @@ ali_eip_exact_id(){
     local s
     s="$(ali_eip_ls "${1:-Provide ip}")"
     local len
-    len="$(echo "$s" | jq ' . | length ')"
+    len="$(echo "$s" | x jq ' . | length ')"
     case $len in
         0)  ali_log warn "No such ip found."
             ;;
-        1)  echo "$s" | jq -r .[0].AllocationId
+        1)  echo "$s" | x jq -r .[0].AllocationId
             return 0
             ;;
         *)  ali_log warn "Multiple ip found."

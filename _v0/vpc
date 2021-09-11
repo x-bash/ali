@@ -13,7 +13,7 @@ subcommand:
     attr                "stop instance"
     switch|sw           "Switcher management"
 A
-
+    param:run
     if [ -z "$PARAM_SUBCMD" ]; then
         ali_vpc_quick "$@"
         return
@@ -38,15 +38,15 @@ ali_vpc_ls(){
 # shellcheck disable=SC2120
 _ali_vpc_ls(){
     case "$#" in
-        0)  aliyun ecs DescribeVpcs | jq .Vpcs.Vpc ;;
+        0)  aliyun ecs DescribeVpcs | x jq .Vpcs.Vpc ;;
         1)  local regex="${1:-Provide regex pattern}"
-            _ali_vpc_ls | jq "
+            _ali_vpc_ls | x jq "
                 .[] | 
                 if      .CidrBlock | test(\"$regex\")       then .
                 elif    .VpcId | test(\"$regex\")           then .
                 elif    .VpcName | test(\"$regex\")       then .
                 else empty end
-            " | jq -s .
+            " | x jq -s .
             ;;
     esac 
 }

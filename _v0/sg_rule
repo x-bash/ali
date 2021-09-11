@@ -61,18 +61,18 @@ _ali_sg_rule_ls(){
     fi
 
     case $# in
-        1)  aliyun ecs DescribeSecurityGroupAttribute --SecurityGroupId "$id" | jq "
+        1)  aliyun ecs DescribeSecurityGroupAttribute --SecurityGroupId "$id" | x jq "
                 $ALI_SG_JQ_CODE
                 .Permissions.Permission[] |= . + { short: . | fff }
-            " | jq .Permissions.Permission
+            " | x jq .Permissions.Permission
             ;;
         *)  local regex="${2:-Provide regex pattern}"
-            ali_sg_rule_ls "$1" | jq "
+            ali_sg_rule_ls "$1" | x jq "
                 .[] | 
                 if .Description | test(\"$regex\")      then .
                 elif .Priority == $regex                then .
                 else empty end
-            " | jq -s .
+            " | x jq -s .
             ;;
     esac
 }
@@ -85,21 +85,21 @@ _ali_sg_rule_ls_origin(){
     fi
 
     case $# in
-        1)  aliyun ecs DescribeSecurityGroupAttribute --SecurityGroupId "$id" | jq '.Permissions.Permission'
+        1)  aliyun ecs DescribeSecurityGroupAttribute --SecurityGroupId "$id" | x jq '.Permissions.Permission'
             ;;
         *)  local regex="${2:-Provide regex pattern}"
-            ali_sg_rule_ls "$1" | jq "
+            ali_sg_rule_ls "$1" | x jq "
                 .[] | 
                 if .Description | test(\"$regex\")      then .
                 elif .Priority == $regex                then .
                 else empty end
-            " | jq -s .
+            " | x jq -s .
             ;;
     esac
 }
 
 ali_sg_rule_str(){
-    jq "
+    x jq "
         $ALI_SG_JQ_CODE
         . | fff
     "

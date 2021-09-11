@@ -39,7 +39,7 @@ ali_ec_ls(){
     fi
     
     _ali_ec_ls "$@" \
-        | jq '.[] |= . +  { 
+        | x jq '.[] |= . +  { 
             OSNameEn: .OSNameEn | gsub("  "; " ") | gsub("64 bit"; "")
         }' \
         | ali_table_json \
@@ -50,9 +50,9 @@ ali_ec_ls(){
 # shellcheck disable=SC2120
 _ali_ec_ls(){
     case $# in
-        0)  ccmd 5m -- aliyun ecs DescribeInstances | jq .Instances.Instance
+        0)  ccmd 5m -- aliyun ecs DescribeInstances | x jq .Instances.Instance
             ;;
-        *)  _ali_ec_ls | jq .[] | _ali_ec_filter "${1:-Provide regex pattern}" | jq -s .
+        *)  _ali_ec_ls | x jq .[] | _ali_ec_filter "${1:-Provide regex pattern}" | x jq -s .
             ;;
     esac
 }
@@ -72,7 +72,7 @@ ali_ec_new(){
     local s
     s=$(ali_ec_ls)    
     local len
-    len=$(echo "$s" | jq -s '. | length')
+    len=$(echo "$s" | x jq -s '. | length')
     case "$len" in
         0)  return 1        ;;
         1)  echo "$s"       ;;
@@ -88,7 +88,7 @@ _ali_ec_filter(){
     s="$(cat)"
 
     local res
-    res="$(jq "
+    res="$(x jq "
         if .EipAddress.IpAddress | test(\"${pattern}\")  then . 
         elif .InstanceId | test(\"$pattern\") then . 
         elif .HostName | test(\"$pattern\") then . 
@@ -101,7 +101,7 @@ A
 
     # Using dig for DNS
     local len
-    len=$(echo "$res" | jq -s '. | length')
+    len=$(echo "$res" | x jq -s '. | length')
 
     if [ "$len" != 0 ]; then
         echo "$res"
@@ -110,7 +110,7 @@ A
 
     local ip
     if ip=$(_ali_get_dns "$pattern"); then
-        jq "
+        x jq "
     if .EipAddress.IpAddress == \"${ip}\"  then .
     else empty end
 " <<A

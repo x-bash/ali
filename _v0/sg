@@ -63,7 +63,7 @@ ali_sg_info(){
         return
     fi
 
-    data="$(printf "%s" "$data" | jq .[0])"
+    data="$(printf "%s" "$data" | x jq .[0])"
 
     echo "$data"
 }
@@ -79,15 +79,15 @@ ali_sg_ls(){
 
 _ali_sg_ls(){
     case $# in
-        0)  ccmd 10m -- aliyun ecs DescribeSecurityGroups | jq .SecurityGroups.SecurityGroup
+        0)  ccmd 10m -- aliyun ecs DescribeSecurityGroups | x jq .SecurityGroups.SecurityGroup
             ;;
         *)  local regex="${1:-Provide regex pattern}"
-            ali_sg_ls | jq "
+            ali_sg_ls | x jq "
                 .[] | 
                 if .SecurityGroupName | test(\"$regex\")      then .
                 elif .SecurityGroupId | test(\"$regex\")      then .
                 else empty end
-            " | jq -s .
+            " | x jq -s .
             ;;
     esac
 }
@@ -125,7 +125,7 @@ _ali_sg_refer(){
     local id
     if id="$(ali_sg_exactid "$@")"; then
         ali_log info "SecurityGroup ID: $id"
-        aliyun ecs DescribeSecurityGroupReferences  --SecurityGroupId.1 "$id" | jq .SecurityGroupReferences.SecurityGroupReference
+        aliyun ecs DescribeSecurityGroupReferences  --SecurityGroupId.1 "$id" | x jq .SecurityGroupReferences.SecurityGroupReference
         return 0
     fi
     return 1

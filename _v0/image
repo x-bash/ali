@@ -61,19 +61,19 @@ ali_image_ls(){
 
     platform="$(printf "%s" "$platform" | tr "[:upper:]" "[:lower:]")"
 
-    eval ccmd 3h -- aliyun ecs DescribeImages "$ARGS" --PageSize 100 | jq .Images.Image[] | {
+    eval ccmd 3h -- aliyun ecs DescribeImages "$ARGS" --PageSize 100 | x jq .Images.Image[] | {
         if [ -z "$platform" ]; then
             cat
         else
-            jq ". | 
+            x jq ". | 
                 if .Platform | ascii_downcase | test(\"$platform\") then . 
                 elif .ImageId | ascii_downcase | test(\"$platform\") then .
                 else empty end"
             # cat
         fi
-    } | jq -s . | {
+    } | x jq -s . | {
         if [ -t 1 ]; then
-            jq ".[] |= . + { 
+            x jq ".[] |= . + { 
                 CreationTime: .CreationTime[0:10],
                 OSName: .OSName[0:30]
             }" | ali_image_ls_format
@@ -89,7 +89,7 @@ ali_exactor_declare ali_image "No such image found." "Multiple images found." Im
 #     local ret
 #     ret="$(ali_image_ls "$@")"
 #     local len
-#     len="$(printf "%s" "$ret" | jq '. | length')"
+#     len="$(printf "%s" "$ret" | x jq '. | length')"
 
 #     case "$len" in
 #         0)  ali_log warn "No such image found.";;
@@ -99,7 +99,7 @@ ali_exactor_declare ali_image "No such image found." "Multiple images found." Im
 # }
 
 # ali_image_exact_id(){
-#     ali_image_exact "$@" | jq -r .[0].ImageId
+#     ali_image_exact "$@" | x jq -r .[0].ImageId
 # }
 
 # Create Image from an Instance

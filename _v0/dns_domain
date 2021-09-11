@@ -29,14 +29,14 @@ ali_dns_domain_ls(){
 # shellcheck disable=SC2120
 _ali_dns_domain_ls(){
     case $# in
-        0)  aliyun alidns DescribeDomains | jq .Domains.Domain
+        0)  aliyun alidns DescribeDomains | x jq .Domains.Domain
             ;;
-        *)  _ali_dns_domain_ls | jq "
+        *)  _ali_dns_domain_ls | x jq "
                 .[] | 
                 if .DomainName | test(\"$1\")      then .
                 elif .DomainId | test(\"$1\")      then .
                 else empty end
-            " | jq -s .
+            " | x jq -s .
             ;;
     esac
 }
@@ -45,10 +45,10 @@ ali_dns_domain_exact_id(){
     local s
     s="$(_ali_dns_domain_ls "${1:-Provide ip}")"
     local len
-    len="$(echo "$s" | jq ' . | length ')"
+    len="$(echo "$s" | x jq ' . | length ')"
     case $len in
         0)  ali_log warn "No such ip found.";;
-        1)  echo "$s" | jq -r .AllocationId
+        1)  echo "$s" | x jq -r .AllocationId
             return 0
             ;;
         *)  ali_log warn "Multiple ip found.";;

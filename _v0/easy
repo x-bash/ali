@@ -22,7 +22,7 @@ ali_easy_switchip(){
     local dns=""
     if ! ali_is_ip "$ip"; then
         dns="$ip"
-        ip="$(ali dns ls "$ip" | jq -r .[0].Value 2>/dev/null)"
+        ip="$(ali dns ls "$ip" | x jq -r .[0].Value 2>/dev/null)"
     fi
 
     if ! ali_is_ip "$ip"; then
@@ -31,13 +31,13 @@ ali_easy_switchip(){
     fi
 
     local instance_id
-    if ! instance_id="$(ali eip ls "$ip" | jq -r .[0].InstanceId)"; then
+    if ! instance_id="$(ali eip ls "$ip" | x jq -r .[0].InstanceId)"; then
         ali_log error "Cannot find instance by $ips"
         return 1
     fi
 
     local newip
-    if ! newip="$(ali eip allocate --bandwidth 200 | jq -r .EipAddress)"; then
+    if ! newip="$(ali eip allocate --bandwidth 200 | x jq -r .EipAddress)"; then
         ali_log error "Cannot allocate new ip"
         return 1
     fi

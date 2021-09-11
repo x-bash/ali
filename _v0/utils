@@ -7,18 +7,18 @@ eval_echo(){
 
 ali_region(){
     if [ -t 1 ]; then
-        ccmd -- aliyun ecs DescribeRegions | jq .Regions.Region | ali_table_json .LocalName .RegionEndpoint .RegionId
+        ccmd -- aliyun ecs DescribeRegions | x jq .Regions.Region | ali_table_json .LocalName .RegionEndpoint .RegionId
     else
-        ccmd -- aliyun ecs DescribeRegions | jq .Regions.Region
+        ccmd -- aliyun ecs DescribeRegions | x jq .Regions.Region
     fi
 }
 
 ali_zone(){
     if [ -t 1 ]; then
-        # aliyun ecs DescribeZones | jq '.Zones.Zone[] | { LocalName: .LocalName, ZoneId: .ZoneId }' | jq -s .
-        ccmd -- aliyun ecs DescribeZones | jq '.Zones.Zone[] | { LocalName: .LocalName, ZoneId: .ZoneId }' | jq -s . | ali_table_json .LocalName .ZoneId
+        # aliyun ecs DescribeZones | x jq '.Zones.Zone[] | { LocalName: .LocalName, ZoneId: .ZoneId }' | x jq -s .
+        ccmd -- aliyun ecs DescribeZones | x jq '.Zones.Zone[] | { LocalName: .LocalName, ZoneId: .ZoneId }' | x jq -s . | ali_table_json .LocalName .ZoneId
     else
-        ccmd -- aliyun ecs DescribeZones | jq .Zones.Zone
+        ccmd -- aliyun ecs DescribeZones | x jq .Zones.Zone
     fi
 }
 
@@ -47,7 +47,7 @@ ali_table_json(){
     IFS="
 "
     eval ui table + "$title"
-    for line in $(jq -r ".[] | [ $args ] | map( . | @json) | join(\" \") "); do
+    for line in $(x jq -r ".[] | [ $args ] | map( . | @json) | join(\" \") "); do
         eval ui table + "$line"
     done
     ui table out 6
@@ -62,20 +62,20 @@ options:
 A
 
     {
-        ccmd -- aliyun ecs DescribeInstanceTypes | jq .InstanceTypes.InstanceType[] | jq '
+        ccmd -- aliyun ecs DescribeInstanceTypes | x jq .InstanceTypes.InstanceType[] | x jq '
             def fun: if . == null then "" else . end;
             . |= . + { credit: .InitialCredit | fun }
         '
     } | {
         if [ -z "$mem" ]; then          cat
-        else                            jq "if .MemorySize==$mem  then .   else empty end";       fi
+        else                            x jq "if .MemorySize==$mem  then .   else empty end";       fi
     } | {
         if  [ -z "$cpu" ];   then       cat
-        else                            jq "if .CpuCoreCount==$cpu  then .  else empty end";     fi
+        else                            x jq "if .CpuCoreCount==$cpu  then .  else empty end";     fi
     } | {
         if  [ -z "$gpu" ];   then       cat
-        else                            jq "if .GPUAmount==$gpu     then .  else empty end";     fi
-    } | jq -s . | {
+        else                            x jq "if .GPUAmount==$gpu     then .  else empty end";     fi
+    } | x jq -s . | {
         if [ -t 1 ]; then
             ali_table_json id=.InstanceTypeId cpu=.CpuCoreCount disk=.DiskQuantity mem=.MemorySize gpu=.GPUAmount .credit
         else
@@ -95,7 +95,7 @@ ali_exactor(){
     local ret
     ret="$("$code" "$@")"
     local len
-    len="$(printf "%s" "$ret" | jq '. | length')"
+    len="$(printf "%s" "$ret" | x jq '. | length')"
 
     case "$len" in
         0)  ali_log warn "$msg0";;
@@ -117,7 +117,7 @@ ali_exactor_declare(){
     ${func}_exactid(){
         local s
         if s=\$(${func}_exact \"\$@\"); then
-            printf \"%s\" \"\$s\" | jq -r '.[0].$id_eval'
+            printf \"%s\" \"\$s\" | x jq -r '.[0].$id_eval'
         else
             return \$?
         fi

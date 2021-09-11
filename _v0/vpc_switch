@@ -38,34 +38,34 @@ _ali_vpc_switch_ls(){
         0)  if [ -n "$ALI_VPCID" ]; then
                 _ali_vpc_switch_ls "$ALI_VPCID"
             fi
-            aliyun ecs DescribeVSwitches | jq .VSwitches.VSwitch ;;
+            aliyun ecs DescribeVSwitches | x jq .VSwitches.VSwitch ;;
         1)
             local kw="${1:?Provide keyword}"
             echo "$kw" >&2
             local vpcid
             if ! vpcid="$(ali_vpc_exactid "$kw")"; then
-                aliyun ecs DescribeVSwitches | jq .VSwitches.VSwitch | jq "
+                aliyun ecs DescribeVSwitches | x jq .VSwitches.VSwitch | x jq "
                     .[] | 
                     if      .CidrBlock | test(\"$kw\")       then .
                     elif    .VSwitchName | test(\"$kw\")     then .
                     elif    .VSwitchId | test(\"$kw\")       then .
                     else empty end
-                " | jq -s .
+                " | x jq -s .
             else
-                aliyun ecs DescribeVSwitches --VpcId "$vpcid" | jq .VSwitches.VSwitch
+                aliyun ecs DescribeVSwitches --VpcId "$vpcid" | x jq .VSwitches.VSwitch
             fi
             
             ;;
         *)  
             local vpckw="${1}"
             local regex="${2}"
-            _ali_vpc_switch_ls "$vpckw" | jq "
+            _ali_vpc_switch_ls "$vpckw" | x jq "
                 .[] | 
                 if      .CidrBlock | test(\"$regex\")       then .
                 elif    .VSwitchName | test(\"$regex\")     then .
                 elif    .VSwitchId | test(\"$regex\")       then .
                 else empty end
-            " | jq -s .
+            " | x jq -s .
             ;;
     esac
 }
