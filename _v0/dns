@@ -56,6 +56,13 @@ ali_dns_ls(){
 # ali dns a.lteam.top           > show information of this record
 
 ali_dns_quick(){
+    if [ "$1" = _x_cmd_advise_json ]; then
+        cat <<A
+{}
+A
+        return 126
+    fi
+
     case $# in
         0)  ali dns domain
             return 0
