@@ -24,12 +24,13 @@ A
 
 
 ali_eip_allocate(){
-    param <<A
+    param:dsl <<A
 options:
     --bandwidth|-b          "Provide bandwidth"     <bandwidth>=5
     --pay_by_bandwidth      "If set, paid by bandwdith. Otherwise, paid by traffic"
     --bgp_pro               "Only for Hongkong Region"
 A
+    param:run
 
     local args=""
     [ -n "$pay_by_bandwidth" ] && args="$args --InternetChargeType PayByBandwidth"
