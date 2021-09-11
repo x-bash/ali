@@ -60,16 +60,6 @@ ali_dns_domain_exact_id(){
 }
 
 ali_dns_domain_quick(){
-    param:void
-    ps1env init "ali dns domain>"
-    ps1env alias + "ali dns domain ls"
-    ps1env alias :h "ali dns domain help"
-    local IFS
-    local subcmd
-    for subcmd in $(ali dns domain _param_list_subcmd); do
-        ps1env alias "+$subcmd" "ali dns domain $subcmd"
-    done
-
-    ali dns domain ls "$@"
+    ali_quicker2 dns domain
 }
 

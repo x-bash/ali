@@ -172,15 +172,5 @@ ali_keypair_detach(){
 }
 
 ali_keypair_quick(){
-    param:void
-    ps1env init "ali keypair>"
-    ps1env alias + "ali keypair ls"
-    ps1env alias :h "ali keypair help"
-    local IFS
-    local subcmd
-    for subcmd in $(ali keypair _param_list_subcmd); do
-        ps1env alias "+$subcmd" "ali keypair $subcmd"
-    done
-
-    ali keypair ls "$@"
+    ali_quicker2 keypair
 }

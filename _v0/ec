@@ -251,16 +251,6 @@ A
 }
 
 ali_ec_quick(){
-    param:void
-    ps1env init "ali ec>"
-    ps1env alias + "ali ec"
-    ps1env alias :h "ali ec help"
-    local IFS
-    local subcmd
-    for subcmd in $(ali ec _param_list_subcmd); do
-        ps1env alias "+$subcmd" "ali ec $subcmd"
-    done
-
-    ali ec ls "$@"
+    ali_quicker2 ec
 }
 

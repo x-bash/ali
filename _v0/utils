@@ -201,3 +201,21 @@ A
         printf "%s" "$s" | "${func}_ls_format"
     done
 }
+
+ali_quicker2(){
+    param:void
+
+
+    local cmd="${1:?provide cmd}"
+
+    local IFS
+    ps1env init "ali $* >"
+    ps1env alias % "ali $* ls"
+    ps1env alias %h "ali $* help"
+    local subcmd
+    for subcmd in $(ali "$@" _param_list_subcmd); do
+        ps1env alias "+$subcmd" "ali $* $subcmd"
+    done
+
+    ali "$*" ls "$@"
+}

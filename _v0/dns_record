@@ -115,7 +115,7 @@ ali_dns_record_update(){
 
 ali_dns_record_del(){
     param:void
-    
+
     if [ "$#" -eq 1 ]; then
         case "$1" in
             *\.*)
@@ -203,21 +203,27 @@ ali_dns_record_put_raw(){
     fi && ali_dns_record_cache_invalidate "$DomainName"
 }
 
-ali_dns_record_quick(){
-    if [ "$#" -eq 0 ]; then
-        ali_log warn "Please provide keyword"
-        return 1
-    fi
+# ali_dns_record_quick(){
+#     if [ "$#" -eq 0 ]; then
+#         ali_log warn "Please provide keyword"
+#         return 1
+#     fi
 
-    ali dns record ls "$@" && {
-        ps1env init "ali dns record>"
-        ps1env alias + "ali dns record ls"
-        ps1env alias :h "ali dns record help"
-        local IFS
-        local subcmd
-        for subcmd in $(ali dns record _param_list_subcmd); do
-            ps1env alias "+$subcmd" "ali dns record $subcmd"
-        done
-    }
+#     ali dns record ls "$@" && {
+#         ps1env init "ali dns record>"
+#         ps1env alias + "ali dns record ls"
+#         ps1env alias :h "ali dns record help"
+#         local IFS
+#         local subcmd
+#         while read -r subcmd; do
+#             ps1env alias "+$subcmd" "ali dns record $subcmd"
+#         done <<A
+# $(ali dns record _param_list_subcmd)
+# A
+#     }
     
+# }
+
+ali_dns_record_quick(){
+    ali_quicker2 dns record
 }

@@ -87,15 +87,5 @@ ali_vpc_del(){
 }
 
 ali_vpc_quick(){
-    param:void
-    ps1env init "ali vpc>"
-    ps1env alias + "ali vpc ls"
-    ps1env alias :h "ali vpc help"
-    local IFS
-    local subcmd
-    for subcmd in $(ali vpc _param_list_subcmd); do
-        ps1env alias "+$subcmd" "ali vpc $subcmd"
-    done
-
-    ali vpc ls "$@"
+    ali_quicker2 vpc
 }
