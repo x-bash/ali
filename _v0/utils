@@ -214,7 +214,7 @@ ali_quicker2(){
     ps1env alias %h "ali $* help"
     local subcmd
     for subcmd in $(ali "$@" _param_list_subcmd); do
-        ps1env alias "+$subcmd" "ali $* $subcmd"
+        ps1env alias "%$subcmd" "ali $* $subcmd"
     done
 
     ali "$*" ls "$@"
