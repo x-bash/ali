@@ -207,19 +207,19 @@ A
 ali_quicker2(){
     param:void
 
-
     local cmd="${1:?provide cmd}"
+    shift 1
 
     local IFS
-    ps1env init "ali $* >"
-    ps1env alias % "ali $* ls"
-    ps1env alias %h "ali $* help"
+    ps1env init "ali $cmd >"
+    ps1env alias % "ali $cmd ls"
+    ps1env alias %h "ali $cmd help"
     local subcmd
     while read -r subcmd; do 
-        ps1env alias "%$subcmd" "ali $* $subcmd"
+        ps1env alias "%$subcmd" "ali $cmd $subcmd"
     done <<A
-$(ali "$@" _param_list_subcmd)
+$(eval ali "$cmd" _param_list_subcmd)
 A
 
-    echo ali "$*" ls "$@"
+    eval ali "$cmd" ls "\"\$@\""
 }

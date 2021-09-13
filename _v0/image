@@ -116,7 +116,7 @@ ali_exactor_declare ali_image "No such image found." "Multiple images found." Im
 
 
 ali_image_quick(){
-    ali_quicker2 image
+    ali_quicker2 image "$@"
 }
 
 

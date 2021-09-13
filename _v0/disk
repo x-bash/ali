@@ -55,5 +55,5 @@ _ali_disk_ls(){
 ali_exactor_declare ali_disk "No such disk found." "Multiple disk found" DiskId
 
 ali_disk_quick(){
-    ali_quicker2 disk
+    ali_quicker2 disk "$@"
 }

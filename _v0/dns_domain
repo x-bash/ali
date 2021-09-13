@@ -3,7 +3,7 @@
 ali_dns_domain(){
     param:dsl <<A
 subcommand:
-    ls|list     "list all records"
+    ls          "list all records"
 A
     param:run
 
@@ -60,6 +60,6 @@ ali_dns_domain_exact_id(){
 }
 
 ali_dns_domain_quick(){
-    ali_quicker2 dns domain
+    ali_quicker2 "dns domain" "$@"
 }
 
