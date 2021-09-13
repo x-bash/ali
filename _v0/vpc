@@ -87,5 +87,5 @@ ali_vpc_del(){
 }
 
 ali_vpc_quick(){
-    ali_quicker2 vpc
+    ali_quicker2 vpc "$@"
 }

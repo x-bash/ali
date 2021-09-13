@@ -172,5 +172,5 @@ ali_keypair_detach(){
 }
 
 ali_keypair_quick(){
-    ali_quicker2 keypair
+    ali_quicker2 keypair "$@"
 }

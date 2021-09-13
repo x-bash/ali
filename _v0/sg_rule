@@ -254,6 +254,6 @@ ali_sg_rule_func(){
 
 
 ali_sg_rule_quick(){
-    ali_quicker2 "sg rule"
+    ali_quicker2 "sg rule" "$@"
 }
 

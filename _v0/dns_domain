@@ -60,6 +60,6 @@ ali_dns_domain_exact_id(){
 }
 
 ali_dns_domain_quick(){
-    ali_quicker2 dns domain
+    ali_quicker2 "dns domain" "$@"
 }
 

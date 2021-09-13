@@ -168,6 +168,6 @@ ali_sg_exclude(){
 }
 
 ali_sg_quick(){
-    ali_quicker2 sg
+    ali_quicker2 sg "$@"
 }
 

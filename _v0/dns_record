@@ -225,5 +225,5 @@ ali_dns_record_put_raw(){
 # }
 
 ali_dns_record_quick(){
-    ali_quicker2 "dns record"
+    ali_quicker2 "dns record" "$@"
 }
