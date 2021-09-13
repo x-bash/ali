@@ -218,7 +218,7 @@ ali_quicker2(){
     while read -r subcmd; do 
         ps1env alias "%$subcmd" "ali $cmd $subcmd"
     done <<A
-$(ali "$@" _param_list_subcmd)
+$(eval ali "$cmd" _param_list_subcmd)
 A
 
     eval ali "$cmd" ls "\"\$@\""
