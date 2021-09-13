@@ -6,6 +6,7 @@ eval_echo(){
 }
 
 ali_region(){
+    param:void
     if [ -t 1 ]; then
         ccmd -- aliyun ecs DescribeRegions | x jq .Regions.Region | ali_table_json .LocalName .RegionEndpoint .RegionId
     else
@@ -14,6 +15,7 @@ ali_region(){
 }
 
 ali_zone(){
+    param:void
     if [ -t 1 ]; then
         # aliyun ecs DescribeZones | x jq '.Zones.Zone[] | { LocalName: .LocalName, ZoneId: .ZoneId }' | x jq -s .
         ccmd -- aliyun ecs DescribeZones | x jq '.Zones.Zone[] | { LocalName: .LocalName, ZoneId: .ZoneId }' | x jq -s . | ali_table_json .LocalName .ZoneId
