@@ -3,7 +3,7 @@
 ali_dns_domain(){
     param:dsl <<A
 subcommand:
-    ls|list     "list all records"
+    ls          "list all records"
 A
     param:run
 
