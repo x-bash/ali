@@ -251,6 +251,6 @@ A
 }
 
 ali_ec_quick(){
-    ali_quicker2 ec
+    ali_quicker2 ec "$@"
 }
 
