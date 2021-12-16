@@ -14,8 +14,29 @@ ali_region(){
     fi
 }
 
+xrc json/v0
+
+___json_awk_str_compact(){
+    awk -v RS="$(printf "\001")" "$___X_CMD_JSON_AWK_SRC"'
+{ data=$0; }
+END {
+    json_parse(data, _)
+    print json_stringify_compact(_, ".Zones.Zone", 2)
+}
+'
+}
+
+# print json_stringify_format(_, json_handle_jpath(\""$1"\"), \"  \")
+
+___ali_zone(){
+    ccmd -- aliyun ecs DescribeZones | ___json_awk_str_compact .Zones.Zone
+}
+
 ali_zone(){
     param:void
+
+    
+    
     if [ -t 1 ]; then
         # aliyun ecs DescribeZones | x jq '.Zones.Zone[] | { LocalName: .LocalName, ZoneId: .ZoneId }' | x jq -s .
         ccmd -- aliyun ecs DescribeZones | x jq '.Zones.Zone[] | { LocalName: .LocalName, ZoneId: .ZoneId }' | x jq -s . | ali_table_json .LocalName .ZoneId
