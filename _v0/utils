@@ -5,12 +5,21 @@ eval_echo(){
     eval "$@"
 }
 
+___ali_region(){
+    ccmd -- aliyun ecs DescribeRegions
+}
+
+___ali_region_tablesrc(){
+    ___ali_region | ui table jsonfmt .Regions.Region Name=LocalName EndPoint=RegionEndpoint ID=RegionId
+}
+
 ali_region(){
     param:void
     if [ -t 1 ]; then
-        ccmd -- aliyun ecs DescribeRegions | x jq .Regions.Region | ali_table_json .LocalName .RegionEndpoint .RegionId
+        ui table func ___ali_region_tablesrc
+        # ___ali_region | x jq .Regions.Region | ali_table_json .LocalName .RegionEndpoint .RegionId
     else
-        ccmd -- aliyun ecs DescribeRegions | x jq .Regions.Region
+        ___ali_region | ___json_awk_print_exact .Regions.Region
     fi
 }
 
@@ -29,19 +38,25 @@ END {
 # print json_stringify_format(_, json_handle_jpath(\""$1"\"), \"  \")
 
 ___ali_zone(){
-    ccmd -- aliyun ecs DescribeZones | ___json_awk_str_compact .Zones.Zone
+    ccmd -- aliyun ecs DescribeZones
 }
+
+___ali_zone_tablesrc(){
+    ___ali_zone | ui table jsonfmt .Zones.Zone ID=ZoneId 名=LocalName
+}
+
+xrc param/v0
 
 ali_zone(){
     param:void
-
     
-    
+    # Using Interactive
     if [ -t 1 ]; then
         # aliyun ecs DescribeZones | x jq '.Zones.Zone[] | { LocalName: .LocalName, ZoneId: .ZoneId }' | x jq -s .
-        ccmd -- aliyun ecs DescribeZones | x jq '.Zones.Zone[] | { LocalName: .LocalName, ZoneId: .ZoneId }' | x jq -s . | ali_table_json .LocalName .ZoneId
+        # ccmd -- aliyun ecs DescribeZones | x jq '.Zones.Zone[] | { LocalName: .LocalName, ZoneId: .ZoneId }' | x jq -s . | ali_table_json .LocalName .ZoneId
+        ui table func ___ali_zone_tablesrc
     else
-        ccmd -- aliyun ecs DescribeZones | x jq .Zones.Zone
+        ___ali_zone | ___json_awk_print_exact .Zones.Zone
     fi
 }
 
