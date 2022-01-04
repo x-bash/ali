@@ -1,7 +1,7 @@
 # shellcheck shell=sh disable=SC3043
 
-xrc param/v0
-xrc ccmd/v0
+xrc param/latest
+xrc ccmd/latest
 
 # ALIYUN_BIN=$(command -v aliyun)
 
@@ -18,7 +18,7 @@ xrc ali/_v0/easy
 
 x log init ali
 
-xrc ps1env/v0
+xrc ps1env/latest
 
 
 ali(){
